@@ -30,3 +30,16 @@
 
 # Debug files
 *.dSYM/
+
+# Others files (more will be added in due time)
+*.xcf
+*promo/
+*xcf/
+*.swp
+.fuse*
+*.wav
+*~
+*timelapse/
+notes
+game
+*dat
