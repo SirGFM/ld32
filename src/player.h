@@ -29,6 +29,12 @@ void pl_free(player **ppPl);
 int pl_init(player *pPl, int x, int y);
 
 /**
+ * Collides a player against various objects
+ */
+void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
+        int isPlFixed, int isObjsFixed);
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam);

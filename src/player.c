@@ -3,7 +3,9 @@
  * 
  * Player module
  */
+#include <GFraMe/GFraMe_controller.h>
 #include <GFraMe/GFraMe_error.h>
+#include <GFraMe/GFraMe_keys.h>
 #include <GFraMe/GFraMe_hitbox.h>
 #include <GFraMe/GFraMe_object.h>
 #include <GFraMe/GFraMe_sprite.h>
@@ -88,12 +90,20 @@ int pl_init(player *pPl, int x, int y) {
     
     rv = spr_init(pPl->pSpr, x, y, -6/*offX*/, -4/*offY*/, 16/*width*/,
         16/*height*/, 4/*hitboxWidth*/, 12/*hitboxHeight*/, _pl_animData,
-        _pl_animLen);
+        _pl_animLen, SPR_PLAYER);
     ASSERT_NR(rv == 0);
     
     rv = 0;
 __ret:
     return rv;
+}
+
+/**
+ * Collides a player against various objects
+ */
+void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
+        int isPlFixed, int isObjsFixed) {
+    spr_collideAgainstGroup(pPl->pSpr, pObjs, objsLen, isPlFixed, isObjsFixed);
 }
 
 /**
@@ -109,17 +119,50 @@ void pl_draw(player *pPl, camera *pCam) {
 void pl_update(player *pPl, int ms) {
     GFraMe_object *pObj;
     GFraMe_sprite *pSpr;
+    int isDown, isLeft, isRight, isJump;
     
     // Get something we can work with
     spr_getSprite(&pSpr, pPl->pSpr);
     pObj = &(pSpr->obj);
     
-    if ((pObj->hit & GFraMe_direction_down) != 0) {
+    isDown = (pObj->hit & GFraMe_direction_down) != 0;
+    if (isDown) {
         // If on the ground, reset the speed to keep the player touching the floor
         pObj->vy = GRAV;
     }
     else {
         pObj->ay = GRAV;
+    }
+    
+    // Check if is pressing left
+    isLeft = GFraMe_keys.a;
+    isLeft = isLeft || (GFraMe_controller_max > 0 &&
+            GFraMe_controllers[0].left);
+    isLeft = isLeft || (GFraMe_controller_max > 0 &&
+            GFraMe_controllers[0].lx < -0.3);
+    // Check if is pressing right
+    isRight = GFraMe_keys.d;
+    isRight = isRight || (GFraMe_controller_max > 0 &&
+            GFraMe_controllers[0].right);
+    isRight = isRight || (GFraMe_controller_max > 0 &&
+            GFraMe_controllers[0].rx > 0.3);
+    // Check if is jumping
+    isJump = GFraMe_keys.space;
+    isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].r1);
+    isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].l1);
+    
+    // Movement
+    if (isLeft) {
+        pObj->vx = -PL_VX;
+    }
+    else if (isRight) {
+        pObj->vx = PL_VX;
+    }
+    else {
+        pObj->vx = 0;
+    }
+    if (isJump && isDown) {
+        pObj->vy = -PL_VY;
     }
     
     spr_update(pPl->pSpr, ms);

@@ -27,7 +27,10 @@ struct stSprite {
     int curAnim;
     /** If the animation changed on this frame */
     int didChangeFrame;
+    /** Previous animation frame */
     int lastFrame;
+    /** This sprite's type */
+    sprType type;
 };
 
 /**
@@ -90,7 +93,7 @@ __ret:
  */
 int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
         int height, int hitboxWidth, int hitboxHeight, int *animData,
-        int animLen) {
+        int animLen, sprType type) {
     int rv, i;
     GFraMe_spriteset *pSset;
     
@@ -141,6 +144,7 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
     // Play the first animation
     pSpr->curAnim = -1;
     spr_setAnim(pSpr, 0, 1);
+    pSpr->type = type;
     
     rv = 0;
 __ret:
@@ -206,5 +210,41 @@ void spr_update(sprite *pSpr, int ms) {
  */
 void spr_getSprite(GFraMe_sprite **ppSpr, sprite *pSpr) {
     *ppSpr = pSpr->pSelf;
+}
+
+/**
+ * Collides a sprite against various objects
+ */
+void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
+        int isPlFixed, int isObjsFixed) {
+    GFraMe_collision_type mode;
+    GFraMe_object *pObj;
+    int i;
+    
+    pObj = &(pSpr->pSelf->obj);
+    
+    if (isPlFixed && isObjsFixed) {
+        mode = GFraMe_collision_full;
+    }
+    else if (isPlFixed) {
+        mode = GFraMe_first_fixed;
+    }
+    else if (isObjsFixed) {
+        mode = GFraMe_second_fixed;
+    }
+    else {
+        mode = GFraMe_dont_collide;
+    }
+    
+    i = 0;
+    while (i < objsLen) {
+        GFraMe_ret rv;
+        
+        rv = GFraMe_object_overlap(pObj, &(pObjs[i]), mode);
+        
+        // TODO add callback
+        
+        i++;
+    }
 }
 

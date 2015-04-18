@@ -21,6 +21,8 @@
 #define LOGTOFILE   0
 
 #define GRAV    500
+#define PL_VX   100
+#define PL_VY   150
 
 #define ASSERT(stmt, retVal) \
   do { \

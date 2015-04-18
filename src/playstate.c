@@ -84,6 +84,8 @@ void ps_update(struct stPlaystate *pPs) {
     pl_update(pPs->pPl, GFraMe_event_elapsed);
     
     // Collide everything
+    pl_collideAgainstGroup(pPs->pPl, pPs->pWalls, pPs->wallsLen,
+        0 /*isPlFixed*/, 1/*isObjsFixed*/);
   GFraMe_event_update_end();
 }
 

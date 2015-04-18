@@ -13,6 +13,11 @@
 /** 'Export' the sprite structure */
 typedef struct stSprite sprite;
 
+typedef enum {
+    SPR_PLAYER = 0,
+    SPR_TYPES_MAX
+} sprType;
+
 /**
  * Alloc a new sprite
  */
@@ -31,7 +36,7 @@ void spr_free(sprite **ppSpr);
  */
 int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
         int height, int hitboxWidth, int hitboxHeight, int *animData,
-        int animLen);
+        int animLen, sprType type);
 
 /**
  * Set the sprite's animation
@@ -62,6 +67,12 @@ void spr_update(sprite *pSpr, int ms);
  * Get the lib's sprite
  */
 void spr_getSprite(GFraMe_sprite **ppSpr, sprite *pSpr);
+
+/**
+ * Collides a sprite against various objects
+ */
+void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
+        int isPlFixed, int isObjsFixed);
 
 #endif /* __SPRITE_H__ */
 
