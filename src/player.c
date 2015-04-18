@@ -18,11 +18,13 @@
 #include "player.h"
 #include "sprite.h"
 
+enum { SPR_ANIM_DEF, SPR_ANIM_WALK };
+
 static int _pl_animData[] = 
 {
 /*fps,loop,num,frames...*/
    0 ,  0 , 1 , 80,
-   12,  1 , 8 , 81,82,83,84,85,86,84,88,
+   12,  1 , 8 , 81,82,83,84,85,86,87,88,
 };
 
 static int _pl_animLen = 2;
@@ -119,16 +121,17 @@ void pl_draw(player *pPl, camera *pCam) {
 void pl_update(player *pPl, int ms) {
     GFraMe_object *pObj;
     GFraMe_sprite *pSpr;
-    int isDown, isLeft, isRight, isJump;
+    int isTouchingDown, isTouchingUp, isLeft, isRight, isJump;
     
     // Get something we can work with
     spr_getSprite(&pSpr, pPl->pSpr);
     pObj = &(pSpr->obj);
     
-    isDown = (pObj->hit & GFraMe_direction_down) != 0;
-    if (isDown) {
+    isTouchingDown = (pObj->hit & GFraMe_direction_down) != 0;
+    isTouchingUp = (pObj->hit & GFraMe_direction_up) != 0;
+    if (isTouchingDown) {
         // If on the ground, reset the speed to keep the player touching the floor
-        pObj->vy = GRAV;
+        pObj->vy = PL_VY;
     }
     else {
         pObj->ay = GRAV;
@@ -145,24 +148,33 @@ void pl_update(player *pPl, int ms) {
     isRight = isRight || (GFraMe_controller_max > 0 &&
             GFraMe_controllers[0].right);
     isRight = isRight || (GFraMe_controller_max > 0 &&
-            GFraMe_controllers[0].rx > 0.3);
+            GFraMe_controllers[0].lx > 0.3);
     // Check if is jumping
     isJump = GFraMe_keys.space;
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].r1);
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].l1);
     
     // Movement
-    if (isLeft) {
-        pObj->vx = -PL_VX;
+    if (isTouchingDown) {
+        spr_setAnim(pPl->pSpr, SPR_ANIM_WALK, 0/*doReset*/);
+        if (isLeft) {
+            pObj->vx = -PL_VX;
+            pSpr->flipped = 1;
+        }
+        else if (isRight) {
+            pObj->vx = PL_VX;
+            pSpr->flipped = 0;
+        }
+        else {
+            spr_setAnim(pPl->pSpr, SPR_ANIM_DEF, 0/*doReset*/);
+            pObj->vx = 0;
+        }
     }
-    else if (isRight) {
-        pObj->vx = PL_VX;
-    }
-    else {
-        pObj->vx = 0;
-    }
-    if (isJump && isDown) {
+    if (isJump && isTouchingDown) {
         pObj->vy = -PL_VY;
+    }
+    if (isTouchingUp) {
+        pObj->vy = 0;
     }
     
     spr_update(pPl->pSpr, ms);

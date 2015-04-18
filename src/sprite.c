@@ -129,16 +129,17 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
         int fps, doLoop, frameCount, *frames;
         
         // Get the animation's data
-        fps        =   animData[i + 0];
-        doLoop     =   animData[i + 1];
-        frameCount =   animData[i + 2];
-        frames     = &(animData[i + 3]);
+        fps        =   animData[0];
+        doLoop     =   animData[1];
+        frameCount =   animData[2];
+        frames     = &(animData[3]);
         
         // Initialize it
         GFraMe_animation_init(&pSpr->pAnims[i], fps, frames, frameCount,
                 doLoop);
         
-        i += frameCount + 3;
+        i++;
+        animData += 3 + frameCount;
     }
     
     // Play the first animation

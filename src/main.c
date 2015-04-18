@@ -37,12 +37,15 @@ int main(int argc, char *argv[]) {
 
     rv = gl_init();
     ASSERT_NR(rv == GFraMe_ret_ok);
+    
+    GFraMe_controller_init(1/*autoConnect*/);
 
     while (gl_running) {
         playstate();
     }
 
 __ret:
+    GFraMe_controller_close();
     gl_clean();
     GFraMe_quit();
     return rv;
