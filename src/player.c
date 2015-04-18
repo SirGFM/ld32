@@ -109,6 +109,14 @@ void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
 }
 
 /**
+ * Collides a player against various sprites
+ */
+void pl_collideAgainstSprGroup(player *pPl, sprite *pSprs, int sprsLen,
+        int isPlFixed, int isSprsFixed) {
+    spr_collideAgainstSprGroup(pPl->pSpr, pSprs, sprsLen, isPlFixed, isSprsFixed);
+}
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam) {

@@ -7,14 +7,37 @@
 #define __SPRITE_H__
 
 #include <GFraMe/GFraMe_error.h>
+#include <GFraMe/GFraMe_sprite.h>
 
 #include "camera.h"
+
+extern int _sprRedStoneData[];
+extern int _sprRedStoneAnimLen;
+extern int _sprOrangeStoneData[];
+extern int _sprOrangeStoneAnimLen;
+extern int _sprYellowStoneData[];
+extern int _sprYellowStoneAnimLen;
+extern int _sprGreenStoneData[];
+extern int _sprGreenStoneAnimLen;
+extern int _sprCyanStoneData[];
+extern int _sprCyanStoneAnimLen;
+extern int _sprBlueStoneData[];
+extern int _sprBlueStoneAnimLen;
+extern int _sprPurpleStoneData[];
+extern int _sprPurpleStoneAnimLen;
 
 /** 'Export' the sprite structure */
 typedef struct stSprite sprite;
 
 typedef enum {
     SPR_PLAYER = 0,
+    SPR_RED_STONE,
+    SPR_ORANGE_STONE,
+    SPR_YELLOW_STONE,
+    SPR_GREEN_STONE,
+    SPR_CYAN_STONE,
+    SPR_BLUE_STONE,
+    SPR_PURPLE_STONE,
     SPR_TYPES_MAX
 } sprType;
 
@@ -72,7 +95,13 @@ void spr_getSprite(GFraMe_sprite **ppSpr, sprite *pSpr);
  * Collides a sprite against various objects
  */
 void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
-        int isPlFixed, int isObjsFixed);
+        int isSprFixed, int isObjsFixed);
+
+/**
+ * Collides a sprite against various sprites
+ */
+void spr_collideAgainstSprGroup(sprite *pSpr, sprite *pSprs, int sprsLen,
+        int isSprFixed, int isSprsFixed);
 
 #endif /* __SPRITE_H__ */
 

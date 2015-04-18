@@ -41,9 +41,11 @@ using namespace Gfm_ld32;
 #ifdef HAS_QSAVEFILE_SUPPORT
 static void writeTilemap(QSaveFile &file, QSaveFile &headerFile, const TileLayer *tileLayer);
 static void writeWalls(QSaveFile &file, QSaveFile &headerFile, const ObjectGroup *objs);
+static void writeStones(QSaveFile &file, QSaveFile &headerFile, const ObjectGroup *objs);
 #else
 static void writeTilemap(QFile &file, QFile &headerFile, const TileLayer *tileLayer);
 static void writeWalls(QFile &file, QFile &headerFile, const ObjectGroup *objs);
+static void writeStones(QFile &file, QFile &headerFile, const ObjectGroup *objs);
 #endif
 
 Gfm_ld32Plugin::Gfm_ld32Plugin()
@@ -75,12 +77,15 @@ bool Gfm_ld32Plugin::write(const Map *map, const QString &fileName)
     
     headerFile.write("#include <GFraMe/GFraMe_error.h>\n");
     headerFile.write("#include <GFraMe/GFraMe_object.h>\n\n");
+    headerFile.write("#include \"sprite.h\"\n\n");
     
     file.write("#include <GFraMe/GFraMe_error.h>\n");
-    file.write("#include <GFraMe/GFraMe_hitbox.h>\n\n");
+    file.write("#include <GFraMe/GFraMe_hitbox.h>\n");
     file.write("#include <GFraMe/GFraMe_object.h>\n\n");
     file.write("#include <stdlib.h>\n");
     file.write("#include <string.h>\n\n");
+    file.write("#include \"global.h\"\n");
+    file.write("#include \"sprite.h\"\n\n");
     
     foundTileLayer = 0;
     
@@ -111,6 +116,9 @@ bool Gfm_ld32Plugin::write(const Map *map, const QString &fileName)
             
             if (objectGroup->name() == "walls") {
                 writeWalls(file, headerFile, objectGroup);
+            }
+            else if (objectGroup->name() == "stones") {
+                writeStones(file, headerFile, objectGroup);
             }
             else {
                 mError = tr("Found a non-parsable object layer!");
@@ -274,6 +282,112 @@ static void writeWalls(QFile &file, QFile &headerFile, const ObjectGroup *objs) 
     }
     
     file.write("    return 0;\n");
+    file.write("}\n");
+}
+
+#ifdef HAS_QSAVEFILE_SUPPORT
+static void writeStones(QSaveFile &file, QSaveFile &headerFile, const ObjectGroup *objs) {
+#else
+static void writeStones(QFile &file, QFile &headerFile, const ObjectGroup *objs) {
+#endif
+    int len = objs->objects().length();
+    int i;
+    
+    QStringList list = file.fileName().split("/");
+    QString name = list.at(list.size()-1);
+    name.remove(name.length() -2, 2);
+
+    headerFile.write("/** Get all this map's walls into a GFraMe_object buffer */\n");
+    headerFile.write("int ");
+    headerFile.write(name.toLatin1());
+    headerFile.write("_getStones(sprite ***pppSprs, int *pLen, int *pUsed);\n");
+    
+    file.write("/** Get all this map's walls into a GFraMe_object buffer */\n");
+    file.write("int ");
+    file.write(name.toLatin1());
+    file.write("_getStones(sprite ***pppSprs, int *pLen, int *pUsed) {\n");
+    file.write("    int i, len, rv;\n");
+    file.write("    sprite *pSpr;\n    \n");
+    
+    file.write("    len = "); file.write(getInt(len)); file.write(";\n    \n");
+    
+    file.write("    if (!pppSprs)\n        return 1;\n");
+    file.write("    if (!pLen)\n        return 1;\n");
+    file.write("    if (!pUsed)\n        return 1;\n    \n");
+    file.write("    if (*pLen < len) {\n");
+    file.write("        *pppSprs = (sprite**)realloc(*pppSprs, sizeof(sprite*)*len);\n");
+    file.write("        if (!(*pppSprs))\n            return 1;\n");
+    file.write("        *pLen = len;\n");
+    file.write("    }\n");
+    file.write("    *pUsed = len;\n    \n");
+    
+    file.write("    memset(*pppSprs, 0, sizeof(sprite*)*len);\n    \n");
+    
+    // Write every object in this layer
+    i = 0;
+    file.write("    i = 0;\n");
+    foreach (const MapObject *obj, objs->objects()) {
+        if (!obj->isVisible())
+            continue;
+        
+        file.write("    pSpr = 0;\n");
+        file.write("    rv = spr_getNew(&pSpr);\n");
+        file.write("    ASSERT_NR(rv == 0);\n");
+        file.write("    (*pppSprs)[i] = pSpr;\n");
+        file.write("    rv = spr_init(pSpr,\n");
+        file.write("             /*x*/"); file.write(getInt(obj->x())); file.write(",\n");
+        file.write("             /*y*/"); file.write(getInt(obj->y())); file.write(",\n");
+        file.write("          /*offX*/0,\n");
+        file.write("          /*offY*/0,\n");
+        file.write("         /*width*/8,\n");
+        file.write("        /*height*/8,\n");
+        file.write("   /*hitboxWidth*/"); file.write(getInt(obj->width())); file.write(",\n");
+        file.write("  /*hitboxHeight*/"); file.write(getInt(obj->height())); file.write(",\n");
+        if (obj->type() == "red") {
+            file.write("      /*animData*/_sprRedStoneData,\n");
+            file.write("       /*animLen*/_sprRedStoneAnimLen,\n");
+            file.write("          /*type*/SPR_RED_STONE\n");
+        }
+        else if (obj->type() == "orange") {
+            file.write("      /*animData*/_sprOrangeStoneData,\n");
+            file.write("       /*animLen*/_sprOrangeStoneAnimLen,\n");
+            file.write("          /*type*/SPR_ORANGE_STONE\n");
+        }
+        else if (obj->type() == "yellow") {
+            file.write("      /*animData*/_sprYellowStoneData,\n");
+            file.write("       /*animLen*/_sprYellowStoneAnimLen,\n");
+            file.write("          /*type*/SPR_YELLOW_STONE\n");
+        }
+        else if (obj->type() == "green") {
+            file.write("      /*animData*/_sprGreenStoneData,\n");
+            file.write("       /*animLen*/_sprGreenStoneAnimLen,\n");
+            file.write("          /*type*/SPR_GREEN_STONE\n");
+        }
+        else if (obj->type() == "cyan") {
+            file.write("      /*animData*/_sprCyanStoneData,\n");
+            file.write("       /*animLen*/_sprCyanStoneAnimLen,\n");
+            file.write("          /*type*/SPR_CYAN_STONE\n");
+        }
+        else if (obj->type() == "blue") {
+            file.write("      /*animData*/_sprBlueStoneData,\n");
+            file.write("       /*animLen*/_sprBlueStoneAnimLen,\n");
+            file.write("          /*type*/SPR_BLUE_STONE\n");
+        }
+        else if (obj->type() == "purple") {
+            file.write("      /*animData*/_sprPurpleStoneData,\n");
+            file.write("       /*animLen*/_sprPurpleStoneAnimLen,\n");
+            file.write("          /*type*/SPR_PURPLE_STONE\n");
+        }
+        file.write("    );\n");
+        file.write("    ASSERT_NR(rv == 0);\n");
+        file.write("    i++;\n");
+        
+        i++;
+    }
+    
+    file.write("    rv = 0;\n");
+    file.write("__ret:\n");
+    file.write("    return rv;\n");
     file.write("}\n");
 }
 

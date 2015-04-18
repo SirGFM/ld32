@@ -15,6 +15,21 @@
 #include "global.h"
 #include "sprite.h"
 
+int _sprRedStoneData[] = {0,0,1,288};
+int _sprRedStoneAnimLen = 1;
+int _sprOrangeStoneData[] = {0,0,1,289};
+int _sprOrangeStoneAnimLen = 1;
+int _sprYellowStoneData[] = {0,0,1,290};
+int _sprYellowStoneAnimLen = 1;
+int _sprGreenStoneData[] = {0,0,1,291};
+int _sprGreenStoneAnimLen = 1;
+int _sprCyanStoneData[] = {0,0,1,292};
+int _sprCyanStoneAnimLen = 1;
+int _sprBlueStoneData[] = {0,0,1,293};
+int _sprBlueStoneAnimLen = 1;
+int _sprPurpleStoneData[] = {0,0,1,294};
+int _sprPurpleStoneAnimLen = 1;
+
 /** 'Export' the sprite structure */
 struct stSprite {
     /** The sprite's sprite */
@@ -31,6 +46,8 @@ struct stSprite {
     int lastFrame;
     /** This sprite's type */
     sprType type;
+    /** Whether the sprite is active and should be updated and draw */
+    int isActive;
 };
 
 /**
@@ -146,6 +163,7 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
     pSpr->curAnim = -1;
     spr_setAnim(pSpr, 0, 1);
     pSpr->type = type;
+    pSpr->isActive = 1;
     
     rv = 0;
 __ret:
@@ -239,11 +257,49 @@ void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
     
     i = 0;
     while (i < objsLen) {
+        GFraMe_object_overlap(pObj, &(pObjs[i]), mode);
+        i++;
+    }
+}
+
+/**
+ * Collides a sprite against various sprites
+ */
+void spr_collideAgainstSprGroup(sprite *pSpr, sprite *pSprs, int sprsLen,
+        int isSprFixed, int isSprsFixed) {
+    GFraMe_collision_type mode;
+    GFraMe_object *pThisObj;
+    int i;
+    
+    pThisObj = &(pSpr->pSelf->obj);
+    
+    if (isSprFixed && isSprsFixed) {
+        mode = GFraMe_collision_full;
+    }
+    else if (isSprFixed) {
+        mode = GFraMe_first_fixed;
+    }
+    else if (isSprsFixed) {
+        mode = GFraMe_second_fixed;
+    }
+    else {
+        mode = GFraMe_dont_collide;
+    }
+    
+    i = 0;
+    while (i < sprsLen) {
         GFraMe_ret rv;
+        GFraMe_object *pOtherObj;
         
-        rv = GFraMe_object_overlap(pObj, &(pObjs[i]), mode);
+        pOtherObj = &(pSprs[i].pSelf->obj);
         
-        // TODO add callback
+        if (pSprs[i].isActive) {
+            rv = GFraMe_object_overlap(pThisObj, pOtherObj, mode);
+            
+            if (rv == GFraMe_ret_ok) {
+                // TODO call callback
+            }
+        }
         
         i++;
     }

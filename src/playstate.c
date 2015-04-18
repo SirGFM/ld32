@@ -12,9 +12,10 @@ GFraMe_event_setup();
 
 #include "camera.h"
 #include "global.h"
+#include "map001.h"
 #include "player.h"
 #include "playstate.h"
-#include "map001.h"
+#include "sprite.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -32,14 +33,20 @@ struct stPlaystate {
     camera *pCam;
     /** The player */
     player *pPl;
+    /** The stones of powah */
+    sprite **pStones;
+    /**  How many stones there are in use */
+    int stonesUsed;
+    /** How many stones there are allocated */
+    int stonesLen;
     /** The bounds of the stage */
     GFraMe_object *pWalls;
-    /** Index of the current map */
-    int curMap;
     /**  How many walls there are in use */
     int wallsUsed;
     /** How many walls there are allocated */
     int wallsLen;
+    /** Index of the current map */
+    int curMap;
     /** Map width, in tiles */
     int mapWidth;
     /** Map height, in tiles */
@@ -79,9 +86,15 @@ __ret:
 
 void ps_update(struct stPlaystate *pPs) {
   GFraMe_event_update_begin();
+    int i;
     
     // Update everything
     pl_update(pPs->pPl, GFraMe_event_elapsed);
+    i = 0;
+    while (i < pPs->stonesUsed) {
+        spr_update(pPs->pStones[i], GFraMe_event_elapsed);
+        i++;
+    }
     
     // Collide everything
     pl_collideAgainstGroup(pPs->pPl, pPs->pWalls, pPs->wallsLen,
@@ -91,7 +104,16 @@ void ps_update(struct stPlaystate *pPs) {
 
 void ps_draw(struct stPlaystate *pPs) {
   GFraMe_event_draw_begin();
+    int i;
+    
     ps_drawMap(pPs);
+    
+    i = 0;
+    while (i < pPs->stonesUsed) {
+        spr_draw(pPs->pStones[i], pPs->pCam);
+        i++;
+    }
+    
     pl_draw(pPs->pPl, pPs->pCam);
   GFraMe_event_draw_end();
 }
@@ -101,6 +123,17 @@ void ps_clean(struct stPlaystate *pPs) {
         pl_free(&pPs->pPl);
     if (pPs->pCam)
         cam_free(&pPs->pCam);
+    if (pPs->pStones) {
+        int i;
+        
+        i = 0;
+        while (i < pPs->stonesLen) {
+            spr_free(&(pPs->pStones[i]));
+            i++;
+        }
+        free(pPs->pStones);
+        pPs->pStones = 0;
+    }
     if (pPs->pWalls) {
         free(pPs->pWalls);
         pPs->pWalls = 0;
@@ -174,6 +207,8 @@ void ps_event(struct stPlaystate *pPs) {
 int ps_setMap(struct stPlaystate *pPs, int map) {
     int rv;
     
+    pPs->wallsUsed = 0;
+    pPs->stonesUsed = 0;
     switch (map) {
         default: {
             // TODO put this in a macro (only if there are more maps)
@@ -186,6 +221,9 @@ int ps_setMap(struct stPlaystate *pPs, int map) {
             pPs->mapWidth = map001_width;
             pPs->mapHeight = map001_height;
             pPs->mapBuf = (unsigned char*)map001_tilemap;
+            // Get the stones of power
+            rv = map001_getStones(&pPs->pStones, &pPs->stonesLen, &pPs->stonesUsed);
+            ASSERT_NR(rv == 0);
         }
     }
     

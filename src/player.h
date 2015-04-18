@@ -9,6 +9,7 @@
 #include <GFraMe/GFraMe_error.h>
 
 #include "camera.h"
+#include "sprite.h"
 
 /** 'Export' the player structure */
 typedef struct stPlayer player;
@@ -33,6 +34,12 @@ int pl_init(player *pPl, int x, int y);
  */
 void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
         int isPlFixed, int isObjsFixed);
+
+/**
+ * Collides a player against various sprites
+ */
+void pl_collideAgainstSprGroup(player *pPl, sprite *pSprs, int sprsLen,
+        int isPlFixed, int isSprsFixed);
 
 /**
  * Renders the player
