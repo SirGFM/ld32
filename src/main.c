@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
          LOGTOFILE,
          0
         );
-    ASSERT(rv == GFraMe_ret_ok);
+    ASSERT_NR(rv == GFraMe_ret_ok);
 
     rv = gl_init();
-    ASSERT(rv == GFraMe_ret_ok);
+    ASSERT_NR(rv == GFraMe_ret_ok);
 
     while (gl_running) {
         playstate();

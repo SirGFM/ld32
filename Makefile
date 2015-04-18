@@ -14,6 +14,7 @@ CC=gcc
  OBJS =                                \
          $(OBJDIR)/global.o            \
          $(OBJDIR)/main.o              \
+         $(OBJDIR)/player.o            \
          $(OBJDIR)/playstate.o         
 #==============================================================================
 

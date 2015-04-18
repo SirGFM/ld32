@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" nextobjectid="1">
+ <tileset firstgid="1" name="atlas" tilewidth="8" tileheight="8">
+  <image source="../atlas.bmp" trans="ff00ff" width="256" height="256"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="40" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt0jsKgDAQhOFcTS3UY/hCvUdAvbXT2CwaDUJI8RdftwzDsN455wEAAAAAyEwhpVFl0OvSSW8MD7e1NNIm3GuM6DfLImvivb7222SXI5BvfyXW3V7W9CP/LRthJw3GULo=
+  </data>
+ </layer>
+</map>

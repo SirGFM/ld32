@@ -11,22 +11,34 @@
 #define SCRH    240
 #define WNDW    640
 #define WNDH    480
-#define TITLE   "Lame"
+#define TITLE   "KITTEN (An Unconventional Weapon)"
 #define TEX     "atlas"
-#define TEXW    128
-#define TEXH    128
+#define TEXW    256
+#define TEXH    256
 #define FPS     60
 #define UPS     60  // updates per second
 #define DPS     60  // draws per second
-#define LOGTOFILE   1
+#define LOGTOFILE   0
 
-#define ASSERT(stmt) \
+#define ASSERT(stmt, retVal) \
+  do { \
+    if (!(stmt)) { \
+      rv = retVal; \
+      goto __ret; \
+    } \
+  } while (0)
+
+#define ASSERT_NR(stmt) \
   do { \
     if (!(stmt)) \
       goto __ret; \
   } while (0)
 
 extern int gl_running;
+
+extern GFraMe_spriteset *gl_sset2x2;
+extern GFraMe_spriteset *gl_sset8x8;
+extern GFraMe_spriteset *gl_sset16x16;
 
 GFraMe_ret gl_init();
 void gl_clean();
