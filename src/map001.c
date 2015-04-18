@@ -51,7 +51,7 @@ int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
     int len;
     int i;
     
-    len = 3;
+    len = 4;
     
     if (!ppObjs)
         return 1;
@@ -89,6 +89,12 @@ int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
     GFraMe_object_set_x(&((*ppObjs)[i]), 160);
     GFraMe_object_set_y(&((*ppObjs)[i]), 184);
     GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 48, 32);
+    
+    i++;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 248);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 192);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 24, 8);
     
     i++;
     return 0;

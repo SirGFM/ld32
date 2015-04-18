@@ -87,9 +87,9 @@ __ret:
 }
 
 /**
- * Get the camera's params, needed to render a tilemap
+ * Get the camera's params
  */
-void cam_getParamsTilemap(int *pX, int *pY, int *pW, int *pH, camera *pCam) {
+void cam_getParams(int *pX, int *pY, int *pW, int *pH, camera *pCam) {
     // Check the arguments
     ASSERT_NR(pCam);
     ASSERT_NR(pX);
@@ -168,5 +168,13 @@ int cam_centerAt(camera *pCam, int x, int y) {
     rv = 0;
 __ret:
     return rv;
+}
+
+/**
+ * Returns whether an object is inside a camera
+ */
+int cam_isInside(camera *pCam, GFraMe_object *pObj) {
+    // TODO cam_isInside
+    return 1;
 }
 

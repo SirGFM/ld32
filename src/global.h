@@ -20,6 +20,8 @@
 #define DPS     60  // draws per second
 #define LOGTOFILE   0
 
+#define GRAV    500
+
 #define ASSERT(stmt, retVal) \
   do { \
     if (!(stmt)) { \

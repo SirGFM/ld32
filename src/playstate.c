@@ -19,6 +19,9 @@ GFraMe_event_setup();
 #include <stdlib.h>
 #include <string.h>
 
+#define PL_X 32
+#define PL_Y 32
+
 /** Variable to enable drawing of hitbox */
 #ifdef DEBUG
 extern int GFraMe_draw_debug;
@@ -55,6 +58,8 @@ int ps_init(struct stPlaystate *pPs) {
     // Initialize the player
     rv = pl_getNew(&pPs->pPl);
     ASSERT_NR(rv == 0);
+    rv = pl_init(pPs->pPl, PL_X, PL_Y);
+    ASSERT_NR(rv == 0);
     
     // Initialize the camera
     rv = cam_getNew(&pPs->pCam);
@@ -74,13 +79,18 @@ __ret:
 
 void ps_update(struct stPlaystate *pPs) {
   GFraMe_event_update_begin();
-
+    
+    // Update everything
+    pl_update(pPs->pPl, GFraMe_event_elapsed);
+    
+    // Collide everything
   GFraMe_event_update_end();
 }
 
 void ps_draw(struct stPlaystate *pPs) {
   GFraMe_event_draw_begin();
     ps_drawMap(pPs);
+    pl_draw(pPs->pPl, pPs->pCam);
   GFraMe_event_draw_end();
 }
 
@@ -190,7 +200,7 @@ void ps_drawMap(struct stPlaystate *pPs) {
     
     // TODO do something if the map is smaller than the screen
     
-    cam_getParamsTilemap(&camX, &camY, &camW, &camH, pPs->pCam);
+    cam_getParams(&camX, &camY, &camW, &camH, pPs->pCam);
     
     // Get the first tile's position on the screen
     iniX = -(camX % 8);

@@ -6,6 +6,8 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
+#include <GFraMe/GFraMe_object.h>
+
 /** 'Export' the camera structure */
 typedef struct stCamera camera;
 
@@ -24,9 +26,9 @@ void cam_free(camera **ppCam);
 void cam_init(camera *pCam, int viewWidth, int viewHeight, int worldWidth, int worldHeight);
 
 /**
- * Get the camera's params, needed to render a tilemap
+ * Get the camera's params
  */
-void cam_getParamsTilemap(int *pX, int *pY, int *pW, int *pH, camera *pCam);
+void cam_getParams(int *pX, int *pY, int *pW, int *pH, camera *pCam);
 
 /**
  * Get the camera's position
@@ -49,6 +51,11 @@ void cam_setDeadzone(camera *pCam, int width, int height);
  * @return Returns 1 if it just pushed into the deadzone
  */
 int cam_centerAt(camera *pCam, int x, int y);
+
+/**
+ * Returns whether an object is inside a camera
+ */
+int cam_isInside(camera *pCam, GFraMe_object *pObj);
 
 #endif /* __CAMERA_H__ */
 
