@@ -12,6 +12,7 @@ CC=gcc
 # Define every object required by compilation
 #==============================================================================
  OBJS =                                \
+         $(OBJDIR)/camera.o            \
          $(OBJDIR)/global.o            \
          $(OBJDIR)/main.o              \
          $(OBJDIR)/map001.o            \

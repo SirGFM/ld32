@@ -8,4 +8,4 @@ extern int map001_width;
 /** Generated tilemap's height */
 extern int map001_height;
 /** Get all this map's walls into a GFraMe_object buffer */
-int map001_getWalls(GFraMe_object **ppObjs, int *pLen);
+int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed);

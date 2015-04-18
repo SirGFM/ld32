@@ -232,22 +232,26 @@ static void writeWalls(QFile &file, QFile &headerFile, const ObjectGroup *objs) 
     headerFile.write("/** Get all this map's walls into a GFraMe_object buffer */\n");
     headerFile.write("int ");
     headerFile.write(name.toLatin1());
-    headerFile.write("_getWalls(GFraMe_object **ppObjs, int *pLen);\n");
+    headerFile.write("_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed);\n");
     
     file.write("/** Get all this map's walls into a GFraMe_object buffer */\n");
     file.write("int ");
     file.write(name.toLatin1());
-    file.write("_getWalls(GFraMe_object **ppObjs, int *pLen) {\n");
+    file.write("_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {\n");
+    file.write("    int len;\n");
     file.write("    int i;\n    \n");
     
-    file.write("    if (!ppObjs)\n        return 1;\n    \n");
-    file.write("    if (*pLen < ");
-    file.write(getInt(len));
-    file.write(") {\n");
-    file.write("        *ppObjs = (GFraMe_object*)realloc(*ppObjs, sizeof(GFraMe_object)*"); file.write(getInt(len)); file.write(");\n");
+    file.write("    len = "); file.write(getInt(len)); file.write(";\n    \n");
+    
+    file.write("    if (!ppObjs)\n        return 1;\n");
+    file.write("    if (!pLen)\n        return 1;\n");
+    file.write("    if (!pUsed)\n        return 1;\n    \n");
+    file.write("    if (*pLen < len) {\n");
+    file.write("        *ppObjs = (GFraMe_object*)realloc(*ppObjs, sizeof(GFraMe_object)*len);\n");
     file.write("        if (!(*ppObjs))\n            return 1;\n");
-    file.write("        *pLen = "); file.write(getInt(len)); file.write(";\n");
-    file.write("    }\n    \n");
+    file.write("        *pLen = len;\n");
+    file.write("    }\n");
+    file.write("    *pUsed = len;\n    \n");
     
     file.write("    i = 0;\n");
     file.write("    while (i < *pLen)\n");
@@ -255,16 +259,16 @@ static void writeWalls(QFile &file, QFile &headerFile, const ObjectGroup *objs) 
     
     // Write every object in this layer
     i = 0;
+    file.write("    i = 0;\n");
     foreach (const MapObject *obj, objs->objects()) {
         if (!obj->isVisible())
             continue;
         
-        file.write("    GFraMe_object_clear(&((*ppObjs)[");file.write(getInt(i));file.write("]));\n");
-        file.write("    GFraMe_object_set_x(&((*ppObjs)[");file.write(getInt(i));file.write("]), ");file.write(getInt(obj->x()));file.write(");\n");
-        file.write("    GFraMe_object_set_y(&((*ppObjs)[");file.write(getInt(i));file.write("]), ");file.write(getInt(obj->y()));file.write(");\n");
-        file.write("    GFraMe_hitbox_set(&((*ppObjs)[");
-        file.write(getInt(i));
-        file.write("].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, ");file.write(getInt(obj->width()));file.write(", ");file.write(getInt(obj->height()));file.write(");\n    \n");
+        file.write("    GFraMe_object_clear(&((*ppObjs)[i]));\n");
+        file.write("    GFraMe_object_set_x(&((*ppObjs)[i]), ");file.write(getInt(obj->x()));file.write(");\n");
+        file.write("    GFraMe_object_set_y(&((*ppObjs)[i]), ");file.write(getInt(obj->y()));file.write(");\n");
+        file.write("    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, ");file.write(getInt(obj->width()));file.write(", ");file.write(getInt(obj->height()));file.write(");\n    \n");
+        file.write("    i++;\n");
         
         i++;
     }

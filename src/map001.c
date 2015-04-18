@@ -47,37 +47,49 @@ int map001_width = 40;
 int map001_height = 30;
 
 /** Get all this map's walls into a GFraMe_object buffer */
-int map001_getWalls(GFraMe_object **ppObjs, int *pLen) {
+int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
+    int len;
     int i;
+    
+    len = 3;
     
     if (!ppObjs)
         return 1;
+    if (!pLen)
+        return 1;
+    if (!pUsed)
+        return 1;
     
-    if (*pLen < 3) {
-        *ppObjs = (GFraMe_object*)realloc(*ppObjs, sizeof(GFraMe_object)*3);
+    if (*pLen < len) {
+        *ppObjs = (GFraMe_object*)realloc(*ppObjs, sizeof(GFraMe_object)*len);
         if (!(*ppObjs))
             return 1;
-        *pLen = 3;
+        *pLen = len;
     }
+    *pUsed = len;
     
     i = 0;
     while (i < *pLen)
         memset(&((*ppObjs)[i++]), 0, sizeof(GFraMe_object));
     
-    GFraMe_object_clear(&((*ppObjs)[0]));
-    GFraMe_object_set_x(&((*ppObjs)[0]), 0);
-    GFraMe_object_set_y(&((*ppObjs)[0]), 216);
-    GFraMe_hitbox_set(&((*ppObjs)[0].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 320, 24);
+    i = 0;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 0);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 216);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 320, 24);
     
-    GFraMe_object_clear(&((*ppObjs)[1]));
-    GFraMe_object_set_x(&((*ppObjs)[1]), 128);
-    GFraMe_object_set_y(&((*ppObjs)[1]), 200);
-    GFraMe_hitbox_set(&((*ppObjs)[1].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 32, 16);
+    i++;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 128);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 200);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 32, 16);
     
-    GFraMe_object_clear(&((*ppObjs)[2]));
-    GFraMe_object_set_x(&((*ppObjs)[2]), 160);
-    GFraMe_object_set_y(&((*ppObjs)[2]), 184);
-    GFraMe_hitbox_set(&((*ppObjs)[2].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 48, 32);
+    i++;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 160);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 184);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 48, 32);
     
+    i++;
     return 0;
 }
