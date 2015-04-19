@@ -94,6 +94,77 @@ void ps_update(struct stPlaystate *pPs) {
     
     // Update everything
     pl_update(pPs->pPl, GFraMe_event_elapsed);
+/*
+    if (pl_isShooting(pPs->pPl)) {
+        int iniX, iniY, dX, dY, sX, sY;
+        sprType stones, curStone;
+        
+        pl_getShotParams(&iniX, &iniY, &sX, &sY, &stones, pPs->pPl);
+        
+        // TODO calculate dX, dY
+        dX = 0;
+        dY = 0;
+        
+        curStone = 1;
+        while (curStone < 0x0100) {
+            GFraMe_sprite *pGfmSpr;
+            int rv;
+            sprite *pSpr;
+            
+            if (!(curStone & stones)) goto __next_stone;
+            
+            rv = spr_recycle(&pSpr, &pPs->pPlBullets, &pPs->plBulletsLen);
+            if (rv != 0) goto __next_stone;
+            
+            switch (curStone) {
+                case SPR_RED_STONE:
+                    animData = _sprRedBulAnimData;
+                    animLen = _sprRedBulAnimLen;
+                break;
+                case SPR_ORANGE_STONE:
+                    animData = _sprOrangeBulAnimData;
+                    animLen = _sprOrangeBulAnimLen;
+                break;
+                case SPR_YELLOW_STONE:
+                    animData = _sprYellowBulAnimData;
+                    animLen = _sprYellowBulAnimLen;
+                break;
+                case SPR_GREEN_STONE:
+                    animData = _sprGreenBulAnimData;
+                    animLen = _sprGreenBulAnimLen;
+                break;
+                case SPR_CYAN_STONE:
+                    animData = _sprCyanBulAnimData;
+                    animLen = _sprCyanBulAnimLen;
+                break;
+                case SPR_BLUE_STONE:
+                    animData = _sprBlueBulAnimData;
+                    animLen = _sprBlueBulAnimLen;
+                break;
+                case SPR_PURPLE_STONE:
+                    animData = _sprPurpleBulAnimData;
+                    animLen = _sprPurpleBulAnimLen;
+                break;
+            }
+            
+*/
+//            rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 2/*width*/,
+//                    2/*height*/, 2/*hitboxWidth*/, 2/*hitboxHeight*/, animData,
+//                    animLen, curStone);
+/*
+            if (rv != 0) goto __next_stone;
+            
+            spr_getSprite(*pGfmSpr, pSpr);
+            pSpr->obj.vx = sX;
+            pSpr->obj.vy = sY;
+            
+__next_stone:
+            sX += dX;
+            sY += dY;
+            curStone <<= 1;
+        }
+    }
+*/
     i = 0;
     while (i < pPs->stonesUsed) {
         spr_update(pPs->pStones[i], GFraMe_event_elapsed);
@@ -197,11 +268,11 @@ __ret:
 void ps_event(struct stPlaystate *pPs) {
   GFraMe_event_begin();
     GFraMe_event_on_timer();
-    //    GFraMe_event_on_mouse_up();
-    //    GFraMe_event_on_mouse_down();
-    //    GFraMe_event_on_mouse_moved();
-    //    GFraMe_event_on_finger_down();
-    //    GFraMe_event_on_finger_up();
+      GFraMe_event_on_mouse_up();
+      GFraMe_event_on_mouse_down();
+      GFraMe_event_on_mouse_moved();
+    //  GFraMe_event_on_finger_down();
+    //  GFraMe_event_on_finger_up();
     GFraMe_event_on_controller();
 #ifdef DEBUG
       if (GFraMe_controller_max > 0 && GFraMe_controllers[0].home)

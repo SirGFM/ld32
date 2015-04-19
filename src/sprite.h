@@ -26,6 +26,21 @@ extern int _sprBlueStoneAnimLen;
 extern int _sprPurpleStoneData[];
 extern int _sprPurpleStoneAnimLen;
 
+extern int _sprRedBulData[];
+extern int _sprRedBulAnimLen;
+extern int _sprOrangeBulData[];
+extern int _sprOrangeBulAnimLen;
+extern int _sprYellowBulData[];
+extern int _sprYellowBulAnimLen;
+extern int _sprGreenBulData[];
+extern int _sprGreenBulAnimLen;
+extern int _sprCyanBulData[];
+extern int _sprCyanBulAnimLen;
+extern int _sprBlueBulData[];
+extern int _sprBlueBulAnimLen;
+extern int _sprPurpleBulData[];
+extern int _sprPurpleBulAnimLen;
+
 /** 'Export' the sprite structure */
 typedef struct stSprite sprite;
 
@@ -50,6 +65,11 @@ int spr_getNew(sprite **ppSpr);
  * Free a sprite's memory
  */
 void spr_free(sprite **ppSpr);
+
+/**
+ * Try to get a new sprite, first looking into a list
+ */
+int spr_recycle(sprite **ppSpr, sprite ***pppSpr, int *pLen);
 
 /**
  * Initializes a sprite and its animations; The first one will be run;

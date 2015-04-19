@@ -23,6 +23,11 @@
 #define GRAV    500
 #define PL_VX   50
 #define PL_VY   150
+#define PL_BUL_SPEED 150
+#define PL_BUL_COOLDOWN 80
+#define PL_LASER_COOLDOWN 250
+#define PL_BUL_DEC 10
+#define PL_LASER_INC 50
 
 #define ASSERT(stmt, retVal) \
   do { \

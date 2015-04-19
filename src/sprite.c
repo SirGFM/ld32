@@ -31,6 +31,21 @@ int _sprBlueStoneAnimLen = 1;
 int _sprPurpleStoneData[] = {0,0,1,294};
 int _sprPurpleStoneAnimLen = 1;
 
+int _sprRedBulData[] = {0,0,1,4096};
+int _sprRedBulAnimLen = 1;
+int _sprOrangeBulData[] = {0,0,1,4097};
+int _sprOrangeBulAnimLen = 1;
+int _sprYellowBulData[] = {0,0,1,4098};
+int _sprYellowBulAnimLen = 1;
+int _sprGreenBulData[] = {0,0,1,4099};
+int _sprGreenBulAnimLen = 1;
+int _sprCyanBulData[] = {0,0,1,4100};
+int _sprCyanBulAnimLen = 1;
+int _sprBlueBulData[] = {0,0,1,4101};
+int _sprBlueBulAnimLen = 1;
+int _sprPurpleBulData[] = {0,0,1,4102};
+int _sprPurpleBulAnimLen = 1;
+
 /** 'Export' the sprite structure */
 struct stSprite {
     /** Used by the player to set a hook to itself */

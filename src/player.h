@@ -47,6 +47,11 @@ void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
 void pl_addStone(player *pPl, sprType type);
 
 /**
+ * Returns whether the player is shooting or not (1 on true)
+ */
+int pl_isShooting(player *pPl);
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam);

@@ -11,6 +11,7 @@
 #include <GFraMe/GFraMe_pointer.h>
 #include <GFraMe/GFraMe_sprite.h>
 #include <GFraMe/GFraMe_spriteset.h>
+#include <GFraMe/GFraMe_util.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,7 +47,10 @@ struct stPlayer {
     int maxLaserTimer;
     /** Whether the player is shooting */
     int isShooting;
-    // TODO shoot direction (i.e., speed)
+    /** Bullet's base horizontal speed */
+    int bulHorSpeed;
+    /** Bullet's base vertical speed */
+    int bulVerSpeed;
 };
 
 /**
@@ -111,6 +115,12 @@ int pl_init(player *pPl, int x, int y) {
     // Set a hook to itself
     spr_setSuper(pPl->pSpr, (void*)pPl);
     
+    pPl->maxBulCooldown = PL_BUL_COOLDOWN;
+    pPl->maxLaserTimer = PL_LASER_COOLDOWN;
+    
+    pPl->bulCooldown = 0;
+    pPl->laserTimer = pPl->maxLaserTimer;
+    
     rv = 0;
 __ret:
     return rv;
@@ -137,6 +147,15 @@ void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
  */
 void pl_addStone(player *pPl, sprType type) {
     pPl->stones |= type;
+    pPl->maxBulCooldown -= PL_BUL_DEC;
+    pPl->maxLaserTimer += PL_LASER_INC;
+}
+
+/**
+ * Returns whether the player is shooting or not (1 on true)
+ */
+int pl_isShooting(player *pPl) {
+    return pPl->isShooting;
 }
 
 /**
@@ -187,24 +206,6 @@ void pl_update(player *pPl, int ms) {
     isJump = GFraMe_keys.space;
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].r1);
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].l1);
-    // Check if is shooting
-    if (pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_pointer_pressed) {
-        pPl->bulCooldown += pPl->maxBulCooldown;
-        pPl->laserTimer -= pPl->maxBulCooldown;
-        pPl->isShooting = 1;
-        // TODO Get laser direction
-        // TODO 'force feedback'
-    }
-    else if (pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_controller_max > 0 &&
-            (GFraMe_controllers[0].l2 || GFraMe_controllers[0].r2)) {
-        pPl->bulCooldown += pPl->maxBulCooldown;
-        pPl->laserTimer -= pPl->maxBulCooldown;
-        pPl->isShooting = 1;
-        // TODO Get laser direction
-        // TODO 'force feedback'
-    }
-    else
-        pPl->isShooting = 0;
     
     // Movement
     if (isTouchingDown) {
@@ -228,6 +229,54 @@ void pl_update(player *pPl, int ms) {
     }
     if (isTouchingUp) {
         pObj->vy = 0;
+    }
+    
+    // Check if is shooting
+    if (pPl->stones != 0 && pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_pointer_pressed) {
+        double norm, x, y;
+        
+        pPl->bulCooldown += pPl->maxBulCooldown;
+        pPl->laserTimer -= pPl->maxBulCooldown;
+        pPl->isShooting = 1;
+        
+        x = (double)(GFraMe_pointer_x - pObj->x - pObj->hitbox.cx);
+        y = (double)(GFraMe_pointer_y - pObj->y - pObj->hitbox.cy);
+        
+        norm = ((double)PL_BUL_SPEED) / GFraMe_util_sqrtd(x*x + y*y);
+        
+        pPl->bulHorSpeed = (int)(norm*x);
+        pPl->bulVerSpeed = (int)(norm*y);
+        
+        if (isTouchingDown && (isLeft || isRight))
+            pObj->vx -= pPl->bulHorSpeed;
+        else
+            pObj->vx = -pPl->bulHorSpeed;
+        pObj->vy = -pPl->bulVerSpeed;
+    }
+    else if (pPl->stones != 0 && pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_controller_max > 0 &&
+            (GFraMe_controllers[0].l2 || GFraMe_controllers[0].r2)) {
+        double norm, x, y;
+        
+        pPl->bulCooldown += pPl->maxBulCooldown;
+        pPl->laserTimer -= pPl->maxBulCooldown;
+        pPl->isShooting = 1;
+        
+        x = GFraMe_controllers[0].rx;
+        y = GFraMe_controllers[0].ry;
+        
+        norm = ((double)PL_BUL_SPEED) / GFraMe_util_sqrtd(x*x + y*y);
+        
+        pPl->bulHorSpeed = (int)(norm*x);
+        pPl->bulVerSpeed = (int)(norm*y);
+        
+        if (isTouchingDown && (isLeft || isRight))
+            pObj->vx -= pPl->bulHorSpeed;
+        else
+            pObj->vx = -pPl->bulHorSpeed;
+        pObj->vy = -pPl->bulVerSpeed;
+    }
+    else {
+        pPl->isShooting = 0;
     }
     
     spr_update(pPl->pSpr, ms);
