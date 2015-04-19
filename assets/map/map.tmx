@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="120" height="60" tilewidth="8" tileheight="8" nextobjectid="36">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="400" height="60" tilewidth="8" tileheight="8" nextobjectid="58">
  <tileset firstgid="1" name="atlas" tilewidth="8" tileheight="8">
   <image source="../atlas.bmp" trans="ff00ff" width="256" height="256"/>
  </tileset>
- <layer name="tilemap" width="120" height="60">
+ <layer name="tilemap" width="400" height="60">
   <data encoding="base64" compression="zlib">
-   eJzt2EtOwzAUBdBsDRgAgy6Cn4AJ2wAm7AK1Ep9dIPHfBrALHlKRXJMQp1JpSc7gyLH1JCe6fh5kVFXVCAAAAAAAAAAAAAAAAAAAAAAAAAAAoOfWwnqBZb8n89kJuwWW/Z7Idyg2w1ZiW769chiOEsfy7ZXTcJY4l28vTarZu7runpbv/3VfzfZyXR/L9/8aT8fJLzXyXYyLlnnbeomHcBce5dvoZDrm/3k2Wurr5unzbVb3Pb8K1+Gmoa6Lcc1a/h37A8/3dTrm53yvpb5u3vSczp/Cc3hpqCv1Ft7DR7Ze2q+rnG/pP9Uu8nN+UP3s4UXs23ZfdN2ztF9XOd95z2hXXz18mVjkvvlef7Hn0PMdkmVnmvoEUZSePw==
+   eJzt3UmO00AUAFBfjRkWfQgmAZu+BvSGWwAtMdyiEd1AXwO4BRURS8WXp7jtpOy8xZMSZ6iyFdWvyfknVVWdAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECPB8nDzKMC6gRA+V4kLzOvCqgTAOV7nbzJnG2P5+MSYxIA2pyH53lcOdtD+QAs09fkYuv99liMKQDQ5bL6F0euCqgLAMvwK/md/CmgLgAsw93kXuZ+AXUCAABoc1pAHQBYnusC6gDAstTrJ9ZNhjFWA6BL3JdgjwIAACzD25GvAXDcvox8DYDj1rW/y94vAJrcSm73uFNAPQEoy+PkSY+nE5cZ8zPKiQKwPIeIHzE/ozyNAGXYJf+6+AFAbZf860Pix/Nq2jWRmN9XTkaAMrTlX28yJH7MOSb5VsD1AuB/m1y5+VxW0zyW+NGt7f5J91UCa7Zpm/OxSNM45NDx48PIz9Vxce49W/X9kx+TT8nncBxgjeq2+bzjPYeOH2PHH/Uaz9xr7vX9k9+TH8nPcBxg3+L8xxzzJJfJRXLV8Z5Dxo+b5IWvx1VTrrnHa913b6X7KoEudT6J2Ja0tR0x/8Rpy+M4/zHHPElT3z6ex7NqXPxo2pN1E2Pa4q5x1RjxWvfF1qn3NQPrUs9TxLakre2I8xrXAx7nz6eaJ2nr248db8xt17Y4P7+pckbFay1+wPEZ8p9Ou4r99E3/O/aZ5yi3r3++a5ljxxslxI+2c73pPFLb9/ZdK/ED1mdffexN+/EuM2e5sax9lLnv+NF0fkPOdchnx3zvkDof+rcOTGstbSplEz9gff4CB6uPiQ==
   </data>
  </layer>
  <objectgroup name="walls">
@@ -15,24 +15,43 @@
   <object id="26" name="wall" type="wall" x="432" y="472" width="40" height="8"/>
   <object id="27" name="wall" type="wall" x="240" y="456" width="192" height="24"/>
   <object id="28" name="wall" type="wall" x="472" y="456" width="96" height="24"/>
-  <object id="29" name="wall" type="wall" x="568" y="440" width="112" height="40"/>
+  <object id="29" name="wall" type="wall" x="568" y="440" width="312" height="40"/>
   <object id="30" name="wall" type="wall" x="600" y="360" width="80" height="80"/>
   <object id="31" name="wall" type="wall" x="512" y="384" width="40" height="16"/>
   <object id="32" name="wall" type="wall" x="536" y="408" width="32" height="8"/>
-  <object id="33" name="wall" type="wall" x="544" y="416" width="16" height="8"/>
-  <object id="34" name="wall" type="wall" x="520" y="400" width="24" height="8"/>
+  <object id="33" name="wall" type="wall" x="544" y="408" width="16" height="16"/>
+  <object id="34" name="wall" type="wall" x="520" y="384" width="24" height="24"/>
+  <object id="36" name="wall" type="wall" x="408" y="312" width="24" height="8"/>
+  <object id="37" name="wall" type="wall" x="280" y="280" width="40" height="8"/>
+  <object id="38" name="wall" type="wall" x="304" y="240" width="32" height="8"/>
+  <object id="39" name="wall" type="wall" x="256" y="224" width="40" height="16"/>
+  <object id="40" name="wall" type="wall" x="264" y="224" width="24" height="24"/>
+  <object id="41" name="wall" type="wall" x="312" y="240" width="16" height="16"/>
+  <object id="42" name="wall" type="wall" x="680" y="392" width="40" height="48"/>
+  <object id="43" name="wall" type="wall" x="832" y="368" width="56" height="24"/>
+  <object id="44" name="wall" type="wall" x="840" y="368" width="40" height="32"/>
+  <object id="45" name="wall" type="wall" x="968" y="416" width="24" height="16"/>
+  <object id="46" name="wall" type="wall" x="976" y="416" width="8" height="24"/>
+  <object id="47" name="wall" type="wall" x="1168" y="432" width="72" height="48"/>
+  <object id="48" name="wall" type="wall" x="1000" y="472" width="120" height="8"/>
+  <object id="49" name="wall" type="wall" x="968" y="320" width="64" height="8"/>
+  <object id="51" name="wall" type="wall" x="880" y="472" width="64" height="8"/>
+  <object id="54" name="wall" type="wall" x="944.333" y="456" width="56" height="24"/>
+  <object id="55" name="wall" type="wall" x="1120" y="456" width="48" height="24"/>
  </objectgroup>
  <objectgroup name="stones">
   <object id="8" name="red" type="red" x="384" y="434" width="8" height="24"/>
-  <object id="11" name="orange" type="orange" x="240" y="264" width="8" height="24"/>
-  <object id="12" name="yellow" type="yellow" x="264" y="264" width="8" height="24"/>
-  <object id="13" name="green" type="green" x="288" y="264" width="8" height="24"/>
-  <object id="14" name="cyan" type="cyan" x="312" y="248" width="8" height="24"/>
-  <object id="15" name="blue" type="blue" x="344" y="232" width="8" height="24"/>
-  <object id="16" name="purple" type="purple" x="368" y="232" width="8" height="24"/>
+  <object id="11" name="orange" type="orange" x="1200" y="409" width="8" height="24"/>
+  <object id="12" name="yellow" type="yellow" x="440" y="152" width="8" height="24"/>
+  <object id="13" name="green" type="green" x="464" y="152" width="8" height="24"/>
+  <object id="14" name="cyan" type="cyan" x="488" y="136" width="8" height="24"/>
+  <object id="15" name="blue" type="blue" x="520" y="120" width="8" height="24"/>
+  <object id="16" name="purple" type="purple" x="544" y="120" width="8" height="24"/>
  </objectgroup>
  <objectgroup name="spikes">
-  <object id="19" name="spike" type="spike" x="216" y="466" width="24" height="8"/>
-  <object id="35" name="spike" type="spike" x="432" y="464" width="40" height="8"/>
+  <object id="19" name="spike" type="spike" x="216" y="467" width="24" height="8"/>
+  <object id="35" name="spike" type="spike" x="432" y="467" width="40" height="8"/>
+  <object id="50" name="spike" type="spike" x="1000" y="467" width="120" height="8"/>
+  <object id="57" name="spike" type="spike" x="880" y="467" width="64" height="8"/>
  </objectgroup>
 </map>

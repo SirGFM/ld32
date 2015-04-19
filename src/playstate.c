@@ -66,6 +66,9 @@ struct stPlaystate {
     int mapHeight;
     /** Map's tilemap */
     unsigned char *mapBuf;
+#ifdef DEBUG
+    int skippedFrames;
+#endif /* DEBUG */
 };
 
 void ps_event(struct stPlaystate *pPs);
@@ -98,7 +101,15 @@ __ret:
 }
 
 void ps_update(struct stPlaystate *pPs) {
+#ifdef DEBUG
+  pPs->skippedFrames = 1;
+  if (GFraMe_controller_max > 0 && GFraMe_controllers[0].l3)
+      pPs->skippedFrames = 4;
+#endif
   GFraMe_event_update_begin();
+#ifdef DEBUG
+while (pPs->skippedFrames > 0) {
+#endif
     int i;
     
     // Update everything
@@ -233,7 +244,14 @@ __next_stone:
         
         cam_setDeadzone(pPs->pCam, w, h);
     }
+#ifdef DEBUG
+    pPs->skippedFrames--;
+}
+#endif
   GFraMe_event_update_end();
+#ifdef DEBUG
+    pPs->skippedFrames = 0;
+#endif
 }
 
 void ps_draw(struct stPlaystate *pPs) {
