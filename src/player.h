@@ -70,7 +70,7 @@ void pl_draw(player *pPl, camera *pCam);
 /**
  * Updates the player
  */
-void pl_update(player *pPl, int ms);
+void pl_update(player *pPl, camera *pCam, int ms);
 
 #endif /* __PLAYER_H__ */
 

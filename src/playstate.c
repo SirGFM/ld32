@@ -113,7 +113,7 @@ while (pPs->skippedFrames > 0) {
     int i;
     
     // Update everything
-    pl_update(pPs->pPl, GFraMe_event_elapsed);
+    pl_update(pPs->pPl, pPs->pCam, GFraMe_event_elapsed);
     if (pl_isShooting(pPs->pPl)) {
         double ang, dang;
         int n;

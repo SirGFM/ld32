@@ -206,7 +206,7 @@ void pl_draw(player *pPl, camera *pCam) {
 /**
  * Updates the player
  */
-void pl_update(player *pPl, int ms) {
+void pl_update(player *pPl, camera *pCam, int ms) {
     GFraMe_object *pObj;
     GFraMe_sprite *pSpr;
     int isTouchingDown, isTouchingUp, isLeft, isRight, isJump;
@@ -270,13 +270,18 @@ void pl_update(player *pPl, int ms) {
     // Check if is shooting
     if (pPl->stones != 0 && pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_pointer_pressed) {
         double norm, x, y;
+        int ix, iy;
         
         pPl->bulCooldown += pPl->maxBulCooldown;
         pPl->laserTimer -= pPl->maxBulCooldown;
         pPl->isShooting = 1;
         
-        x = (double)(GFraMe_pointer_x - pObj->x - pObj->hitbox.cx);
-        y = (double)(GFraMe_pointer_y - pObj->y - pObj->hitbox.cy);
+        ix = GFraMe_pointer_x;
+        iy = GFraMe_pointer_y;
+        cam_screenToWorld(&ix, &iy, pCam);
+        
+        x = (double)(ix - pObj->x - pObj->hitbox.cx);
+        y = (double)(iy - pObj->y - pObj->hitbox.cy);
         
         norm = ((double)PL_BUL_SPEED) / GFraMe_util_sqrtd(x*x + y*y);
         

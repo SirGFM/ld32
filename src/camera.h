@@ -57,5 +57,10 @@ int cam_centerAt(camera *pCam, int x, int y);
  */
 int cam_isInside(camera *pCam, GFraMe_object *pObj);
 
+/**
+ * Transform a in-screen position to world coordinates
+ */
+void cam_screenToWorld(int *x, int *y, camera *pCam);
+
 #endif /* __CAMERA_H__ */
 

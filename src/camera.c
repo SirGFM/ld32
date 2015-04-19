@@ -214,3 +214,11 @@ int cam_isInside(camera *pCam, GFraMe_object *pObj) {
     return 1;
 }
 
+/**
+ * Transform a in-screen position to world coordinates
+ */
+void cam_screenToWorld(int *x, int *y, camera *pCam) {
+    *x += pCam->x;
+    *y += pCam->y;
+}
+
