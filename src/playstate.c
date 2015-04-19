@@ -151,29 +151,39 @@ while (pPs->skippedFrames > 0) {
     }
     // Update everything
     pl_update(pPs->pPl, pPs->pCam, GFraMe_event_elapsed);
-    if (pl_isShooting(pPs->pPl)) {
+    if (pl_isShooting(pPs->pPl) || pPs->state == 7) {
         double ang, dang;
         int n;
         int iniX, iniY, sX, sY;
         sprType stones, curStone;
         
-        pl_getShotParams(&iniX, &iniY, &sX, &sY, &stones, pPs->pPl);
-        
-        ang = atan2((double)sX/PL_BUL_SPEED, (double)-sY/PL_BUL_SPEED);
-        ang -= PI / 2.0;
-        
-        n = 0;
-        curStone = 1;
-        while (curStone < 0x0100) {
-            if (curStone & stones)
-                n++;
-            curStone <<= 1;
+        if (pPs->state < 7) {
+            pl_getShotParams(&iniX, &iniY, &sX, &sY, &stones, pPs->pPl);
+            
+            ang = atan2((double)sX/PL_BUL_SPEED, (double)-sY/PL_BUL_SPEED);
+            ang -= PI / 2.0;
+            
+            n = 0;
+            curStone = 1;
+            while (curStone < 0x0100) {
+                if (curStone & stones)
+                    n++;
+                curStone <<= 1;
+            }
+            dang = PL_BUL_DANG * PI / 180.0;
+            if (n > 0)
+                ang -= dang * n / 2.0;
+            sX = PL_BUL_SPEED*cos(ang);
+            sY = PL_BUL_SPEED*sin(ang);
         }
-        dang = PL_BUL_DANG * PI / 180.0;
-        if (n > 0)
-            ang -= dang * n / 2.0;
-        sX = PL_BUL_SPEED*cos(ang);
-        sY = PL_BUL_SPEED*sin(ang);
+        else {
+            pl_getShotParams(&iniX, &iniY, &sX, &sY, &stones, pPs->pPl);
+            
+            dang = PL_BUL_DANG * PI / 180.0;
+            ang = -PI / 2.0 - dang * 7 / 2.0;
+            sX = PL_BUL_SPEED*cos(ang);
+            sY = PL_BUL_SPEED*sin(ang);
+        }
         
         curStone = 1;
         while (curStone < 0x0100) {
@@ -226,6 +236,9 @@ while (pPs->skippedFrames > 0) {
             spr_getSprite(&pGfmSpr, pSpr);
             pGfmSpr->obj.vx = sX;
             pGfmSpr->obj.vy = sY;
+            if (pPs->state == 7) {
+                pGfmSpr->obj.ay = -sY;
+            }
             
 __next_stone:
             ang += dang;

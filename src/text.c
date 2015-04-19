@@ -44,6 +44,19 @@ static char _str_line3[] =
 static char _strLine4[] = 
 */
 
+static char _str_line7[] = 
+"YOU DID IT!!\n"
+"YOU WERE ABLE TO FIND EVERY STONE OF\n"
+"POWER!!                    \n"
+" \n"
+" \n"
+" \n"
+"GAME OVER\n"
+" \n"
+"PLEASE CLOSE THE GAME"
+"                    \n \n"
+"(OR WALK AROUND WITH THAT RAINBOW *-*)";
+
 int txt_getNew(text **ppTxt) {
     int rv;
     
@@ -86,6 +99,10 @@ void txt_setText(text *pTxt, int num) {
             pTxt->curText = _str_line1;
             pTxt->maxLength = sizeof(_str_line1) - 1;
         } break;
+        case 7: {
+            pTxt->curText = _str_line7;
+            pTxt->maxLength = sizeof(_str_line7) - 1;
+        } break;
     }
     pTxt->numLines = 1;
 }
@@ -101,7 +118,8 @@ void txt_update(text *pTxt, int ms) {
         // Stop if we reached the end
         if (pTxt->length == pTxt->maxLength) {
             pTxt->didFinish = 1;
-            pTxt->curText = 0;
+            if (pTxt->curText != _str_line7)
+                pTxt->curText = 0;
         }
         // Otherwise, go to the next char
         else {
