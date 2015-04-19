@@ -20,16 +20,18 @@
 #include "player.h"
 #include "sprite.h"
 
-enum { SPR_ANIM_DEF, SPR_ANIM_WALK };
+enum { SPR_ANIM_DEF, SPR_ANIM_WALK, SPR_ANIM_JUMP, SPR_ANIM_LASER };
 
 static int _pl_animData[] = 
 {
 /*fps,loop,num,frames...*/
-   0 ,  0 , 1 , 80,
-   12,  1 , 8 , 81,82,83,84,85,86,87,88,
+   8 ,  1 , 12, 80,80,80,80,81,80,82,80,80,80,80,83,
+   8 ,  1 , 8 , 84,85,86,87,84,85,88,87,
+   0 ,  0 , 1 , 82,
+   0 ,  0 , 1 , 89,
 };
 
-static int _pl_animLen = 2;
+static int _pl_animLen = 4;
 
 /** 'Export' the player structure */
 struct stPlayer {
@@ -162,9 +164,11 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
     // Set this at the 'player's center'
     // TODO set it at the kitten!!
     *iniX = pGfmSpr->obj.x;
-    if (!pGfmSpr->flipped)
-        *iniX += 10;
-    *iniY = pGfmSpr->obj.y - 1;
+    if (pGfmSpr->flipped)
+        *iniX -= 6;
+    else
+        *iniX += 8;
+    *iniY = pGfmSpr->obj.y + 1;
     // Set the speed
     *sX = pPl->bulHorSpeed;
     *sY = pPl->bulVerSpeed;
@@ -230,7 +234,6 @@ void pl_update(player *pPl, int ms) {
     
     // Movement
     if (isTouchingDown) {
-        spr_setAnim(pPl->pSpr, SPR_ANIM_WALK, 0/*doReset*/);
         if (isLeft) {
             pObj->vx = -PL_VX;
             pSpr->flipped = 1;
@@ -240,7 +243,6 @@ void pl_update(player *pPl, int ms) {
             pSpr->flipped = 0;
         }
         else {
-            spr_setAnim(pPl->pSpr, SPR_ANIM_DEF, 0/*doReset*/);
             pObj->vx = 0;
         }
         pPl->laserTimer = pPl->maxLaserTimer;
@@ -299,6 +301,15 @@ void pl_update(player *pPl, int ms) {
     else {
         pPl->isShooting = 0;
     }
+    
+    if (pPl->isShooting)
+        spr_setAnim(pPl->pSpr, SPR_ANIM_LASER, 0/*doReset*/);
+    else if (!isTouchingDown)
+        spr_setAnim(pPl->pSpr, SPR_ANIM_JUMP, 0/*doReset*/);
+    else if (isLeft || isRight)
+        spr_setAnim(pPl->pSpr, SPR_ANIM_WALK, 0/*doReset*/);
+    else
+        spr_setAnim(pPl->pSpr, SPR_ANIM_DEF, 0/*doReset*/);
     
     spr_update(pPl->pSpr, ms);
 }

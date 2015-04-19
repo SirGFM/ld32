@@ -29,6 +29,7 @@
 #define PL_LASER_COOLDOWN 250
 #define PL_BUL_DEC 10
 #define PL_LASER_INC 50
+#define PL_BUL_DANG 1.0
 
 #define ASSERT(stmt, retVal) \
   do { \
@@ -47,6 +48,7 @@
 extern int gl_running;
 
 extern GFraMe_spriteset *gl_sset2x2;
+extern GFraMe_spriteset *gl_sset4x4;
 extern GFraMe_spriteset *gl_sset8x8;
 extern GFraMe_spriteset *gl_sset16x16;
 

@@ -31,19 +31,19 @@ int _sprBlueStoneAnimLen = 1;
 int _sprPurpleStoneData[] = {0,0,1,294};
 int _sprPurpleStoneAnimLen = 1;
 
-int _sprRedBulAnimData[] = {0,0,1,4096};
+int _sprRedBulAnimData[] = {0,0,1,1024};
 int _sprRedBulAnimLen = 1;
-int _sprOrangeBulAnimData[] = {0,0,1,4097};
+int _sprOrangeBulAnimData[] = {0,0,1,1025};
 int _sprOrangeBulAnimLen = 1;
-int _sprYellowBulAnimData[] = {0,0,1,4098};
+int _sprYellowBulAnimData[] = {0,0,1,1026};
 int _sprYellowBulAnimLen = 1;
-int _sprGreenBulAnimData[] = {0,0,1,4099};
+int _sprGreenBulAnimData[] = {0,0,1,1027};
 int _sprGreenBulAnimLen = 1;
-int _sprCyanBulAnimData[] = {0,0,1,4100};
+int _sprCyanBulAnimData[] = {0,0,1,1028};
 int _sprCyanBulAnimLen = 1;
-int _sprBlueBulAnimData[] = {0,0,1,4101};
+int _sprBlueBulAnimData[] = {0,0,1,1029};
 int _sprBlueBulAnimLen = 1;
-int _sprPurpleBulAnimData[] = {0,0,1,4102};
+int _sprPurpleBulAnimData[] = {0,0,1,1030};
 int _sprPurpleBulAnimLen = 1;
 
 /** 'Export' the sprite structure */
@@ -185,6 +185,8 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
     // Select the correct spriteset
     if (width == 2 && height == 2)
         pSset = gl_sset2x2;
+    else if (width == 4 && height == 4)
+        pSset = gl_sset4x4;
     else if (width == 8 && height == 8)
         pSset = gl_sset8x8;
     else if (width == 16 && height == 16)

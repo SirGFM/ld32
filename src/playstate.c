@@ -113,7 +113,7 @@ void ps_update(struct stPlaystate *pPs) {
                 n++;
             curStone <<= 1;
         }
-        dang = 0.5 * PI / 180.0;
+        dang = PL_BUL_DANG * PI / 180.0;
         if (n > 0)
             ang -= dang * n / 2.0;
         sX = PL_BUL_SPEED*cos(ang);
@@ -162,8 +162,8 @@ void ps_update(struct stPlaystate *pPs) {
                 default: {}
             }
             
-            rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 2/*width*/,
-                    2/*height*/, 2/*hitboxWidth*/, 2/*hitboxHeight*/, animData,
+            rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 4/*width*/,
+                    4/*height*/, 4/*hitboxWidth*/, 4/*hitboxHeight*/, animData,
                     animLen, curStone);
             if (rv != 0) goto __next_stone;
             
