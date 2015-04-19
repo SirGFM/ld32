@@ -40,6 +40,12 @@ struct stPlaystate {
     int stonesUsed;
     /** How many stones there are allocated */
     int stonesLen;
+    /** The spikes of powah */
+    sprite **pSpikes;
+    /**  How many spikes there are in use */
+    int spikesUsed;
+    /** How many spikes there are allocated */
+    int spikesLen;
     /** The player's bullets */
     sprite **pPlBullets;
     /** How many plBullets there are allocated */
@@ -196,6 +202,8 @@ __next_stone:
         0 /*isPlFixed*/, 1/*isObjsFixed*/);
     pl_collideAgainstSprGroup(pPs->pPl, pPs->pStones, pPs->stonesUsed,
         0 /*isPlFixed*/, 0/*isObjsFixed*/);
+    pl_collideAgainstSprGroup(pPs->pPl, pPs->pSpikes, pPs->spikesUsed,
+        0 /*isPlFixed*/, 0/*isObjsFixed*/);
   GFraMe_event_update_end();
 }
 
@@ -234,6 +242,17 @@ void ps_clean(struct stPlaystate *pPs) {
         }
         free(pPs->pStones);
         pPs->pStones = 0;
+    }
+    if (pPs->pSpikes) {
+        int i;
+        
+        i = 0;
+        while (i < pPs->spikesLen) {
+            spr_free(&(pPs->pSpikes[i]));
+            i++;
+        }
+        free(pPs->pSpikes);
+        pPs->pSpikes = 0;
     }
     if (pPs->pPlBullets) {
         int i;
@@ -321,6 +340,7 @@ int ps_setMap(struct stPlaystate *pPs, int map) {
     
     pPs->wallsUsed = 0;
     pPs->stonesUsed = 0;
+    pPs->spikesUsed = 0;
     switch (map) {
         default: {
             // TODO put this in a macro (only if there are more maps)
@@ -335,6 +355,9 @@ int ps_setMap(struct stPlaystate *pPs, int map) {
             pPs->mapBuf = (unsigned char*)map001_tilemap;
             // Get the stones of power
             rv = map001_getStones(&pPs->pStones, &pPs->stonesLen, &pPs->stonesUsed);
+            ASSERT_NR(rv == 0);
+            // Get the spikes
+            rv = map001_getSpikes(&pPs->pSpikes, &pPs->spikesLen, &pPs->spikesUsed);
             ASSERT_NR(rv == 0);
         }
     }

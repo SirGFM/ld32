@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" nextobjectid="17">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" nextobjectid="22">
  <tileset firstgid="1" name="atlas" tilewidth="8" tileheight="8">
   <image source="../atlas.bmp" trans="ff00ff" width="256" height="256"/>
  </tileset>
@@ -9,10 +9,12 @@
   </data>
  </layer>
  <objectgroup name="walls">
-  <object id="3" name="wall" type="wall" x="0" y="216" width="320" height="24"/>
+  <object id="3" name="wall" type="wall" x="0" y="216" width="248" height="24"/>
   <object id="4" name="wall" type="wall" x="128" y="200" width="32" height="16"/>
   <object id="6" name="wall" type="wall" x="160" y="184" width="48" height="32"/>
   <object id="7" name="wall" type="wall" x="248" y="192" width="24" height="8"/>
+  <object id="20" name="wall" type="wall" x="272" y="216" width="48" height="24"/>
+  <object id="21" name="wall" type="wall" x="248" y="224" width="24" height="16"/>
  </objectgroup>
  <objectgroup name="stones">
   <object id="8" name="red" type="red" x="40" y="194" width="8" height="24"/>
@@ -22,5 +24,8 @@
   <object id="14" name="cyan" type="cyan" x="136" y="178" width="8" height="24"/>
   <object id="15" name="blue" type="blue" x="168" y="162" width="8" height="24"/>
   <object id="16" name="purple" type="purple" x="192" y="162" width="8" height="24"/>
+ </objectgroup>
+ <objectgroup name="spikes">
+  <object id="19" name="spike" type="spike" x="248.5" y="219" width="24" height="8"/>
  </objectgroup>
 </map>

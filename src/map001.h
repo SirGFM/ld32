@@ -13,3 +13,5 @@ extern int map001_height;
 int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed);
 /** Get all this map's walls into a GFraMe_object buffer */
 int map001_getStones(sprite ***pppSprs, int *pLen, int *pUsed);
+/** Get all this map's walls into a GFraMe_object buffer */
+int map001_getSpikes(sprite ***pppSprs, int *pLen, int *pUsed);

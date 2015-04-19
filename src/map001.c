@@ -53,7 +53,7 @@ int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
     int len;
     int i;
     
-    len = 4;
+    len = 6;
     
     if (!ppObjs)
         return 1;
@@ -78,7 +78,7 @@ int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
     GFraMe_object_clear(&((*ppObjs)[i]));
     GFraMe_object_set_x(&((*ppObjs)[i]), 0);
     GFraMe_object_set_y(&((*ppObjs)[i]), 216);
-    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 320, 24);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 248, 24);
     
     i++;
     GFraMe_object_clear(&((*ppObjs)[i]));
@@ -97,6 +97,18 @@ int map001_getWalls(GFraMe_object **ppObjs, int *pLen, int *pUsed) {
     GFraMe_object_set_x(&((*ppObjs)[i]), 248);
     GFraMe_object_set_y(&((*ppObjs)[i]), 192);
     GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 24, 8);
+    
+    i++;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 272);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 216);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 48, 24);
+    
+    i++;
+    GFraMe_object_clear(&((*ppObjs)[i]));
+    GFraMe_object_set_x(&((*ppObjs)[i]), 248);
+    GFraMe_object_set_y(&((*ppObjs)[i]), 224);
+    GFraMe_hitbox_set(&((*ppObjs)[i].hitbox), GFraMe_hitbox_upper_left, 0/*x*/, 0/*y*/, 24, 16);
     
     i++;
     return 0;
@@ -256,6 +268,54 @@ int map001_getStones(sprite ***pppSprs, int *pLen, int *pUsed) {
       /*animData*/_sprPurpleStoneData,
        /*animLen*/_sprPurpleStoneAnimLen,
           /*type*/SPR_PURPLE_STONE
+    );
+    ASSERT_NR(rv == 0);
+    i++;
+    rv = 0;
+__ret:
+    return rv;
+}
+/** Get all this map's walls into a GFraMe_object buffer */
+int map001_getSpikes(sprite ***pppSprs, int *pLen, int *pUsed) {
+    int i, len, rv;
+    sprite *pSpr;
+    
+    len = 1;
+    
+    if (!pppSprs)
+        return 1;
+    if (!pLen)
+        return 1;
+    if (!pUsed)
+        return 1;
+    
+    if (*pLen < len) {
+        *pppSprs = (sprite**)realloc(*pppSprs, sizeof(sprite*)*len);
+        if (!(*pppSprs))
+            return 1;
+        *pLen = len;
+    }
+    *pUsed = len;
+    
+    memset(*pppSprs, 0, sizeof(sprite*)*len);
+    
+    i = 0;
+    pSpr = 0;
+    rv = spr_getNew(&pSpr);
+    ASSERT_NR(rv == 0);
+    (*pppSprs)[i] = pSpr;
+    rv = spr_init(pSpr,
+             /*x*/248,
+             /*y*/219,
+          /*offX*/0,
+          /*offY*/0,
+         /*width*/0,
+        /*height*/0,
+   /*hitboxWidth*/24,
+  /*hitboxHeight*/8,
+      /*animData*/0,
+       /*animLen*/0,
+          /*type*/SPR_SPIKE
     );
     ASSERT_NR(rv == 0);
     i++;

@@ -47,6 +47,9 @@ void collPlSpr(sprite *pSprPl, sprite *pSpr, sprType type) {
             pl_addStone(pPl, type);
             spr_kill(pSpr);
         break;
+        case SPR_SPIKE:
+            spr_kill(pSprPl);
+        break;
         default: {}
     }
 }

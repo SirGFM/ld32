@@ -53,6 +53,7 @@ typedef enum {
     SPR_CYAN_STONE   = 0x00000020,
     SPR_BLUE_STONE   = 0x00000040,
     SPR_PURPLE_STONE = 0x00000080,
+    SPR_SPIKE        = 0x00000100,
     SPR_TYPES_MAX
 } sprType;
 

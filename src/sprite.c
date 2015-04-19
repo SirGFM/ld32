@@ -64,8 +64,10 @@ struct stSprite {
     int lastFrame;
     /** This sprite's type */
     sprType type;
-    /** Whether the sprite is active and should be updated and draw */
+    /** Whether the sprite is active and should be updated and drawn */
     int isActive;
+    /** Whether the sprite is visible and drawn */
+    int isVisible;
 };
 
 /**
@@ -179,9 +181,12 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
     // Check the arguments
     ASSERT(pSpr, 1);
     ASSERT(pSpr->pSelf, 1);
-    ASSERT(animData, 1);
-    ASSERT(animLen > 0, 1);
+    if (width != 0 && height != 0) {
+        ASSERT(animData, 1);
+        ASSERT(animLen > 0, 1);
+    }
     
+    pSpr->isVisible = 1;
     // Select the correct spriteset
     if (width == 2 && height == 2)
         pSset = gl_sset2x2;
@@ -191,13 +196,15 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
         pSset = gl_sset8x8;
     else if (width == 16 && height == 16)
         pSset = gl_sset16x16;
-    else
-        return 1;
+    else {
+        pSset = 0;
+        pSpr->isVisible = 0;
+    }
     
     GFraMe_sprite_init(pSpr->pSelf, x, y, hitboxWidth, hitboxHeight, pSset,
             offX, offY);
     
-    if (animLen > pSpr->animLen) {
+    if (pSpr->isVisible && animLen > pSpr->animLen) {
         pSpr->pAnims = (GFraMe_animation*)realloc(pSpr->pAnims,
                 sizeof(GFraMe_animation)*animLen);
         ASSERT(pSpr->pAnims, 1);
@@ -206,7 +213,7 @@ int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
     }
     
     i = 0;
-    while (i < animLen) {
+    while (pSpr->isVisible && i < animLen) {
         int fps, doLoop, frameCount, *frames;
         
         // Get the animation's data
@@ -284,7 +291,7 @@ int spr_didAnimationFinish(sprite *pSpr) {
 void spr_draw(sprite *pSpr, camera *pCam) {
     int camX, camY, camW, camH;
     
-    if (pSpr->isActive) {
+    if (pSpr->isActive && pSpr->isVisible) {
         cam_getParams(&camX, &camY, &camW, &camH, pCam);
         GFraMe_sprite_draw_camera(pSpr->pSelf, camX, camY, camW, camH);
     }
