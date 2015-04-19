@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "audio.h"
 #include "global.h"
 #include "player.h"
 #include "sprite.h"
@@ -167,6 +168,8 @@ void pl_addStone(player *pPl, sprType type) {
         
         pPl->checkpointX = pGfmSpr->obj.x;
         pPl->checkpointY = pGfmSpr->obj.y;
+        
+        aud_playPlGetStone();
     }
 }
 
@@ -231,11 +234,14 @@ void pl_getCenter(int *x, int *y, player *pPl) {
     *x = pObj->x + pObj->hitbox.cx;
     *y = pObj->y + pObj->hitbox.cy;
 }
-
+#include <stdio.h>
 /**
  * Kill the player
  */
 void pl_kill(player *pPl) {
+    if (spr_isAlive(pPl->pSpr)) {
+        aud_playPlDeath();
+    }
     spr_setAnim(pPl->pSpr, SPR_ANIM_DEATH, 1/*doReset*/);
     spr_kill(pPl->pSpr);
 }
@@ -252,6 +258,8 @@ void pl_revive(player *pPl) {
     
     GFraMe_object_set_pos(pObj, pPl->checkpointX, pPl->checkpointY);
     spr_revive(pPl->pSpr);
+    
+    aud_playPlRevive();
 }
 
 /**
@@ -266,6 +274,28 @@ void pl_draw(player *pPl, camera *pCam) {
     }
     
     spr_draw(pPl->pSpr, pCam);
+    
+    // Draw the target
+    if (GFraMe_controller_max > 0 && (GFraMe_controllers[0].rx > 0.3 ||
+            GFraMe_controllers[0].rx < -0.3 || GFraMe_controllers[0].ry > 0.3 ||
+            GFraMe_controllers[0].ry < -0.3)) {
+        GFraMe_sprite *pGfmSpr;
+        int tile, x, y, cx, cy;
+        
+        spr_getSprite(&pGfmSpr, pPl->pSpr);
+        cam_getPos(&cx, &cy, pCam);
+        
+        tile = 295;
+        x = pGfmSpr->obj.x + GFraMe_controllers[0].rx * PL_TARGET_DIST - cx;
+        if (pGfmSpr->flipped)
+            x -= 6;
+        else
+            x += 8;
+        y = pGfmSpr->obj.y - 1 + GFraMe_controllers[0].ry * PL_TARGET_DIST - cy;
+        
+        GFraMe_spriteset_draw(gl_sset8x8, tile, x, y, 0/*flipped*/);
+        
+    }
     
     if (doKill)
         spr_kill(pPl->pSpr);
@@ -295,6 +325,7 @@ void pl_update(player *pPl, camera *pCam, int ms) {
     if (isTouchingDown) {
         // If on the ground, reset the speed to keep the player touching the floor
         pObj->vy = PL_VY;
+        aud_playPlJump();
     }
     else {
         pObj->ay = GRAV;
@@ -365,6 +396,8 @@ void pl_update(player *pPl, camera *pCam, int ms) {
         else
             pObj->vx = -pPl->bulHorSpeed;
         pObj->vy = -pPl->bulVerSpeed;
+        
+        aud_playBlBullet();
     }
     else if (pPl->stones != 0 && pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_controller_max > 0 &&
             (GFraMe_controllers[0].l2 || GFraMe_controllers[0].r2)) {
@@ -387,6 +420,8 @@ void pl_update(player *pPl, camera *pCam, int ms) {
         else
             pObj->vx = -pPl->bulHorSpeed;
         pObj->vy = -pPl->bulVerSpeed;
+        
+        aud_playBlBullet();
     }
     else {
         pPl->isShooting = 0;
@@ -402,5 +437,10 @@ void pl_update(player *pPl, camera *pCam, int ms) {
         spr_setAnim(pPl->pSpr, SPR_ANIM_DEF, 0/*doReset*/);
     
     spr_update(pPl->pSpr, ms);
+    
+    if (spr_didChangeFrame(pPl->pSpr) && (pSpr->cur_tile == 84 ||
+            pSpr->cur_tile == 86 || pSpr->cur_tile == 88)) {
+        aud_playPlStep();
+    }
 }
 

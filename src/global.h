@@ -22,6 +22,7 @@
 
 #define PL_X 2*8
 #define PL_Y 54*8
+#define PL_TARGET_DIST 24
 
 #define PI 3.1415926
 #define GRAV    500
