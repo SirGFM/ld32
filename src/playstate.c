@@ -21,9 +21,6 @@ GFraMe_event_setup();
 #include <string.h>
 #include <math.h>
 
-#define PL_X 32
-#define PL_Y 32
-
 /** Variable to enable drawing of hitbox */
 #ifdef DEBUG
 extern int GFraMe_draw_debug;
@@ -64,6 +61,8 @@ struct stPlaystate {
     int mapWidth;
     /** Map height, in tiles */
     int mapHeight;
+    /** How long the player has been dead */
+    int plDeadTimer;
     /** Map's tilemap */
     unsigned char *mapBuf;
 #ifdef DEBUG
@@ -113,15 +112,8 @@ while (pPs->skippedFrames > 0) {
     int i;
     
 #ifdef DEBUG
-    if (GFraMe_pointer_pressed) {
-        int x, y;
-        
-        x = GFraMe_pointer_x;
-        y = GFraMe_pointer_y;
-        
-        cam_screenToWorld(&x, &y, pPs->pCam);
-        
-        pl_init(pPs->pPl, x, y);
+    if (GFraMe_keys.r || (GFraMe_controller_max && GFraMe_controllers[0].a)) {
+        pl_revive(pPs->pPl);
     }
     if (GFraMe_keys.one)
         pl_addStone(pPs->pPl, SPR_RED_STONE);
@@ -138,6 +130,13 @@ while (pPs->skippedFrames > 0) {
     if (GFraMe_keys.seven)
         pl_addStone(pPs->pPl, SPR_PURPLE_STONE);
 #endif
+    if (!pl_isAlive(pPs->pPl)) {
+        pPs->plDeadTimer += GFraMe_event_elapsed;
+        if (pPs->plDeadTimer > RESPAWN_TIME) {
+            pl_revive(pPs->pPl);
+            pPs->plDeadTimer = 0;
+        }
+    }
     // Update everything
     pl_update(pPs->pPl, pPs->pCam, GFraMe_event_elapsed);
     if (pl_isShooting(pPs->pPl)) {
@@ -257,16 +256,16 @@ __next_stone:
         else if (!rv && pPs->timeInDeadZone > 0) {
             pPs->timeInDeadZone -= GFraMe_event_elapsed;
         }
-        w = (SCRW * 3/4) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
-                CAM_DEADZONE_TIME + (SCRW / 4) * pPs->timeInDeadZone /
+        w = (SCRW * CAM_MAX_RATIO) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
+                CAM_DEADZONE_TIME + (SCRW * CAM_MIN_RATIO) * pPs->timeInDeadZone /
                     CAM_DEADZONE_TIME;
-        if (w < SCRW / 4)
-            w = SCRW / 4;
-        h = (SCRH * 3/4) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
-                CAM_DEADZONE_TIME + (SCRH / 4) * pPs->timeInDeadZone /
+        if (w < SCRW * CAM_MIN_RATIO)
+            w = SCRW * CAM_MIN_RATIO;
+        h = (SCRH * CAM_MAX_RATIO) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
+                CAM_DEADZONE_TIME + (SCRH * CAM_MIN_RATIO) * pPs->timeInDeadZone /
                     CAM_DEADZONE_TIME;
-        if (h < SCRW / 4)
-            h = SCRW / 4;
+        if (h < SCRW * CAM_MIN_RATIO)
+            h = SCRW * CAM_MIN_RATIO;
         
         cam_setDeadzone(pPs->pCam, w, h);
     }

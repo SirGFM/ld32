@@ -20,6 +20,9 @@
 #define DPS     60  // draws per second
 #define LOGTOFILE   0
 
+#define PL_X 2*8
+#define PL_Y 54*8
+
 #define PI 3.1415926
 #define GRAV    500
 #define PL_VX   50
@@ -28,9 +31,12 @@
 #define PL_BUL_COOLDOWN 80
 #define PL_LASER_COOLDOWN 250
 #define PL_BUL_DEC 10
-#define PL_LASER_INC 50
+#define PL_LASER_INC 80
 #define PL_BUL_DANG 1.0
 #define CAM_DEADZONE_TIME 2000.0
+#define CAM_MAX_RATIO 0.6
+#define CAM_MIN_RATIO 0.2
+#define RESPAWN_TIME 1500
 
 #define ASSERT(stmt, retVal) \
   do { \

@@ -47,6 +47,16 @@ void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
 void pl_addStone(player *pPl, sprType type);
 
 /**
+ * Set a checkpoint
+ */
+void pl_setCheckpoint(player *pPl);
+
+/** 
+ * Returns whether the player is alive
+ */
+int pl_isAlive(player *pPl);
+
+/**
  * Returns whether the player is shooting or not (1 on true)
  */
 int pl_isShooting(player *pPl);
@@ -61,6 +71,11 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
  * Get the player's center
  */
 void pl_getCenter(int *x, int *y, player *pPl);
+
+/**
+ * Revives the player at the last checkpoint
+ */
+void pl_revive(player *pPl);
 
 /**
  * Renders the player

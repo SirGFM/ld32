@@ -53,6 +53,10 @@ struct stPlayer {
     int bulHorSpeed;
     /** Bullet's base vertical speed */
     int bulVerSpeed;
+    /** Checkpoint's position */
+    int checkpointX;
+    /** Checkpoint's position */
+    int checkpointY;
 };
 
 /**
@@ -123,6 +127,9 @@ int pl_init(player *pPl, int x, int y) {
     pPl->bulCooldown = 0;
     pPl->laserTimer = pPl->maxLaserTimer;
     
+    pPl->checkpointX = x;
+    pPl->checkpointY = y;
+    
     rv = 0;
 __ret:
     return rv;
@@ -149,10 +156,36 @@ void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
  */
 void pl_addStone(player *pPl, sprType type) {
     if (!(pPl->stones & type)) {
+        GFraMe_sprite *pGfmSpr;
+        
+        spr_getSprite(&pGfmSpr, pPl->pSpr);
+        
         pPl->stones |= type;
         pPl->maxBulCooldown -= PL_BUL_DEC;
         pPl->maxLaserTimer += PL_LASER_INC;
+        
+        pPl->checkpointX = pGfmSpr->obj.x;
+        pPl->checkpointY = pGfmSpr->obj.y;
     }
+}
+
+/**
+ * Set a checkpoint
+ */
+void pl_setCheckpoint(player *pPl) {
+    GFraMe_sprite *pGfmSpr;
+    
+    spr_getSprite(&pGfmSpr, pPl->pSpr);
+    
+    pPl->checkpointX = pGfmSpr->obj.x;
+    pPl->checkpointY = pGfmSpr->obj.y;
+}
+
+/** 
+ * Returns whether the player is alive
+ */
+int pl_isAlive(player *pPl) {
+    return spr_isAlive(pPl->pSpr);
 }
 
 /**
@@ -196,6 +229,20 @@ void pl_getCenter(int *x, int *y, player *pPl) {
     
     *x = pObj->x + pObj->hitbox.cx;
     *y = pObj->y + pObj->hitbox.cy;
+}
+
+/**
+ * Revives the player at the last checkpoint
+ */
+void pl_revive(player *pPl) {
+    GFraMe_sprite *pGfmSpr;
+    GFraMe_object *pObj;
+    
+    spr_getSprite(&pGfmSpr, pPl->pSpr);
+    pObj = &pGfmSpr->obj;
+    
+    GFraMe_object_set_pos(pObj, pPl->checkpointX, pPl->checkpointY);
+    spr_revive(pPl->pSpr);
 }
 
 /**

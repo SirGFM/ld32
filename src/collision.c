@@ -45,7 +45,10 @@ void collPlSpr(sprite *pSprPl, sprite *pSpr, sprType type) {
         case SPR_BLUE_STONE:
         case SPR_PURPLE_STONE:
             pl_addStone(pPl, type);
-            spr_kill(pSpr);
+            spr_setType(pSpr, SPR_CHECKPOINT);
+        break;
+        case SPR_CHECKPOINT:
+            pl_setCheckpoint(pPl);
         break;
         case SPR_SPIKE:
             spr_kill(pSprPl);

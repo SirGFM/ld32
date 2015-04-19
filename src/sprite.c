@@ -423,3 +423,27 @@ void spr_kill(sprite *pSpr) {
     pSpr->isActive = 0;
 }
 
+/**
+ * Set this sprite as active
+ */
+void spr_revive(sprite *pSpr) {
+    pSpr->isActive = 1;
+}
+
+/** 
+ * Returns whether the sprite is alive
+ */
+int spr_isAlive(sprite *pSpr) {
+    return pSpr->isActive;
+}
+
+/**
+ * Modify the sprite's type
+ */
+void spr_setType(sprite *pSpr, sprType type) {
+    pSpr->type = type;
+    if (type == SPR_CHECKPOINT) {
+        pSpr->isVisible = 0;
+    }
+}
+

@@ -54,6 +54,7 @@ typedef enum {
     SPR_BLUE_STONE   = 0x00000040,
     SPR_PURPLE_STONE = 0x00000080,
     SPR_SPIKE        = 0x00000100,
+    SPR_CHECKPOINT   = 0x00000200,
     SPR_TYPES_MAX
 } sprType;
 
@@ -143,6 +144,21 @@ void spr_collideAgainstSprGroup(sprite *pSpr, sprite **pSprs, int sprsLen,
  * Set this sprite as not active
  */
 void spr_kill(sprite *pSpr);
+
+/**
+ * Set this sprite as active
+ */
+void spr_revive(sprite *pSpr);
+
+/** 
+ * Returns whether the sprite is alive
+ */
+int spr_isAlive(sprite *pSpr);
+
+/**
+ * Modify the sprite's type
+ */
+void spr_setType(sprite *pSpr, sprType type);
 
 #endif /* __SPRITE_H__ */
 
