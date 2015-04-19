@@ -4,6 +4,7 @@
  * The game's entry point
  */
 #include <GFraMe/GFraMe.h>
+#include <GFraMe/GFraMe_audio_player.h>
 #include <GFraMe/GFraMe_controller.h>
 #include <GFraMe/GFraMe_screen.h>
 
@@ -34,6 +35,9 @@ int main(int argc, char *argv[]) {
          0
         );
     ASSERT_NR(rv == GFraMe_ret_ok);
+    
+    rv = GFraMe_audio_player_init();
+    ASSERT_NR(rv == GFraMe_ret_ok);
 
     rv = gl_init();
     ASSERT_NR(rv == GFraMe_ret_ok);
@@ -45,6 +49,9 @@ int main(int argc, char *argv[]) {
     }
 
 __ret:
+    GFraMe_audio_player_pause();
+    GFraMe_audio_player_clear();
+    
     GFraMe_controller_close();
     gl_clean();
     GFraMe_quit();

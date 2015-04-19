@@ -7,6 +7,7 @@
 #define __AUDIO_H__
 
 void aud_playPlStep();
+void aud_playPlFall();
 void aud_playBlBullet();
 void aud_playPlDeath();
 void aud_playPlJump();

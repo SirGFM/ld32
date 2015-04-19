@@ -2,6 +2,7 @@
  * @file src/global.c
  */
 #include <GFraMe/GFraMe_assets.h>
+#include <GFraMe/GFraMe_audio.h>
 #include <GFraMe/GFraMe_error.h>
 #include <GFraMe/GFraMe_spriteset.h>
 #include <GFraMe/GFraMe_texture.h>
@@ -27,6 +28,12 @@ DECLARE_SSET(2, 2);
 DECLARE_SSET(4, 4);
 DECLARE_SSET(8, 8);
 DECLARE_SSET(16, 16);
+DECLARE_AUDIO(step);
+DECLARE_AUDIO(jump);
+DECLARE_AUDIO(death);
+DECLARE_AUDIO(bullet);
+DECLARE_AUDIO(powerup);
+DECLARE_AUDIO(revive);
 
 GFraMe_ret gl_init() {
     GFraMe_ret rv;
@@ -67,6 +74,13 @@ GFraMe_ret gl_init() {
       rv = GFraMe_audio_init(&_glAud_##AUD, FILEN, 0, 0, 1); \
       GFraMe_assertRet(rv == GFraMe_ret_ok, "Loading audio "FILEN" failed", __ret); \
       gl_aud_##AUD = &_glAud_##AUD
+    
+    INIT_AUDIO(step, "sfx/step");
+    INIT_AUDIO(jump, "sfx/jump");
+    INIT_AUDIO(death, "sfx/death");
+    INIT_AUDIO(bullet, "sfx/bullet");
+    INIT_AUDIO(powerup, "sfx/powerup");
+    INIT_AUDIO(revive, "sfx/revive");
     
     gl_running = 1;
     is_init = 1;

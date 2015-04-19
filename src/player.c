@@ -59,6 +59,8 @@ struct stPlayer {
     int checkpointX;
     /** Checkpoint's position */
     int checkpointY;
+    /** Whether the fall sfx has player */
+    int didPlayFall;
 };
 
 /**
@@ -234,7 +236,7 @@ void pl_getCenter(int *x, int *y, player *pPl) {
     *x = pObj->x + pObj->hitbox.cx;
     *y = pObj->y + pObj->hitbox.cy;
 }
-#include <stdio.h>
+
 /**
  * Kill the player
  */
@@ -325,10 +327,14 @@ void pl_update(player *pPl, camera *pCam, int ms) {
     if (isTouchingDown) {
         // If on the ground, reset the speed to keep the player touching the floor
         pObj->vy = PL_VY;
-        aud_playPlJump();
+        if (!pPl->didPlayFall) {
+            aud_playPlFall();
+            pPl->didPlayFall = 1;
+        }
     }
     else {
         pObj->ay = GRAV;
+        pPl->didPlayFall = 0;
     }
     
     // Check if is pressing left
@@ -365,6 +371,7 @@ void pl_update(player *pPl, camera *pCam, int ms) {
     }
     if (isJump && isTouchingDown) {
         pObj->vy = -PL_VY;
+        aud_playPlJump();
     }
     if (isTouchingUp) {
         pObj->vy = 0;

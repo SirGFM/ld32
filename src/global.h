@@ -4,6 +4,7 @@
 #ifndef __GLOBAL_H_
 #define __GLOBAL_H_
 
+#include <GFraMe/GFraMe_audio.h>
 #include <GFraMe/GFraMe_error.h>
 #include <GFraMe/GFraMe_spriteset.h>
 
@@ -59,6 +60,13 @@ extern GFraMe_spriteset *gl_sset2x2;
 extern GFraMe_spriteset *gl_sset4x4;
 extern GFraMe_spriteset *gl_sset8x8;
 extern GFraMe_spriteset *gl_sset16x16;
+
+extern GFraMe_audio *gl_aud_step;
+extern GFraMe_audio *gl_aud_jump;
+extern GFraMe_audio *gl_aud_death;
+extern GFraMe_audio *gl_aud_bullet;
+extern GFraMe_audio *gl_aud_powerup;
+extern GFraMe_audio *gl_aud_revive;
 
 GFraMe_ret gl_init();
 void gl_clean();
