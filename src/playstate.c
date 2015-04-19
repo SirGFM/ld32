@@ -39,6 +39,10 @@ struct stPlaystate {
     int stonesUsed;
     /** How many stones there are allocated */
     int stonesLen;
+    /** The player's bullets */
+    sprite **pPlBullets;
+    /** How many plBullets there are allocated */
+    int plBulletsLen;
     /** The bounds of the stage */
     GFraMe_object *pWalls;
     /**  How many walls there are in use */
@@ -95,10 +99,17 @@ void ps_update(struct stPlaystate *pPs) {
         spr_update(pPs->pStones[i], GFraMe_event_elapsed);
         i++;
     }
+    i = 0;
+    while (i < pPs->plBulletsLen) {
+        spr_update(pPs->pPlBullets[i], GFraMe_event_elapsed);
+        i++;
+    }
     
     // Collide everything
     pl_collideAgainstGroup(pPs->pPl, pPs->pWalls, pPs->wallsLen,
         0 /*isPlFixed*/, 1/*isObjsFixed*/);
+    pl_collideAgainstSprGroup(pPs->pPl, pPs->pStones, pPs->stonesUsed,
+        0 /*isPlFixed*/, 0/*isObjsFixed*/);
   GFraMe_event_update_end();
 }
 
@@ -113,7 +124,11 @@ void ps_draw(struct stPlaystate *pPs) {
         spr_draw(pPs->pStones[i], pPs->pCam);
         i++;
     }
-    
+    i = 0;
+    while (i < pPs->plBulletsLen) {
+        spr_draw(pPs->pPlBullets[i], pPs->pCam);
+        i++;
+    }
     pl_draw(pPs->pPl, pPs->pCam);
   GFraMe_event_draw_end();
 }
@@ -133,6 +148,17 @@ void ps_clean(struct stPlaystate *pPs) {
         }
         free(pPs->pStones);
         pPs->pStones = 0;
+    }
+    if (pPs->pPlBullets) {
+        int i;
+        
+        i = 0;
+        while (i < pPs->plBulletsLen) {
+            spr_free(&(pPs->pPlBullets[i]));
+            i++;
+        }
+        free(pPs->pPlBullets);
+        pPs->pPlBullets = 0;
     }
     if (pPs->pWalls) {
         free(pPs->pWalls);

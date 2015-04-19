@@ -13,6 +13,7 @@ CC=gcc
 #==============================================================================
  OBJS =                                \
          $(OBJDIR)/camera.o            \
+         $(OBJDIR)/collision.o         \
          $(OBJDIR)/global.o            \
          $(OBJDIR)/main.o              \
          $(OBJDIR)/map001.o            \

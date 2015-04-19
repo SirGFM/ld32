@@ -30,14 +30,14 @@ extern int _sprPurpleStoneAnimLen;
 typedef struct stSprite sprite;
 
 typedef enum {
-    SPR_PLAYER = 0,
-    SPR_RED_STONE,
-    SPR_ORANGE_STONE,
-    SPR_YELLOW_STONE,
-    SPR_GREEN_STONE,
-    SPR_CYAN_STONE,
-    SPR_BLUE_STONE,
-    SPR_PURPLE_STONE,
+    SPR_PLAYER       = 0x00000001,
+    SPR_RED_STONE    = 0x00000002,
+    SPR_ORANGE_STONE = 0x00000004,
+    SPR_YELLOW_STONE = 0x00000008,
+    SPR_GREEN_STONE  = 0x00000010,
+    SPR_CYAN_STONE   = 0x00000020,
+    SPR_BLUE_STONE   = 0x00000040,
+    SPR_PURPLE_STONE = 0x00000080,
     SPR_TYPES_MAX
 } sprType;
 
@@ -60,6 +60,16 @@ void spr_free(sprite **ppSpr);
 int spr_init(sprite *pSpr, int x, int y, int offX, int offY, int width,
         int height, int hitboxWidth, int hitboxHeight, int *animData,
         int animLen, sprType type);
+
+/**
+ * Assign something as this' super
+ */
+void spr_setSuper(sprite *pSpr, void *pObj);
+
+/**
+ * Get the super
+ */
+void spr_getSuper(void **pObj, sprite *pSpr);
 
 /**
  * Set the sprite's animation
@@ -100,8 +110,13 @@ void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
 /**
  * Collides a sprite against various sprites
  */
-void spr_collideAgainstSprGroup(sprite *pSpr, sprite *pSprs, int sprsLen,
+void spr_collideAgainstSprGroup(sprite *pSpr, sprite **pSprs, int sprsLen,
         int isSprFixed, int isSprsFixed);
+
+/**
+ * Set this sprite as not active
+ */
+void spr_kill(sprite *pSpr);
 
 #endif /* __SPRITE_H__ */
 

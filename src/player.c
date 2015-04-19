@@ -8,6 +8,7 @@
 #include <GFraMe/GFraMe_keys.h>
 #include <GFraMe/GFraMe_hitbox.h>
 #include <GFraMe/GFraMe_object.h>
+#include <GFraMe/GFraMe_pointer.h>
 #include <GFraMe/GFraMe_sprite.h>
 #include <GFraMe/GFraMe_spriteset.h>
 
@@ -33,6 +34,19 @@ static int _pl_animLen = 2;
 struct stPlayer {
     /** The player's sprite */
     sprite *pSpr;
+    /** Which stones were gotten */
+    sprType stones;
+    /** Time until next shot */
+    int bulCooldown;
+    /** Maximun time until next shot; Decreases after each stone */
+    int maxBulCooldown;
+    /** For how long can one shot before falling to the ground */
+    int laserTimer;
+    /** Max time for lase; is increased after each stone */
+    int maxLaserTimer;
+    /** Whether the player is shooting */
+    int isShooting;
+    // TODO shoot direction (i.e., speed)
 };
 
 /**
@@ -94,6 +108,8 @@ int pl_init(player *pPl, int x, int y) {
         16/*height*/, 4/*hitboxWidth*/, 12/*hitboxHeight*/, _pl_animData,
         _pl_animLen, SPR_PLAYER);
     ASSERT_NR(rv == 0);
+    // Set a hook to itself
+    spr_setSuper(pPl->pSpr, (void*)pPl);
     
     rv = 0;
 __ret:
@@ -111,9 +127,16 @@ void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
 /**
  * Collides a player against various sprites
  */
-void pl_collideAgainstSprGroup(player *pPl, sprite *pSprs, int sprsLen,
+void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
         int isPlFixed, int isSprsFixed) {
     spr_collideAgainstSprGroup(pPl->pSpr, pSprs, sprsLen, isPlFixed, isSprsFixed);
+}
+
+/**
+ * Give another stone to the player
+ */
+void pl_addStone(player *pPl, sprType type) {
+    pPl->stones |= type;
 }
 
 /**
@@ -134,6 +157,9 @@ void pl_update(player *pPl, int ms) {
     // Get something we can work with
     spr_getSprite(&pSpr, pPl->pSpr);
     pObj = &(pSpr->obj);
+    
+    if (pPl->bulCooldown > 0)
+        pPl->bulCooldown -= ms;
     
     isTouchingDown = (pObj->hit & GFraMe_direction_down) != 0;
     isTouchingUp = (pObj->hit & GFraMe_direction_up) != 0;
@@ -161,6 +187,24 @@ void pl_update(player *pPl, int ms) {
     isJump = GFraMe_keys.space;
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].r1);
     isJump = isJump || (GFraMe_controller_max > 0 && GFraMe_controllers[0].l1);
+    // Check if is shooting
+    if (pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_pointer_pressed) {
+        pPl->bulCooldown += pPl->maxBulCooldown;
+        pPl->laserTimer -= pPl->maxBulCooldown;
+        pPl->isShooting = 1;
+        // TODO Get laser direction
+        // TODO 'force feedback'
+    }
+    else if (pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_controller_max > 0 &&
+            (GFraMe_controllers[0].l2 || GFraMe_controllers[0].r2)) {
+        pPl->bulCooldown += pPl->maxBulCooldown;
+        pPl->laserTimer -= pPl->maxBulCooldown;
+        pPl->isShooting = 1;
+        // TODO Get laser direction
+        // TODO 'force feedback'
+    }
+    else
+        pPl->isShooting = 0;
     
     // Movement
     if (isTouchingDown) {
@@ -177,6 +221,7 @@ void pl_update(player *pPl, int ms) {
             spr_setAnim(pPl->pSpr, SPR_ANIM_DEF, 0/*doReset*/);
             pObj->vx = 0;
         }
+        pPl->laserTimer = pPl->maxLaserTimer;
     }
     if (isJump && isTouchingDown) {
         pObj->vy = -PL_VY;

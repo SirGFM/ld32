@@ -38,8 +38,13 @@ void pl_collideAgainstGroup(player *pPl, GFraMe_object *pObjs, int objsLen,
 /**
  * Collides a player against various sprites
  */
-void pl_collideAgainstSprGroup(player *pPl, sprite *pSprs, int sprsLen,
+void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
         int isPlFixed, int isSprsFixed);
+
+/**
+ * Give another stone to the player
+ */
+void pl_addStone(player *pPl, sprType type);
 
 /**
  * Renders the player

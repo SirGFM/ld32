@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "collision.h"
 #include "global.h"
 #include "sprite.h"
 
@@ -32,6 +33,8 @@ int _sprPurpleStoneAnimLen = 1;
 
 /** 'Export' the sprite structure */
 struct stSprite {
+    /** Used by the player to set a hook to itself */
+    void *pSuper;
     /** The sprite's sprite */
     GFraMe_sprite *pSelf;
     /** The sprite's animations */
@@ -72,6 +75,49 @@ int spr_getNew(sprite **ppSpr) {
     ASSERT((*ppSpr)->pSelf, 1);
     memset((*ppSpr)->pSelf, 0x0, sizeof(GFraMe_sprite));
     
+    rv = 0;
+__ret:
+    return rv;
+}
+
+/**
+ * Try to get a new sprite, first looking into a list
+ */
+int spr_recycle(sprite **ppSpr, sprite ***pppSpr, int *pLen) {
+    int i, j, rv;
+    
+    ASSERT(ppSpr, 1);
+    ASSERT(pppSpr, 1);
+    ASSERT(pLen, 1);
+    
+    // Try to find an unused object
+    i = 0;
+    while (i < *pLen) {
+        if (!(*pppSpr)[i]->isActive) {
+            *ppSpr = (*pppSpr)[i];
+            return 0;
+        }
+    }
+    
+    // Otherwise, expand the buffer
+    *pLen += 8;
+    *pppSpr = (sprite**)realloc(*pppSpr, (*pLen)*sizeof(sprite*));
+    ASSERT(*pppSpr, 1);
+    
+    // Alloc every object
+    j = i;
+    while (j < *pLen) {
+        sprite *pSpr = 0;
+        
+        rv = spr_getNew(&pSpr);
+        ASSERT_NR(rv == 0);
+        (*pppSpr)[j] = pSpr;
+        
+        j++;
+    }
+    
+    // Retrieve the first of the new ones
+    *ppSpr = (*pppSpr)[i];
     rv = 0;
 __ret:
     return rv;
@@ -171,6 +217,20 @@ __ret:
 }
 
 /**
+ * Assign something as this' super
+ */
+void spr_setSuper(sprite *pSpr, void *pObj) {
+    pSpr->pSuper = pObj;
+}
+
+/**
+ * Get the super
+ */
+void spr_getSuper(void **pObj, sprite *pSpr) {
+    *pObj = pSpr->pSuper;
+}
+
+/**
  * Set the sprite's animation
  */
 void spr_setAnim(sprite *pSpr, int anim, int doRestart) {
@@ -206,21 +266,25 @@ int spr_didAnimationFinish(sprite *pSpr) {
 void spr_draw(sprite *pSpr, camera *pCam) {
     int camX, camY, camW, camH;
     
-    cam_getParams(&camX, &camY, &camW, &camH, pCam);
-    GFraMe_sprite_draw_camera(pSpr->pSelf, camX, camY, camW, camH);
+    if (pSpr->isActive) {
+        cam_getParams(&camX, &camY, &camW, &camH, pCam);
+        GFraMe_sprite_draw_camera(pSpr->pSelf, camX, camY, camW, camH);
+    }
 }
 
 /**
  * Updated the sprite
  */
 void spr_update(sprite *pSpr, int ms) {
-    pSpr->didChangeFrame = 0;
-    
-    GFraMe_sprite_update(pSpr->pSelf, ms);
-    
-    if (pSpr->lastFrame != pSpr->pSelf->cur_tile) {
-        pSpr->lastFrame = pSpr->pSelf->cur_tile;
-        pSpr->didChangeFrame = 1;
+    if (pSpr->isActive) {
+        pSpr->didChangeFrame = 0;
+        
+        GFraMe_sprite_update(pSpr->pSelf, ms);
+        
+        if (pSpr->lastFrame != pSpr->pSelf->cur_tile) {
+            pSpr->lastFrame = pSpr->pSelf->cur_tile;
+            pSpr->didChangeFrame = 1;
+        }
     }
 }
 
@@ -265,7 +329,7 @@ void spr_collideAgainstGroup(sprite *pSpr, GFraMe_object *pObjs, int objsLen,
 /**
  * Collides a sprite against various sprites
  */
-void spr_collideAgainstSprGroup(sprite *pSpr, sprite *pSprs, int sprsLen,
+void spr_collideAgainstSprGroup(sprite *pSpr, sprite **pSprs, int sprsLen,
         int isSprFixed, int isSprsFixed) {
     GFraMe_collision_type mode;
     GFraMe_object *pThisObj;
@@ -288,20 +352,29 @@ void spr_collideAgainstSprGroup(sprite *pSpr, sprite *pSprs, int sprsLen,
     
     i = 0;
     while (i < sprsLen) {
-        GFraMe_ret rv;
-        GFraMe_object *pOtherObj;
-        
-        pOtherObj = &(pSprs[i].pSelf->obj);
-        
-        if (pSprs[i].isActive) {
+        if (pSprs[i]->isActive) {
+            GFraMe_ret rv;
+            GFraMe_object *pOtherObj;
+            
+            pOtherObj = &(pSprs[i]->pSelf->obj);
+            
             rv = GFraMe_object_overlap(pThisObj, pOtherObj, mode);
             
             if (rv == GFraMe_ret_ok) {
-                // TODO call callback
+                collisionCallback(pSpr, pSprs[i], pSpr->type, pSprs[i]->type);
+                if (!pSpr->isActive)
+                    break;
             }
         }
         
         i++;
     }
+}
+
+/**
+ * Set this sprite as not active
+ */
+void spr_kill(sprite *pSpr) {
+    pSpr->isActive = 0;
 }
 
