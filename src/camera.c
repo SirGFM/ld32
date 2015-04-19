@@ -16,10 +16,6 @@ struct stCamera {
     int x;
     /** Camera's position into the world */
     int y;
-    /** Last position the camera was set to */
-    int lastCenterX;
-    /** Last position the camera was set to */
-    int lastCenterY;
     /** Camera's width */
     int viewWidth;
     /** Camera's height */
@@ -28,6 +24,10 @@ struct stCamera {
     int worldWidth;
     /** World's height */
     int worldHeight;
+    /** Dead zone's center position */
+    int deadX;
+    /** Dead zone's center position */
+    int deadY;
     /** Dead zone's width */
     int deadWidth;
     /** Dead zone's height */
@@ -140,8 +140,10 @@ void cam_setDeadzone(camera *pCam, int width, int height) {
     // Check the arguments
     ASSERT_NR(pCam);
     
-    pCam->deadWidth = width;
-    pCam->deadHeight = height;
+    pCam->deadX = pCam->viewWidth / 2;
+    pCam->deadY = pCam->viewHeight / 2;
+    pCam->deadWidth = width / 2;
+    pCam->deadHeight = height / 2;
 __ret:
     return;
 }
@@ -152,20 +154,54 @@ __ret:
  * @return Returns 1 if it just pushed into the deadzone
  */
 int cam_centerAt(camera *pCam, int x, int y) {
-    int rv;
+    int rv, dx, dy;
+    
+    rv = 0;
     
     // Check arguments
     ASSERT(pCam, 0);
     
-    // TODO cam_centerAt
+    // Check the distance to the camera
+    dx = x - pCam->x - pCam->deadX;
+    dy = y - pCam->y - pCam->deadY;
     
-    // Check if last position was in the deadzone
-    // if (true) center at (x,y) (i.e., "reset") and return 0
-    // otherwise check if (x,y) is in the deadzone
-    //   if (true) push (x,y) outside the deadzone (check the movement) and return 1
-    //   otherwise, do nothing and return 0
+    // 'Center' it at the position
+    if (dy > pCam->deadHeight || dy < -pCam->deadHeight) {
+        pCam->y = y - pCam->deadY;
+        if (dy > 0)
+            pCam->y -= pCam->deadHeight;
+        else if (dy < 0)
+            pCam->y += pCam->deadHeight;
+        rv = 1;
+    }
     
-    rv = 0;
+    // Check that it's in-bounds
+    if (pCam->y < 0) {
+        pCam->y = 0;
+        rv = 0;
+    }
+    else if (pCam->y + pCam->viewHeight > pCam->worldHeight) {
+        pCam->y = pCam->worldHeight - pCam->viewHeight;
+        rv = 0;
+    }
+    
+    if (dx > pCam->deadWidth || dx < -pCam->deadWidth) {
+        pCam->x = x - pCam->deadX;
+        if (dx > 0)
+            pCam->x -= pCam->deadWidth;
+        else if (dx < 0)
+            pCam->x += pCam->deadWidth;
+        rv = 1;
+    }
+    if (pCam->x < 0) {
+        pCam->x = 0;
+        rv = 0;
+    }
+    else if (pCam->x + pCam->viewWidth > pCam->worldWidth) {
+        pCam->x = pCam->worldWidth - pCam->viewWidth;
+        rv = 0;
+    }
+    
 __ret:
     return rv;
 }

@@ -110,8 +110,8 @@ int pl_init(player *pPl, int x, int y) {
     ASSERT(pPl, 1);
     ASSERT(pPl->pSpr, 1);
     
-    rv = spr_init(pPl->pSpr, x, y, -6/*offX*/, -4/*offY*/, 16/*width*/,
-        16/*height*/, 4/*hitboxWidth*/, 12/*hitboxHeight*/, _pl_animData,
+    rv = spr_init(pPl->pSpr, x, y, -6/*offX*/, -6/*offY*/, 16/*width*/,
+        16/*height*/, 4/*hitboxWidth*/, 10/*hitboxHeight*/, _pl_animData,
         _pl_animLen, SPR_PLAYER);
     ASSERT_NR(rv == 0);
     // Set a hook to itself
@@ -162,13 +162,12 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
     
     spr_getSprite(&pGfmSpr, pPl->pSpr);
     // Set this at the 'player's center'
-    // TODO set it at the kitten!!
     *iniX = pGfmSpr->obj.x;
     if (pGfmSpr->flipped)
         *iniX -= 6;
     else
         *iniX += 8;
-    *iniY = pGfmSpr->obj.y + 1;
+    *iniY = pGfmSpr->obj.y - 1;
     // Set the speed
     *sX = pPl->bulHorSpeed;
     *sY = pPl->bulVerSpeed;
@@ -181,6 +180,20 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
  */
 int pl_isShooting(player *pPl) {
     return pPl->isShooting;
+}
+
+/**
+ * Get the player's center
+ */
+void pl_getCenter(int *x, int *y, player *pPl) {
+    GFraMe_sprite *pGfmSpr;
+    GFraMe_object *pObj;
+    
+    spr_getSprite(&pGfmSpr, pPl->pSpr);
+    pObj = &pGfmSpr->obj;
+    
+    *x = pObj->x + pObj->hitbox.cx;
+    *y = pObj->y + pObj->hitbox.cy;
 }
 
 /**

@@ -32,6 +32,8 @@ extern int GFraMe_draw_debug;
 struct stPlaystate {
     /** Camera object */
     camera *pCam;
+    /** Check for how long the player has been in the dead zone */
+    int timeInDeadZone;
     /** The player */
     player *pPl;
     /** The stones of powah */
@@ -204,6 +206,33 @@ __next_stone:
         0 /*isPlFixed*/, 0/*isObjsFixed*/);
     pl_collideAgainstSprGroup(pPs->pPl, pPs->pSpikes, pPs->spikesUsed,
         0 /*isPlFixed*/, 0/*isObjsFixed*/);
+    
+    // Update the camera's position
+    {
+        int x, y, rv, w, h;
+        
+        pl_getCenter(&x, &y, pPs->pPl);
+        
+        rv = cam_centerAt(pPs->pCam, x, y);
+        if (rv && pPs->timeInDeadZone < CAM_DEADZONE_TIME) {
+            pPs->timeInDeadZone += GFraMe_event_elapsed;
+        }
+        else if (!rv && pPs->timeInDeadZone > 0) {
+            pPs->timeInDeadZone -= GFraMe_event_elapsed;
+        }
+        w = (SCRW * 3/4) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
+                CAM_DEADZONE_TIME + (SCRW / 4) * pPs->timeInDeadZone /
+                    CAM_DEADZONE_TIME;
+        if (w < SCRW / 4)
+            w = SCRW / 4;
+        h = (SCRH * 3/4) * (CAM_DEADZONE_TIME - pPs->timeInDeadZone) /
+                CAM_DEADZONE_TIME + (SCRH / 4) * pPs->timeInDeadZone /
+                    CAM_DEADZONE_TIME;
+        if (h < SCRW / 4)
+            h = SCRW / 4;
+        
+        cam_setDeadzone(pPs->pCam, w, h);
+    }
   GFraMe_event_update_end();
 }
 

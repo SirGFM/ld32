@@ -30,6 +30,7 @@
 #define PL_BUL_DEC 10
 #define PL_LASER_INC 50
 #define PL_BUL_DANG 1.0
+#define CAM_DEADZONE_TIME 2000.0
 
 #define ASSERT(stmt, retVal) \
   do { \

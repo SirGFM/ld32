@@ -58,6 +58,11 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
         player *pPl);
 
 /**
+ * Get the player's center
+ */
+void pl_getCenter(int *x, int *y, player *pPl);
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam);
