@@ -16,6 +16,7 @@ GFraMe_event_setup();
 #include "player.h"
 #include "playstate.h"
 #include "sprite.h"
+#include "ui.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -296,6 +297,7 @@ void ps_draw(struct stPlaystate *pPs) {
         i++;
     }
     pl_draw(pPs->pPl, pPs->pCam);
+    ui_draw(pPs->pPl);
   GFraMe_event_draw_end();
 }
 

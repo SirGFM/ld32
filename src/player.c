@@ -265,6 +265,14 @@ void pl_revive(player *pPl) {
 }
 
 /**
+ * Get info to say for how long can still shoot
+ */
+void pl_getShotInfo(double *laserDur, sprType *stones, player *pPl) {
+    *laserDur = (double)pPl->laserTimer / (double)pPl->maxLaserTimer;
+    *stones = pPl->stones;
+}
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam) {
