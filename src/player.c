@@ -412,6 +412,11 @@ void pl_update(player *pPl, camera *pCam, int ms) {
             pObj->vx = -pPl->bulHorSpeed;
         pObj->vy = -pPl->bulVerSpeed;
         
+        if (pObj->vx > 0)
+            pSpr->flipped = 1;
+        else if (pObj->vx < 0)
+            pSpr->flipped = 0;
+        
         aud_playBlBullet();
     }
     else if (pPl->stones != 0 && pPl->laserTimer > 0 && pPl->bulCooldown <= 0 && GFraMe_controller_max > 0 &&
@@ -435,6 +440,11 @@ void pl_update(player *pPl, camera *pCam, int ms) {
         else
             pObj->vx = -pPl->bulHorSpeed;
         pObj->vy = -pPl->bulVerSpeed;
+        
+        if (pObj->vx > 0)
+            pSpr->flipped = 1;
+        else if (pObj->vx < 0)
+            pSpr->flipped = 0;
         
         aud_playBlBullet();
     }

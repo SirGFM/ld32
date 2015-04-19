@@ -40,9 +40,10 @@ void ui_draw(player *pPl) {
                 tile = curTile;
             }
             else if (laserDur > 0) {
-                int val;
+                // TODO make it blink (faster when it's full)
                 
-                // TODO make it blink faster when it's full
+                //int val;
+                
                 //val = (int)(laserDur * 10.0);
                 //if (val > 5)
                     tile = curTile;
