@@ -311,6 +311,8 @@ int spr_isInsideCamera(sprite *pSpr, camera *pCam) {
     GFraMe_object *pObj;
     int camX, camY, camW, camH, rv;
     
+    ASSERT(pSpr->isActive, 0);
+    
     cam_getParams(&camX, &camY, &camW, &camH, pCam);
     pObj = &(pSpr->pSelf->obj);
     
