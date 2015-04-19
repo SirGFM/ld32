@@ -20,7 +20,7 @@
 #include "player.h"
 #include "sprite.h"
 
-enum { SPR_ANIM_DEF, SPR_ANIM_WALK, SPR_ANIM_JUMP, SPR_ANIM_LASER };
+enum { SPR_ANIM_DEF, SPR_ANIM_WALK, SPR_ANIM_JUMP, SPR_ANIM_LASER, SPR_ANIM_DEATH };
 
 static int _pl_animData[] = 
 {
@@ -29,9 +29,10 @@ static int _pl_animData[] =
    8 ,  1 , 8 , 84,85,86,87,84,85,88,87,
    0 ,  0 , 1 , 82,
    0 ,  0 , 1 , 89,
+   2 ,  0 , 1 , 90,
 };
 
-static int _pl_animLen = 4;
+static int _pl_animLen = 5;
 
 /** 'Export' the player structure */
 struct stPlayer {
@@ -232,6 +233,14 @@ void pl_getCenter(int *x, int *y, player *pPl) {
 }
 
 /**
+ * Kill the player
+ */
+void pl_kill(player *pPl) {
+    spr_setAnim(pPl->pSpr, SPR_ANIM_DEATH, 1/*doReset*/);
+    spr_kill(pPl->pSpr);
+}
+
+/**
  * Revives the player at the last checkpoint
  */
 void pl_revive(player *pPl) {
@@ -249,7 +258,17 @@ void pl_revive(player *pPl) {
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam) {
+    int doKill = 0;
+    
+    if (!spr_isAlive(pPl->pSpr)) {
+        spr_revive(pPl->pSpr);
+        doKill = 1;
+    }
+    
     spr_draw(pPl->pSpr, pCam);
+    
+    if (doKill)
+        spr_kill(pPl->pSpr);
 }
 
 /**
@@ -259,6 +278,10 @@ void pl_update(player *pPl, camera *pCam, int ms) {
     GFraMe_object *pObj;
     GFraMe_sprite *pSpr;
     int isTouchingDown, isTouchingUp, isLeft, isRight, isJump;
+    
+    if (spr_getAnim(pPl->pSpr) == SPR_ANIM_DEATH) {
+        return;
+    }
     
     // Get something we can work with
     spr_getSprite(&pSpr, pPl->pSpr);

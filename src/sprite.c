@@ -256,6 +256,13 @@ void spr_getSuper(void **pObj, sprite *pSpr) {
 }
 
 /**
+ * Get the sprite's animation
+ */
+int spr_getAnim(sprite *pSpr) {
+    return pSpr->curAnim;
+}
+
+/**
  * Set the sprite's animation
  */
 void spr_setAnim(sprite *pSpr, int anim, int doRestart) {

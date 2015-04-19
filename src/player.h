@@ -73,6 +73,11 @@ void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
 void pl_getCenter(int *x, int *y, player *pPl);
 
 /**
+ * Kill the player
+ */
+void pl_kill(player *pPl);
+
+/**
  * Revives the player at the last checkpoint
  */
 void pl_revive(player *pPl);

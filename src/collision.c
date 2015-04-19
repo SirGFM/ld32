@@ -51,7 +51,7 @@ void collPlSpr(sprite *pSprPl, sprite *pSpr, sprType type) {
             pl_setCheckpoint(pPl);
         break;
         case SPR_SPIKE:
-            spr_kill(pSprPl);
+            pl_kill(pPl);
         break;
         default: {}
     }

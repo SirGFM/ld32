@@ -94,6 +94,11 @@ void spr_setSuper(sprite *pSpr, void *pObj);
 void spr_getSuper(void **pObj, sprite *pSpr);
 
 /**
+ * Get the sprite's animation
+ */
+int spr_getAnim(sprite *pSpr);
+
+/**
  * Set the sprite's animation
  */
 void spr_setAnim(sprite *pSpr, int anim, int doRestart);
