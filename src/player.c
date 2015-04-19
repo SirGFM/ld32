@@ -148,9 +148,11 @@ void pl_collideAgainstSprGroup(player *pPl, sprite **pSprs, int sprsLen,
  * Give another stone to the player
  */
 void pl_addStone(player *pPl, sprType type) {
-    pPl->stones |= type;
-    pPl->maxBulCooldown -= PL_BUL_DEC;
-    pPl->maxLaserTimer += PL_LASER_INC;
+    if (!(pPl->stones & type)) {
+        pPl->stones |= type;
+        pPl->maxBulCooldown -= PL_BUL_DEC;
+        pPl->maxLaserTimer += PL_LASER_INC;
+    }
 }
 
 /**

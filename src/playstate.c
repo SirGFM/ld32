@@ -112,6 +112,22 @@ while (pPs->skippedFrames > 0) {
 #endif
     int i;
     
+#ifdef DEBUG
+    if (GFraMe_keys.one)
+        pl_addStone(pPs->pPl, SPR_RED_STONE);
+    if (GFraMe_keys.two)
+        pl_addStone(pPs->pPl, SPR_ORANGE_STONE);
+    if (GFraMe_keys.three)
+        pl_addStone(pPs->pPl, SPR_YELLOW_STONE);
+    if (GFraMe_keys.four)
+        pl_addStone(pPs->pPl, SPR_GREEN_STONE);
+    if (GFraMe_keys.five)
+        pl_addStone(pPs->pPl, SPR_CYAN_STONE);
+    if (GFraMe_keys.six)
+        pl_addStone(pPs->pPl, SPR_BLUE_STONE);
+    if (GFraMe_keys.seven)
+        pl_addStone(pPs->pPl, SPR_PURPLE_STONE);
+#endif
     // Update everything
     pl_update(pPs->pPl, pPs->pCam, GFraMe_event_elapsed);
     if (pl_isShooting(pPs->pPl)) {
