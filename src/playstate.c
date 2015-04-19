@@ -113,6 +113,16 @@ while (pPs->skippedFrames > 0) {
     int i;
     
 #ifdef DEBUG
+    if (GFraMe_pointer_pressed) {
+        int x, y;
+        
+        x = GFraMe_pointer_x;
+        y = GFraMe_pointer_y;
+        
+        cam_screenToWorld(&x, &y, pPs->pCam);
+        
+        pl_init(pPs->pPl, x, y);
+    }
     if (GFraMe_keys.one)
         pl_addStone(pPs->pPl, SPR_RED_STONE);
     if (GFraMe_keys.two)
