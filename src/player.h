@@ -52,6 +52,12 @@ void pl_addStone(player *pPl, sprType type);
 int pl_isShooting(player *pPl);
 
 /**
+ * Get all params needed to shot
+ */
+void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
+        player *pPl);
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam);

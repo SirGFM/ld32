@@ -94,7 +94,6 @@ void ps_update(struct stPlaystate *pPs) {
     
     // Update everything
     pl_update(pPs->pPl, GFraMe_event_elapsed);
-/*
     if (pl_isShooting(pPs->pPl)) {
         int iniX, iniY, dX, dY, sX, sY;
         sprType stones, curStone;
@@ -108,7 +107,7 @@ void ps_update(struct stPlaystate *pPs) {
         curStone = 1;
         while (curStone < 0x0100) {
             GFraMe_sprite *pGfmSpr;
-            int rv;
+            int *animData, animLen, rv;
             sprite *pSpr;
             
             if (!(curStone & stones)) goto __next_stone;
@@ -145,18 +144,17 @@ void ps_update(struct stPlaystate *pPs) {
                     animData = _sprPurpleBulAnimData;
                     animLen = _sprPurpleBulAnimLen;
                 break;
+                default: {}
             }
             
-*/
-//            rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 2/*width*/,
-//                    2/*height*/, 2/*hitboxWidth*/, 2/*hitboxHeight*/, animData,
-//                    animLen, curStone);
-/*
+            rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 2/*width*/,
+                    2/*height*/, 2/*hitboxWidth*/, 2/*hitboxHeight*/, animData,
+                    animLen, curStone);
             if (rv != 0) goto __next_stone;
             
-            spr_getSprite(*pGfmSpr, pSpr);
-            pSpr->obj.vx = sX;
-            pSpr->obj.vy = sY;
+            spr_getSprite(&pGfmSpr, pSpr);
+            pGfmSpr->obj.vx = sX;
+            pGfmSpr->obj.vy = sY;
             
 __next_stone:
             sX += dX;
@@ -164,7 +162,6 @@ __next_stone:
             curStone <<= 1;
         }
     }
-*/
     i = 0;
     while (i < pPs->stonesUsed) {
         spr_update(pPs->pStones[i], GFraMe_event_elapsed);
@@ -173,6 +170,8 @@ __next_stone:
     i = 0;
     while (i < pPs->plBulletsLen) {
         spr_update(pPs->pPlBullets[i], GFraMe_event_elapsed);
+        if (!spr_isInsideCamera(pPs->pPlBullets[i], pPs->pCam))
+            spr_kill(pPs->pPlBullets[i]);
         i++;
     }
     

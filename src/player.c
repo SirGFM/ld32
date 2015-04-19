@@ -152,6 +152,27 @@ void pl_addStone(player *pPl, sprType type) {
 }
 
 /**
+ * Get all params needed to shot
+ */
+void pl_getShotParams(int *iniX, int *iniY, int *sX, int *sY, sprType *stones,
+        player *pPl) {
+    GFraMe_sprite *pGfmSpr;
+    
+    spr_getSprite(&pGfmSpr, pPl->pSpr);
+    // Set this at the 'player's center'
+    // TODO set it at the kitten!!
+    *iniX = pGfmSpr->obj.x;
+    if (!pGfmSpr->flipped)
+        *iniX += 10;
+    *iniY = pGfmSpr->obj.y - 1;
+    // Set the speed
+    *sX = pPl->bulHorSpeed;
+    *sY = pPl->bulVerSpeed;
+    // Return the amount of stone gotten
+    *stones = pPl->stones;
+}
+
+/**
  * Returns whether the player is shooting or not (1 on true)
  */
 int pl_isShooting(player *pPl) {

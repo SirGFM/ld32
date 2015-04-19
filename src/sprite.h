@@ -26,19 +26,19 @@ extern int _sprBlueStoneAnimLen;
 extern int _sprPurpleStoneData[];
 extern int _sprPurpleStoneAnimLen;
 
-extern int _sprRedBulData[];
+extern int _sprRedBulAnimData[];
 extern int _sprRedBulAnimLen;
-extern int _sprOrangeBulData[];
+extern int _sprOrangeBulAnimData[];
 extern int _sprOrangeBulAnimLen;
-extern int _sprYellowBulData[];
+extern int _sprYellowBulAnimData[];
 extern int _sprYellowBulAnimLen;
-extern int _sprGreenBulData[];
+extern int _sprGreenBulAnimData[];
 extern int _sprGreenBulAnimLen;
-extern int _sprCyanBulData[];
+extern int _sprCyanBulAnimData[];
 extern int _sprCyanBulAnimLen;
-extern int _sprBlueBulData[];
+extern int _sprBlueBulAnimData[];
 extern int _sprBlueBulAnimLen;
-extern int _sprPurpleBulData[];
+extern int _sprPurpleBulAnimData[];
 extern int _sprPurpleBulAnimLen;
 
 /** 'Export' the sprite structure */
@@ -120,6 +120,11 @@ void spr_update(sprite *pSpr, int ms);
  * Get the lib's sprite
  */
 void spr_getSprite(GFraMe_sprite **ppSpr, sprite *pSpr);
+
+/**
+ * Returns whether the sprite is inside the camera
+ */
+int spr_isInsideCamera(sprite *pSpr, camera *pCam);
 
 /**
  * Collides a sprite against various objects

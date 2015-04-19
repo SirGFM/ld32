@@ -31,19 +31,19 @@ int _sprBlueStoneAnimLen = 1;
 int _sprPurpleStoneData[] = {0,0,1,294};
 int _sprPurpleStoneAnimLen = 1;
 
-int _sprRedBulData[] = {0,0,1,4096};
+int _sprRedBulAnimData[] = {0,0,1,4096};
 int _sprRedBulAnimLen = 1;
-int _sprOrangeBulData[] = {0,0,1,4097};
+int _sprOrangeBulAnimData[] = {0,0,1,4097};
 int _sprOrangeBulAnimLen = 1;
-int _sprYellowBulData[] = {0,0,1,4098};
+int _sprYellowBulAnimData[] = {0,0,1,4098};
 int _sprYellowBulAnimLen = 1;
-int _sprGreenBulData[] = {0,0,1,4099};
+int _sprGreenBulAnimData[] = {0,0,1,4099};
 int _sprGreenBulAnimLen = 1;
-int _sprCyanBulData[] = {0,0,1,4100};
+int _sprCyanBulAnimData[] = {0,0,1,4100};
 int _sprCyanBulAnimLen = 1;
-int _sprBlueBulData[] = {0,0,1,4101};
+int _sprBlueBulAnimData[] = {0,0,1,4101};
 int _sprBlueBulAnimLen = 1;
-int _sprPurpleBulData[] = {0,0,1,4102};
+int _sprPurpleBulAnimData[] = {0,0,1,4102};
 int _sprPurpleBulAnimLen = 1;
 
 /** 'Export' the sprite structure */
@@ -112,6 +112,7 @@ int spr_recycle(sprite **ppSpr, sprite ***pppSpr, int *pLen) {
             *ppSpr = (*pppSpr)[i];
             return 0;
         }
+        i++;
     }
     
     // Otherwise, expand the buffer
@@ -301,6 +302,24 @@ void spr_update(sprite *pSpr, int ms) {
             pSpr->didChangeFrame = 1;
         }
     }
+}
+
+/**
+ * Returns whether the sprite is inside the camera
+ */
+int spr_isInsideCamera(sprite *pSpr, camera *pCam) {
+    GFraMe_object *pObj;
+    int camX, camY, camW, camH, rv;
+    
+    cam_getParams(&camX, &camY, &camW, &camH, pCam);
+    pObj = &(pSpr->pSelf->obj);
+    
+    ASSERT(pObj->x + pObj->hitbox.cx + pObj->hitbox.hw >= camX && pObj->x <= camX + camW, 0);
+    ASSERT(pObj->y + pObj->hitbox.cy + pObj->hitbox.hh >= camY && pObj->y <= camY + camH, 0);
+    
+    rv = 1;
+__ret:
+    return rv;
 }
 
 /**
