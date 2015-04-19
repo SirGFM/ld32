@@ -264,12 +264,29 @@ void pl_revive(player *pPl) {
     aud_playPlRevive();
 }
 
-/**
- * Get info to say for how long can still shoot
+/** * Get info to say for how long can still shoot
  */
 void pl_getShotInfo(double *laserDur, sprType *stones, player *pPl) {
     *laserDur = (double)pPl->laserTimer / (double)pPl->maxLaserTimer;
     *stones = pPl->stones;
+}
+
+/**
+ * Get how many stones the player has
+ */
+void pl_getStoneCount(int *pNum, player *pPl) {
+    int count;
+    sprType tmp;
+    
+    tmp = pPl->stones;
+    count = 0;
+    while (tmp > 0) {
+        if (tmp & 1)
+            count++;
+        tmp <<= 1;
+    }
+    
+    *pNum = tmp;
 }
 
 /**
@@ -347,6 +364,7 @@ void pl_update(player *pPl, camera *pCam, int ms) {
     
     // Check if is pressing left
     isLeft = GFraMe_keys.a;
+    isLeft = isLeft || GFraMe_keys.q;
     isLeft = isLeft || (GFraMe_controller_max > 0 &&
             GFraMe_controllers[0].left);
     isLeft = isLeft || (GFraMe_controller_max > 0 &&

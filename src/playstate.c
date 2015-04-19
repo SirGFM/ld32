@@ -16,6 +16,7 @@ GFraMe_event_setup();
 #include "player.h"
 #include "playstate.h"
 #include "sprite.h"
+#include "text.h"
 #include "ui.h"
 
 #include <stdlib.h>
@@ -36,6 +37,8 @@ struct stPlaystate {
     player *pPl;
     /** The stones of powah */
     sprite **pStones;
+    /** The text */
+    text *pText;
     /**  How many stones there are in use */
     int stonesUsed;
     /** How many stones there are allocated */
@@ -84,6 +87,10 @@ int ps_init(struct stPlaystate *pPs) {
     rv = pl_init(pPs->pPl, PL_X, PL_Y);
     ASSERT_NR(rv == 0);
     
+    // Initialize the text
+    rv = txt_getNew(&pPs->pText);
+    ASSERT_NR(rv == 0);
+    
     // Initialize the camera
     rv = cam_getNew(&pPs->pCam);
     ASSERT_NR(rv == 0);
@@ -94,6 +101,8 @@ int ps_init(struct stPlaystate *pPs) {
     
     // Initialize the timer
     GFraMe_event_init(UPS, DPS);
+    
+    txt_setText(pPs->pText, 0);
     
     rv = 0;
 __ret:
@@ -244,6 +253,7 @@ __next_stone:
     pl_collideAgainstSprGroup(pPs->pPl, pPs->pSpikes, pPs->spikesUsed,
         0 /*isPlFixed*/, 0/*isObjsFixed*/);
     
+    txt_update(pPs->pText, GFraMe_event_elapsed);
     // Update the camera's position
     {
         int x, y, rv, w, h;
@@ -298,6 +308,7 @@ void ps_draw(struct stPlaystate *pPs) {
     }
     pl_draw(pPs->pPl, pPs->pCam);
     ui_draw(pPs->pPl);
+    txt_draw(pPs->pText);
   GFraMe_event_draw_end();
 }
 
@@ -306,6 +317,8 @@ void ps_clean(struct stPlaystate *pPs) {
         pl_free(&pPs->pPl);
     if (pPs->pCam)
         cam_free(&pPs->pCam);
+    if (pPs->pText)
+        txt_free(&pPs->pText);
     if (pPs->pStones) {
         int i;
         

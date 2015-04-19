@@ -10,6 +10,12 @@
 
 static const double sfx_vol = 0.6;
 
+void aud_playText() {
+#ifndef MUTED
+    //GFraMe_audio_player_push(gl_aud_text, sfx_vol);
+#endif
+}
+
 void aud_playPlStep() {
 #ifndef MUTED
     GFraMe_audio_player_push(gl_aud_step, sfx_vol * 0.425);

@@ -88,6 +88,11 @@ void pl_revive(player *pPl);
 void pl_getShotInfo(double *laserDur, sprType *stones, player *pPl);
 
 /**
+ * Get how many stones the player has
+ */
+void pl_getStoneCount(int *pNum, player *pPl);
+
+/**
  * Renders the player
  */
 void pl_draw(player *pPl, camera *pCam);

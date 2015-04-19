@@ -21,6 +21,9 @@
 #define DPS     60  // draws per second
 #define LOGTOFILE   0
 
+#define TXT_CHAR_DELAY 50
+#define TXT_COMPLETE_DELAY 1250
+#define TXT_MAX_LINES 3
 #define PL_X 2*8
 #define PL_Y 54*8
 #define PL_TARGET_DIST 24

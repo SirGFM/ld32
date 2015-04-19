@@ -21,6 +21,7 @@ CC=gcc
          $(OBJDIR)/player.o            \
          $(OBJDIR)/playstate.o         \
          $(OBJDIR)/sprite.o            \
+         $(OBJDIR)/text.o              \
          $(OBJDIR)/ui.o                
 #==============================================================================
 

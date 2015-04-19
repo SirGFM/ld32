@@ -6,6 +6,7 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
 
+void aud_playText();
 void aud_playPlStep();
 void aud_playPlFall();
 void aud_playBlBullet();
