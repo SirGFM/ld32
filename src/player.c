@@ -283,10 +283,10 @@ void pl_getStoneCount(int *pNum, player *pPl) {
     while (tmp > 0) {
         if (tmp & 1)
             count++;
-        tmp <<= 1;
+        tmp >>= 1;
     }
     
-    *pNum = tmp;
+    *pNum = count;
 }
 
 /**

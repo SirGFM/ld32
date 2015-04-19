@@ -27,7 +27,7 @@ static char _str_line0[] =
 "SHOULDER BUTTONS";
 
 static char _str_line1[] = 
-"AIM WITH THE MOUSE OR THE RIGHT STICK\n"
+"AIM WITH THE MOUSE OR THE RIGHT STICK\n \n"
 "FIRE WITH THE MOUSE OR THE TRIGGER \n"
 "BUTTONS";
 

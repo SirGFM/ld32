@@ -69,6 +69,8 @@ struct stPlaystate {
     int plDeadTimer;
     /** Map's tilemap */
     unsigned char *mapBuf;
+    /** Current state */
+    int state;
 #ifdef DEBUG
     int skippedFrames;
 #endif /* DEBUG */
@@ -253,6 +255,15 @@ __next_stone:
     pl_collideAgainstSprGroup(pPs->pPl, pPs->pSpikes, pPs->spikesUsed,
         0 /*isPlFixed*/, 0/*isObjsFixed*/);
     
+    {
+        int num;
+        pl_getStoneCount(&num, pPs->pPl);
+        
+        if (pPs->state < num) {
+            pPs->state++;
+            txt_setText(pPs->pText, pPs->state);
+        }
+    }
     txt_update(pPs->pText, GFraMe_event_elapsed);
     // Update the camera's position
     {
