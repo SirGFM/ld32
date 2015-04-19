@@ -20,6 +20,7 @@
 #define DPS     60  // draws per second
 #define LOGTOFILE   0
 
+#define PI 3.1415926
 #define GRAV    500
 #define PL_VX   50
 #define PL_VY   150

@@ -19,6 +19,7 @@ GFraMe_event_setup();
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define PL_X 32
 #define PL_Y 32
@@ -95,14 +96,28 @@ void ps_update(struct stPlaystate *pPs) {
     // Update everything
     pl_update(pPs->pPl, GFraMe_event_elapsed);
     if (pl_isShooting(pPs->pPl)) {
-        int iniX, iniY, dX, dY, sX, sY;
+        double ang, dang;
+        int n;
+        int iniX, iniY, sX, sY;
         sprType stones, curStone;
         
         pl_getShotParams(&iniX, &iniY, &sX, &sY, &stones, pPs->pPl);
         
-        // TODO calculate dX, dY
-        dX = 0;
-        dY = 0;
+        ang = atan2((double)sX/PL_BUL_SPEED, (double)-sY/PL_BUL_SPEED);
+        ang -= PI / 2.0;
+        
+        n = 0;
+        curStone = 1;
+        while (curStone < 0x0100) {
+            if (curStone & stones)
+                n++;
+            curStone <<= 1;
+        }
+        dang = 0.5 * PI / 180.0;
+        if (n > 0)
+            ang -= dang * n / 2.0;
+        sX = PL_BUL_SPEED*cos(ang);
+        sY = PL_BUL_SPEED*sin(ang);
         
         curStone = 1;
         while (curStone < 0x0100) {
@@ -157,8 +172,9 @@ void ps_update(struct stPlaystate *pPs) {
             pGfmSpr->obj.vy = sY;
             
 __next_stone:
-            sX += dX;
-            sY += dY;
+            ang += dang;
+            sX = PL_BUL_SPEED*cos(ang);
+            sY = PL_BUL_SPEED*sin(ang);
             curStone <<= 1;
         }
     }
