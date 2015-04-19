@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="400" height="60" tilewidth="8" tileheight="8" nextobjectid="110">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="400" height="60" tilewidth="8" tileheight="8" nextobjectid="115">
  <tileset firstgid="1" name="atlas" tilewidth="8" tileheight="8">
   <image source="../atlas.bmp" trans="ff00ff" width="256" height="256"/>
  </tileset>
  <layer name="tilemap" width="400" height="60">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
  <objectgroup name="walls">
@@ -52,9 +52,9 @@
   <object id="73" name="wall" type="wall" x="1704" y="304" width="40" height="56"/>
   <object id="75" name="wall" type="wall" x="1744" y="336" width="104" height="24"/>
   <object id="76" name="wall" type="wall" x="1704" y="360" width="144" height="120"/>
-  <object id="78" name="wall" type="wall" x="1320" y="200" width="280" height="112"/>
-  <object id="79" name="wall" type="wall" x="1600" y="200" width="240" height="32"/>
-  <object id="80" name="wall" type="wall" x="1840" y="200" width="8" height="136"/>
+  <object id="78" name="wall" type="wall" x="1416" y="176" width="184" height="136"/>
+  <object id="79" name="wall" type="wall" x="1600" y="176" width="152" height="56"/>
+  <object id="80" name="wall" type="wall" x="1840" y="168" width="8" height="168"/>
   <object id="81" name="wall" type="wall" x="1144" y="288" width="64" height="8"/>
   <object id="89" name="wall" type="wall" x="0" y="280" width="232" height="8"/>
   <object id="90" name="wall" type="wall" x="200" y="240" width="56" height="16"/>
@@ -77,13 +77,17 @@
   <object id="107" name="wall" type="wall" x="96" y="24" width="24" height="48"/>
   <object id="108" name="wall" type="wall" x="96" y="24" width="16" height="56"/>
   <object id="109" name="wall" type="wall" x="0" y="88" width="56" height="8"/>
+  <object id="110" name="wall" type="wall" x="1464" y="144" width="8" height="8"/>
+  <object id="111" name="wall" type="wall" x="1600" y="128" width="72" height="8"/>
+  <object id="112" name="wall" type="wall" x="1320" y="168" width="96" height="144"/>
+  <object id="113" name="wall" type="wall" x="1752" y="168" width="88" height="64"/>
  </objectgroup>
  <objectgroup name="stones">
   <object id="8" name="red" type="red" x="384" y="434" width="8" height="24"/>
   <object id="11" name="orange" type="orange" x="1200" y="409" width="8" height="24"/>
   <object id="12" name="yellow" type="yellow" x="1800" y="314" width="8" height="24"/>
   <object id="13" name="green" type="green" x="24" y="66" width="8" height="24"/>
-  <object id="14" name="cyan" type="cyan" x="488" y="136" width="8" height="24"/>
+  <object id="14" name="cyan" type="cyan" x="1632" y="106" width="8" height="24"/>
   <object id="15" name="blue" type="blue" x="520" y="120" width="8" height="24"/>
   <object id="16" name="purple" type="purple" x="544" y="120" width="8" height="24"/>
  </objectgroup>
@@ -97,5 +101,6 @@
   <object id="84" name="spike" type="spike" x="1706" y="299" width="40" height="8"/>
   <object id="85" name="spike" type="spike" x="1600" y="339" width="24" height="8"/>
   <object id="86" name="spike" type="spike" x="1666" y="347" width="16" height="8"/>
+  <object id="114" name="spike" type="spike" x="1416" y="171" width="336" height="8"/>
  </objectgroup>
 </map>
