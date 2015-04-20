@@ -1,0 +1,52 @@
+================================================================================ 
+About 
+-------------------------------------------------------------------------------- 
+
+Legends tell about 7 stones of power. If one were to obtain all 7, a great power
+would be granted unto that being.
+
+================================================================================ 
+Compiling
+-------------------------------------------------------------------------------- 
+
+Refer to the README.md found on the repository. 
+
+================================================================================ 
+Dependencies (linux) 
+-------------------------------------------------------------------------------- 
+
+To run this game, you must have SDL2 installed on your system. 
+Simply install it from apt-get and it should work: 
+
+$ sudo apt-get install libsdl2-2.0.0 
+
+If that doesn't work, try using the development package: 
+
+$ sudo apt-get install libsdl2-dev 
+
+================================================================================ 
+Installation 
+-------------------------------------------------------------------------------- 
+
+No extra steps are needed. Just be sure that the 'assets' directory is on the
+same one where the application is.
+
+================================================================================ 
+Instructions 
+-------------------------------------------------------------------------------- 
+
+Gamepad is strongly advised!
+
+Keyboard:
+- Use 'A' and 'D' to move
+- 'spacebar' jumps
+- Aim and fire with the mouse
+
+Gamepad:
+- Use the left stick to move and the shoulder buttons to jump
+- Aim with the right stick and shoot with the trigger buttons
+
+
+*I only tested using a XBox 360 wired gamepad, so I can't assure that any other 
+will work. If your gamepad isn't custom, it'll probably work fine. 
+If the game finds a gamepad it doesn't support, it'll crash!! 
