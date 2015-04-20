@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
          SCRH,
          WNDW,
          WNDH,
-         "com.wordpress.gfmgamecorner",
+         "com.gfmgamecorner",
          TITLE,
          GFraMe_window_none,
          &ext,

@@ -10,6 +10,7 @@
 
 GFraMe_event_setup();
 
+#include "audio.h"
 #include "camera.h"
 #include "global.h"
 #include "map001.h"
@@ -105,6 +106,8 @@ int ps_init(struct stPlaystate *pPs) {
     GFraMe_event_init(UPS, DPS);
     
     txt_setText(pPs->pText, 0);
+    
+    aud_playSong();
     
     rv = 0;
 __ret:

@@ -9,6 +9,13 @@
 #include "global.h"
 
 static const double sfx_vol = 0.6;
+static const double song_vol = 0.8;
+
+void aud_playSong() {
+#ifndef MUTED
+    GFraMe_audio_player_play_bgm(gl_aud_song1, song_vol);
+#endif
+}
 
 void aud_playText() {
 #ifndef MUTED

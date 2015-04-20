@@ -12,7 +12,7 @@
 #define SCRH    240
 #define WNDW    640
 #define WNDH    480
-#define TITLE   "KITTEN (An Unconventional Weapon)"
+#define TITLE   "KITTEN - An Unconventional Weapon - by GFM"
 #define TEX     "atlas"
 #define TEXW    256
 #define TEXH    256
@@ -71,6 +71,7 @@ extern GFraMe_audio *gl_aud_bullet;
 extern GFraMe_audio *gl_aud_powerup;
 extern GFraMe_audio *gl_aud_revive;
 extern GFraMe_audio *gl_aud_text;
+extern GFraMe_audio *gl_aud_song1;
 
 GFraMe_ret gl_init();
 void gl_clean();

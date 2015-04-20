@@ -35,6 +35,7 @@ DECLARE_AUDIO(bullet);
 DECLARE_AUDIO(powerup);
 DECLARE_AUDIO(revive);
 DECLARE_AUDIO(text);
+DECLARE_AUDIO(song1);
 
 GFraMe_ret gl_init() {
     GFraMe_ret rv;
@@ -83,6 +84,7 @@ GFraMe_ret gl_init() {
     INIT_AUDIO(powerup, "sfx/powerup");
     INIT_AUDIO(revive, "sfx/revive");
     INIT_AUDIO(text, "sfx/text");
+    INIT_SONG(song1, "song/song1");
     
     gl_running = 1;
     is_init = 1;
