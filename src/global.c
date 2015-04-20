@@ -34,6 +34,7 @@ DECLARE_AUDIO(death);
 DECLARE_AUDIO(bullet);
 DECLARE_AUDIO(powerup);
 DECLARE_AUDIO(revive);
+DECLARE_AUDIO(text);
 
 GFraMe_ret gl_init() {
     GFraMe_ret rv;
@@ -81,6 +82,7 @@ GFraMe_ret gl_init() {
     INIT_AUDIO(bullet, "sfx/bullet");
     INIT_AUDIO(powerup, "sfx/powerup");
     INIT_AUDIO(revive, "sfx/revive");
+    INIT_AUDIO(text, "sfx/text");
     
     gl_running = 1;
     is_init = 1;

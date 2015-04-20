@@ -134,7 +134,8 @@ void txt_update(text *pTxt, int ms) {
                     pTxt->length++;
                 }
                 pTxt->cooldown = TXT_CHAR_DELAY;
-                aud_playText();
+                if (pTxt->curText[pTxt->length - 1] != ' ')
+                    aud_playText();
             }
         }
     }

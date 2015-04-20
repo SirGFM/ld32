@@ -52,7 +52,7 @@ CC=gcc
   endif
 # Add debug flags
   ifneq ($(RELEASE), yes)
-    CFLAGS := $(CFLAGS) -g -O0 -DDEBUG -DMUTED
+    CFLAGS := $(CFLAGS) -g -O0 -DDEBUG
   else
     CFLAGS := $(CFLAGS) -O1
   endif

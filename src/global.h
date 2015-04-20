@@ -70,6 +70,7 @@ extern GFraMe_audio *gl_aud_death;
 extern GFraMe_audio *gl_aud_bullet;
 extern GFraMe_audio *gl_aud_powerup;
 extern GFraMe_audio *gl_aud_revive;
+extern GFraMe_audio *gl_aud_text;
 
 GFraMe_ret gl_init();
 void gl_clean();
