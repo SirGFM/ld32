@@ -87,7 +87,7 @@ CC=gcc
 #==============================================================================
 # Define the generated icon
 #==============================================================================
- WINICON := assets/icons/icon.o
+ WINICON := assets/icon.o
 #==============================================================================
 
 #==============================================================================
@@ -113,7 +113,7 @@ all: MKDIRS $(BINDIR)/$(TARGET)
 #==============================================================================
 
 $(WINICON):
-	windres assets/icons/icon.rc $(WINICON)
+	windres assets/icon.rc $(WINICON)
 
 $(BINDIR)/$(TARGET): MKDIRS $(LIB) $(OBJS) $(ICON)
 	$(CC) $(CFLAGS) -o $(BINDIR)/$(TARGET) $(OBJS) $(ICON) $(LFLAGS)
