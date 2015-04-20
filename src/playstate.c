@@ -225,7 +225,10 @@ while (pPs->skippedFrames > 0) {
                     animData = _sprPurpleBulAnimData;
                     animLen = _sprPurpleBulAnimLen;
                 break;
-                default: {}
+                default: {
+                    animData = 0;
+                    animLen = 0;
+                }
             }
             
             rv = spr_init(pSpr, iniX, iniY, 0/*offX*/, 0/*offY*/, 4/*width*/,
