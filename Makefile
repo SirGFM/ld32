@@ -34,68 +34,87 @@ CC=gcc
 #   Also, set the icon
     ICON = $(WINICON)
   endif
+  ifeq ($(CC), emcc)
+    OS := emscript
+  endif
 #==============================================================================
 
 #==============================================================================
 # Define CFLAGS (compiler flags)
 #==============================================================================
 # Add all warnings and default include path
-  CFLAGS := -Wall
-# Add the framework includes
-  CFLAGS := $(CFLAGS) -I"./lib/GFraMe/include/"
+  CFLAGS := -Wall -I"./include/"
+  ifeq ($(OS), emscript)
+    CFLAGS := $(CFLAGS) -I"$(EMSCRIPTEN)/system/include/"
+  endif
 # Add architecture flag
   ARCH := $(shell uname -m)
-  ifeq ($(ARCH), x86_64)
-    CFLAGS := $(CFLAGS) -m64
-  else
+  ifeq ($(OS), emscript)
     CFLAGS := $(CFLAGS) -m32
+  else
+    ifeq ($(ARCH), x86_64)
+      CFLAGS := $(CFLAGS) -m64
+    else
+      CFLAGS := $(CFLAGS) -m32
+    endif
   endif
 # Add debug flags
-  ifneq ($(RELEASE), yes)
-    CFLAGS := $(CFLAGS) -g -O0 -DDEBUG
+  ifeq ($(OS), emscript)
+    CFLAGS := $(CFLAGS) -O2
   else
-    CFLAGS := $(CFLAGS) -O1
+    ifneq ($(RELEASE), yes)
+      CFLAGS := $(CFLAGS) -g -O0 -DDEBUG
+    else
+      CFLAGS := $(CFLAGS) -O3
+    endif
+  endif
+# Set flags required by OS
+  ifeq ($(OS), Win)
+    CFLAGS := $(CFLAGS) -I"/d/windows/mingw/include" -I/c/GFraMe/include
+  else
+    CFLAGS := $(CFLAGS) -fPIC
+  endif
+# Set a flag so we know it's compiling for EMCC
+  ifeq ($(OS), emscript)
+    CFLAGS := $(CFLAGS) -DEMSCRIPT
   endif
 #==============================================================================
 
 #==============================================================================
 # Define LFLAGS (linker flags)
 #==============================================================================
-# Add the framework library
- LFLAGS := -lGFraMe -lm
-# Add dependencies
- ifeq ($(OS), Win)
-   LFLAGS := -L./lib/GFraMe/bin/Win -mwindows -lmingw32 $(LFLAGS) -lSDL2main
-   ifeq ($(USE_OPENGL), yes)
-     LFLAGS := $(LFLAGS) -lopengl32
-   endif
- else
-   LFLAGS := -L./lib/GFraMe/bin/Linux $(LFLAGS)
-   ifeq ($(USE_OPENGL), yes)
-     LFLAGS := $(LFLAGS) -lGL
-   endif
- endif
- LFLAGS := $(LFLAGS) -lSDL2
-#==============================================================================
-
-#==============================================================================
-# Define library (to force compilation)
-#==============================================================================
- LIB := ./lib/GFraMe/bin/Linux/libGFraMe.a
-#==============================================================================
-
-#==============================================================================
-# Define the generated icon
-#==============================================================================
- WINICON := assets/icon.o
+# Add the framework
+  ifeq ($(RELEASE), yes)
+    LFLAGS := -lGFraMe
+  else
+    LFLAGS := -lGFraMe_dbg
+  endif
+# Add libs and paths required by an especific OS
+  ifeq ($(OS), Win)
+    LFLAGS := -mwindows -lmingw32 $(LFLAGS) -lSDL2main
+    LFLAGS := -L/d/windows/mingw/mingw32/lib $(LFLAGS)
+# Prepend the framework search path
+    LFLAGS := -L/c/GFraMe/lib/ $(LFLAGS)
+# TODO Add OpenGL
+  else
+# Prepend the framework search path
+    LFLAGS := -L/usr/lib/GFraMe/ $(LFLAGS)
+# TODO Add OpenGL
+  endif
 #==============================================================================
 
 #==============================================================================
 # Define where source files can be found and where objects & binary are output
 #==============================================================================
  VPATH := src
- OBJDIR := obj
- BINDIR := bin
+ OBJDIR := obj/$(OS)
+ BINDIR := bin/$(OS)
+#==============================================================================
+
+#==============================================================================
+# Define the generated icon
+#==============================================================================
+ WINICON := assets/icon.o
 #==============================================================================
 
 #==============================================================================
@@ -112,25 +131,43 @@ all: MKDIRS $(BINDIR)/$(TARGET)
 	date
 #==============================================================================
 
+#==============================================================================
+# Define a rule to generated the icon
+#==============================================================================
 $(WINICON):
 	windres assets/icon.rc $(WINICON)
+#==============================================================================
 
-$(BINDIR)/$(TARGET): MKDIRS $(LIB) $(OBJS) $(ICON)
-	$(CC) $(CFLAGS) -o $(BINDIR)/$(TARGET) $(OBJS) $(ICON) $(LFLAGS)
+#==============================================================================
+# Rule for actually building the game
+#==============================================================================
+$(BINDIR)/$(TARGET): MKDIRS $(OBJS) $(ICON)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(ICON) $(LFLAGS)
+#==============================================================================
 
+#==============================================================================
+# Rule for compiling any .c in its object
+#==============================================================================
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
+#==============================================================================
 
-$(LIB):
-	make static --directory=./lib/GFraMe/ USE_OPENGL=$(USE_OPENGL)
 
+#==============================================================================
+# Rule for checking if any directory should be created
+#==============================================================================
 MKDIRS: | $(OBJDIR) $(BINDIR)
+#==============================================================================
 
+#==============================================================================
+# Rules for actually creating every directory
+#==============================================================================
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
 $(BINDIR):
 	@mkdir -p $(BINDIR)
+#==============================================================================
 
 .PHONY: clean mostlyclean
 
@@ -142,5 +179,4 @@ mostlyclean:
 	@make clean
 	@rm -rf $(OBJDIR)
 	@rm -rf $(BINDIR)
-	@make clean --directory=./lib/GFraMe/
 
