@@ -16,6 +16,7 @@
 #include <GFraMe/gfmQuadtree.h>
 #include <GFraMe/gfmSprite.h>
 #include <GFraMe/gfmSpriteset.h>
+#include <GFraMe/core/gfmAudio.h>
 
 #define player       gfmType_reserved_2
 #define collideable  gfmType_reserved_3
@@ -56,6 +57,10 @@ struct stGameCtx {
     int hndRight;
     int hndJump;
     int hndShoot;
+    int hndFullscreen;
+    int hndMute;
+    int hndVolUp;
+    int hndVolDown;
 /** == Input states ========================================================= */
     gfmInputState stDown;
     int nDown;
@@ -67,6 +72,14 @@ struct stGameCtx {
     int nJump;
     gfmInputState stShoot;
     int nShoot;
+    gfmInputState stFullscreen;
+    int nFullscreen;
+    gfmInputState stMute;
+    int nMute;
+    gfmInputState stVolUp;
+    int nVolUp;
+    gfmInputState stVolDown;
+    int nVolDown;
 /** == Audio stuff ========================================================== */
     int sndStep;
     int sndJump;
@@ -76,6 +89,8 @@ struct stGameCtx {
     int sndRevive;
     int sndText;
     int sndSong;
+    /** Song reference; since it loops and can have its volume modified */
+    gfmAudioHandle *pSong;
 };
 
 #endif /* __GAME_PC_H__ */
