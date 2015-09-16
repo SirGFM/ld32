@@ -12,14 +12,15 @@ CC=gcc
 # Define every object required by compilation
 #==============================================================================
  OBJS =                                \
-         $(OBJDIR)/main.o              
+         $(OBJDIR)/common.o            \
+         $(OBJDIR)/main.o              \
+         $(OBJDIR)/playstate.o         
          #$(OBJDIR)/audio.o             \
          #$(OBJDIR)/camera.o            \
          #$(OBJDIR)/collision.o         \
          #$(OBJDIR)/global.o            \
          #$(OBJDIR)/map001.o            \
          #$(OBJDIR)/player.o            \
-         #$(OBJDIR)/playstate.o         \
          #$(OBJDIR)/sprite.o            \
          #$(OBJDIR)/text.o              \
          #$(OBJDIR)/ui.o                

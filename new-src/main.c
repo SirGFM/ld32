@@ -1,9 +1,11 @@
 /**
- * @file src/main.c
+ * @file new-src/main.c
  * 
  * The game's entry point
  */
+#include <ld32_pc/common.h>
 #include <ld32_pc/game.h>
+#include <ld32_pc/playstate.h>
 
 #if defined(EMSCRIPT)
 #  include <emscripten.h>
@@ -25,8 +27,8 @@ static gfmRV main_loop(void *pArg) {
     
     // Initialize the game (only once)
     if (pGame->firstFrame == 0) {
-        //rv = ps_init(pGame);
-        //ASSERT(rv == GFMRV_OK, rv);
+        rv = ps_init(pGame);
+        ASSERT(rv == GFMRV_OK, rv);
         
         pGame->firstFrame = 1;
     }
@@ -49,12 +51,12 @@ static gfmRV main_loop(void *pArg) {
             ASSERT(rv == GFMRV_OK, rv);
             
             // Cache the inputs
-            //rv =  common_cacheInput(pGame);
-            //ASSERT(rv == GFMRV_OK, rv);
+            rv =  common_cacheInput(pGame);
+            ASSERT(rv == GFMRV_OK, rv);
             
             // Call the state's update
-            //rv = ps_update(pGame);
-            //ASSERT(rv == GFMRV_OK, rv);
+            rv = ps_update(pGame);
+            ASSERT(rv == GFMRV_OK, rv);
             
             // Calculate how long this frame took (debug mode only)
             rv = gfm_fpsCounterUpdateEnd(pGame->pCtx);
@@ -68,8 +70,8 @@ static gfmRV main_loop(void *pArg) {
             ASSERT(rv == GFMRV_OK, rv);
             
             // Call the state's draw
-            //rv = ps_draw(pGame);
-            //ASSERT(rv == GFMRV_OK, rv);
+            rv = ps_draw(pGame);
+            ASSERT(rv == GFMRV_OK, rv);
             
             // Render the backbuffer to the screen and flip it
             rv = gfm_drawEnd(pGame->pCtx);
@@ -86,7 +88,7 @@ static gfmRV main_loop(void *pArg) {
     
 #if !defined(EMSCRIPT)
     // Clean the state, if the game exited
-    //ps_clean(pGame);
+    ps_clean(pGame);
 #endif
 
 __ret:
@@ -103,8 +105,8 @@ __ret:
  * Load all assets; It should run on another thread while the main plays an
  * animations, but I didn't get to implement that... yet... XD
  * 
- * @param  pGame  The game
- * @return        ...
+ * @param  [in]pGame The game
+ * @return           ...
  */
 static gfmRV loadAssets(gameCtx *pGame) {
     gfmRV rv;

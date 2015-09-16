@@ -78,6 +78,8 @@ struct stGameCtx {
     int nVolUp;
     gfmInputState stVolDown;
     int nVolDown;
+    gfmInputState stQuit;
+    int nQuit;
 /** == Audio stuff ========================================================== */
     int sndStep;
     int sndJump;
