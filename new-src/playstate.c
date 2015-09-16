@@ -5,12 +5,42 @@
  */
 #include <GFraMe/gfmAssert.h>
 #include <GFraMe/gfmError.h>
+#include <GFraMe/gfmGroup.h>
+#include <GFraMe/gfmParser.h>
+#include <GFraMe/gfmTilemap.h>
+#include <GFraMe/gfmText.h>
 
+//#include <ld32_pc/actors.h>
 #include <ld32_pc/game.h>
 
 struct stPlaystateCtx {
+    gfmGroup *pParticles;
+    gfmTilemap *pTMap;
+    gfmText *pText;
+    // Player
+    // Stones
+    // Checkpoints
 };
 typedef struct stPlaystateCtx psCtx;
+
+/**
+ * Clean up the playstate
+ * 
+ * @param  [in]pCtx The playstate
+ */
+static void stPs_clean(psCtx *pCtx) {
+    // TODO
+}
+
+/**
+ * Loads the current map from a file
+ * 
+ * @param  [in]pCtx The playstate
+ */
+static gfmRV stPs_loadMap(psCtx *pCtx) {
+    // TODO
+    return GFMRV_OK;
+}
 
 /**
  * Initialize the playstate: stores the playstate context, loads the map, etc
@@ -19,7 +49,61 @@ typedef struct stPlaystateCtx psCtx;
  * @return           GFMRV_OK, GFMRV_ALLOC_FAILED, ...
  */
 gfmRV ps_init(gameCtx *pGame) {
-    return GFMRV_OK;
+    gfmRV rv;
+    psCtx *pCtx;
+    
+    // Alloc the state
+    pCtx = (psCtx*)malloc(sizeof(psCtx));
+    ASSERT(pCtx, GFMRV_ALLOC_FAILED);
+    memset(0x0, pCtx, sizeof(psCtx));
+    
+    if (pGame->maxParticles > 0) {
+        // Alloc the particles and set its default attributes
+        rv = gfmGroup_getNew(&(pCtx->pParticles));
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setDefSpriteset(pCtx->pParticles, pGame->pSset4x4);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setDefDimensions(pCtx->pParticles, 4, 4, 0, 0);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv =  gfmGroup_setDeathOnLeave(pCtx->pParticles, 1);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setDeathOnTime(pCtx->pParticles, 0);
+        ASSERT(rv == GFMRV_OK, rv);
+        // Pre-cache some sprites
+        rv = gfmGroup_preCache(pCtx->pParticles, pGame->maxParticles,
+                pGame->maxParticles);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    // Alloc and initialize the tilemap
+    rv = gfmTilemap_getNew(&(pCtx->pTMap));
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmTilemap_init(pCtx->pTMap, pGame->pSset8x8, 8, 8, -1);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    // Alloc and initialize the text
+    rv = gfmText(&(pCtx->pText));
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmText_init(pCtx->pText, 8, 8, 304, 3, 166, 0, pGame->pSset8x8, 0);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    // Load the first map
+    rv = stPs_loadMap(pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    pGame->pState = pCtx;
+    psCtx = 0;
+    rv = GFMRV_OK;
+__ret:
+    if (pCtx) {
+        // Clean the context
+        stPs_clean(pCtx);
+        free(pCtx);
+        
+        psCtx = 0;
+    }
+    
+    return rv;
 }
 
 /**

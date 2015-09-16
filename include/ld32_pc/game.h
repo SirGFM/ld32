@@ -36,10 +36,8 @@ struct stGameCtx {
     int firstFrame;
 /** == Options stuff ======================================================== */
     /** Maximum number of particles on screen */
-    int maxParticless;
+    int maxParticles;
 /** == Spritesets =========================================================== */
-    /** 2x2 spriteset */
-    gfmSpriteset *pSset2x2;
     /** 4x4 spriteset */
     gfmSpriteset *pSset4x4;
     /** 8x8 spriteset */
