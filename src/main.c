@@ -36,6 +36,9 @@ int main(int argc, char *argv[]) {
         );
     ASSERT_NR(rv == GFraMe_ret_ok);
     
+    // Set the bg color
+    GFraMe_set_bg_color(0x5b, 0x6e, 0xe1, 0xff);
+    
     rv = GFraMe_audio_player_init();
     ASSERT_NR(rv == GFraMe_ret_ok);
 

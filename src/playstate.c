@@ -6,6 +6,7 @@
 #include <GFraMe/GFraMe_event.h>
 #include <GFraMe/GFraMe_keys.h>
 #include <GFraMe/GFraMe_object.h>
+#include <GFraMe/GFraMe_screen.h>
 #include <GFraMe/GFraMe_spriteset.h>
 
 GFraMe_event_setup();
@@ -28,6 +29,9 @@ GFraMe_event_setup();
 #ifdef DEBUG
 extern int GFraMe_draw_debug;
 #endif
+
+/** Whether the game is in fullscreen mode */
+static int isFullscreen = 0;
 
 struct stPlaystate {
     /** Camera object */
@@ -436,9 +440,33 @@ void ps_event(struct stPlaystate *pPs) {
       }
 #endif
     GFraMe_event_on_key_down();
-#ifdef DEBUG
-      if (GFraMe_keys.esc)
+      if (GFraMe_keys.esc) {
         gl_running = 0;
+      }
+      if (GFraMe_keys.f12) {
+        if (isFullscreen) {
+          GFraMe_ret rv;
+          
+          GFraMe_screen_setWindowed();
+          rv = GFraMe_screen_set_window_size(WNDW, WNDH);
+          if (rv == GFraMe_ret_ok) {
+            GFraMe_screen_set_pixel_perfect(0, 1);
+          }
+          
+          isFullscreen = 0;
+        }
+        else {
+          GFraMe_ret rv;
+          
+          rv = GFraMe_screen_setFullscreen();
+          if (rv == GFraMe_ret_ok) {
+            GFraMe_screen_set_pixel_perfect(0, 1);
+          }
+          
+          isFullscreen = 1;
+        }
+      }
+#ifdef DEBUG
       if (GFraMe_keys.f1) {
         GFraMe_draw_debug = 1;
       }
@@ -510,12 +538,17 @@ void ps_drawMap(struct stPlaystate *pPs) {
     x = iniX;
     offX = 0;
     while (1) {
+        int tile;
+        
         // CHeck that the tile is still valid
         if (i >= pPs->mapWidth * pPs->mapHeight)
             break;
-        // Render the tile to the screen
-        GFraMe_spriteset_draw(gl_sset8x8, pPs->mapBuf[firstTile + offX + i], x,
-                y, 0 /* flipped */);
+        
+        // Render the tile to the screen (only if it's not the BG)
+        tile = pPs->mapBuf[firstTile + offX + i];
+        if (tile != 76) {
+            GFraMe_spriteset_draw(gl_sset8x8, tile, x, y, 0 /* flipped */);
+        }
         // Updates the tile positions
         x += 8;
         if (x >= camW) {
