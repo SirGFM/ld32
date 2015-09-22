@@ -249,9 +249,20 @@ gfmRV ps_update(gameCtx *pGame) {
     pPsCtx = pGame->pState;
     pCtx = pGame->pCtx;
     
-    // Update everything
+    // TODO Pre-update (i.e. handle input and update AI)
+    
+    // Update physics
     rv = gfmTilemap_update(pPsCtx->pTMap, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
+    // TODO Update every other object
+    
+    // TODO Post-update (i.e. Select animation and collide w/ world)
+    
+    // Update particles; can be done in another step since it's simply aesthetic
+    if (pPsCtx->pParticles) {
+        rv = gfmGroup_update(pPsCtx->pParticles, pCtx);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
     
     rv = GFMRV_OK;
 __ret:
@@ -276,6 +287,14 @@ gfmRV ps_draw(gameCtx *pGame) {
     // Draw everything
     rv = gfmTilemap_draw(pPsCtx->pTMap, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
+    
+    // TODO Draw everything
+    
+    // Finally, draw the particles
+    if (pPsCtx->pParticles) {
+        rv = gfmGroup_update(pPsCtx->pParticles, pCtx);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
     
     rv = GFMRV_OK;
 __ret:
