@@ -6,6 +6,7 @@
 #include <GFraMe/gfmAssert.h>
 #include <GFraMe/gfmError.h>
 #include <GFraMe/gfmGroup.h>
+#include <GFraMe/gfmObject.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmTilemap.h>
 #include <GFraMe/gfmText.h>
@@ -13,13 +14,42 @@
 //#include <ld32_pc/actors.h>
 #include <ld32_pc/game.h>
 
+#include <string.h>
+
+// Dictionary relates tiles and types
+static char *typesNameDict[] = {
+    "collideable",
+    "spike",
+    "checkpoint",
+    "player",
+    "stone"
+};
+static int typesValueDict[] = {
+    collideable,
+    spike,
+    checkpoint,
+    player,
+    powerstone
+};
+
+// List of maps and object's file names
+static char *mapsDict[] = {
+    "map_0.gfm",
+    "map_max"
+};
+static char *objsDict[] = {
+    "objs_0.gfm",
+    "map_max"
+};
+
 struct stPlaystateCtx {
     gfmGroup *pParticles;
+    gfmObject *pLastCheckpoint;
     gfmTilemap *pTMap;
     gfmText *pText;
+    int curMap;
     // Player
     // Stones
-    // Checkpoints
 };
 typedef struct stPlaystateCtx psCtx;
 
@@ -29,7 +59,14 @@ typedef struct stPlaystateCtx psCtx;
  * @param  [in]pCtx The playstate
  */
 static void stPs_clean(psCtx *pCtx) {
-    // TODO
+    // Avoid errors!
+    if (!pCtx)
+        return;
+    
+    // Clean everything!
+    gfmGroup_free(&(pCtx->pParticles));
+    gfmTilemap_free(&(pCtx->pTMap));
+    gfmText_free(&(pCtx->pText));
 }
 
 /**
@@ -37,9 +74,73 @@ static void stPs_clean(psCtx *pCtx) {
  * 
  * @param  [in]pCtx The playstate
  */
-static gfmRV stPs_loadMap(psCtx *pCtx) {
-    // TODO
-    return GFMRV_OK;
+static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
+    char *pMapname, *pObjsname;
+    gfmParser *pParser;
+    gfmRV rv;
+    int mapnameLen, objsnameLen;
+    
+    // Set these to NULL to avoid errors
+    pMapname = 0;
+    pObjsname = 0;
+    pParser = 0;
+    
+    // Retrieve tha map's name (stored on a static buffer because C)
+#define GETMAP(i) \
+    do { \
+        pMapname = mapsDict[i]; \
+        pObjsname = objsDict[i]; \
+        mapnameLen = strlen(mapsDict[i]); \
+        objsnameLen = strlen(objsDict[i]); \
+    } while (0)
+    switch (pPsCtx->curMap) {
+        case 0: GETMAP(0); break;
+        default: {
+            // TODO Load a "default" level
+        }
+    }
+#undef GETMAP
+    
+    // Load the map
+    rv = gfmTilemap_loadf(pPsCtx->pTMap, pCtx, pMapname, mapnameLen,
+            typesNameDict, typesValueDict,
+            sizeof(typesValueDict) / sizeof(int));
+    ASSERT(rv == GFMRV_OK, rv);
+    // TODO Load animations?
+    
+    // Parse its objects
+    rv = gfmParser_getNew(&pParser);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmParser_init(pParser, pCtx, pObjsname, objsnameLen);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    while (1) {
+        gfmParserType type;
+        int h, w, x, y;
+        
+        // Retrieve the next object and check if parsing ended
+        rv = gfmParser_parseNext(pParser);
+        ASSERT(rv == GFMRV_OK || rv == GFMRV_PARSER_FINISHED, rv);
+        if (rv == GFMRV_PARSER_FINISHED) {
+            break;
+        }
+        
+        // Get all of the object's common attributes
+        rv = gfmParser_getType(&type, pParser);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmParser_getPos(&x, &y, pParser);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmParser_getDimensions(&w, &h, pParser);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        // TODO Spawn a mob with the given attributes
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    gfmParser_free(&pParser);
+    
+    return rv;
 }
 
 /**
@@ -55,7 +156,7 @@ gfmRV ps_init(gameCtx *pGame) {
     // Alloc the state
     pCtx = (psCtx*)malloc(sizeof(psCtx));
     ASSERT(pCtx, GFMRV_ALLOC_FAILED);
-    memset(0x0, pCtx, sizeof(psCtx));
+    memset(pCtx, 0x0, sizeof(psCtx));
     
     if (pGame->maxParticles > 0) {
         // Alloc the particles and set its default attributes
@@ -82,17 +183,25 @@ gfmRV ps_init(gameCtx *pGame) {
     ASSERT(rv == GFMRV_OK, rv);
     
     // Alloc and initialize the text
-    rv = gfmText(&(pCtx->pText));
+    rv = gfmText_getNew(&(pCtx->pText));
     ASSERT(rv == GFMRV_OK, rv);
     rv = gfmText_init(pCtx->pText, 8, 8, 304, 3, 166, 0, pGame->pSset8x8, 0);
     ASSERT(rv == GFMRV_OK, rv);
     
+    if (0) {
+        // TODO Load the current level from a file(?)
+    }
+    else {
+        // Set the first map
+        pCtx->curMap = 0;
+    }
+    
     // Load the first map
-    rv = stPs_loadMap(pCtx);
+    rv = stPs_loadMap(pCtx, pGame->pCtx);
     ASSERT(rv == GFMRV_OK, rv);
     
     pGame->pState = pCtx;
-    psCtx = 0;
+    pCtx = 0;
     rv = GFMRV_OK;
 __ret:
     if (pCtx) {
@@ -100,7 +209,7 @@ __ret:
         stPs_clean(pCtx);
         free(pCtx);
         
-        psCtx = 0;
+        pCtx = 0;
     }
     
     return rv;
@@ -123,7 +232,21 @@ gfmRV ps_update(gameCtx *pGame) {
  * @return           GFMRV_OK, ...
  */
 gfmRV ps_draw(gameCtx *pGame) {
-    return GFMRV_OK;
+    psCtx *pPsCtx;
+    gfmCtx *pCtx;
+    gfmRV rv;
+    
+    // Retrieve the context
+    pPsCtx = pGame->pState;
+    pCtx = pGame->pCtx;
+    
+    // Draw everything
+    rv = gfmTilemap_draw(pPsCtx->pTMap, pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
 }
 
 /**
@@ -133,6 +256,10 @@ gfmRV ps_draw(gameCtx *pGame) {
  * @return           GFMRV_OK, ...
  */
 gfmRV ps_clean(gameCtx *pGame) {
+    // TODO The state's context
+    
+    // TODO Clean it
+    // stPs_clean();
     return GFMRV_OK;
 }
 

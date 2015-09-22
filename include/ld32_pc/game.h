@@ -14,6 +14,7 @@
 #include <GFraMe/gfmGroup.h>
 #include <GFraMe/gfmObject.h>
 #include <GFraMe/gfmQuadtree.h>
+#include <GFraMe/gfmTypes.h>
 #include <GFraMe/gfmSprite.h>
 #include <GFraMe/gfmSpriteset.h>
 #include <GFraMe/core/gfmAudio_bkend.h>
