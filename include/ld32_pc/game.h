@@ -25,6 +25,10 @@
 #define checkpoint   gfmType_reserved_5
 #define powerstone   gfmType_reserved_6
 
+#define GAME_BBUF_WIDTH     320
+#define GAME_BBUF_HEIGHT    240
+#define GAME_UI_HEIGHT      42
+
 struct stGameCtx {
 /** == Game and state contexts ============================================== */
     /** The library's main context */

@@ -4,6 +4,7 @@
  * The game's playstate
  */
 #include <GFraMe/gfmAssert.h>
+#include <GFraMe/gfmCamera.h>
 #include <GFraMe/gfmError.h>
 #include <GFraMe/gfmGroup.h>
 #include <GFraMe/gfmObject.h>
@@ -76,9 +77,10 @@ static void stPs_clean(psCtx *pCtx) {
  */
 static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
     char *pMapname, *pObjsname;
+    gfmCamera *pCamera;
     gfmParser *pParser;
     gfmRV rv;
-    int mapnameLen, objsnameLen;
+    int mapnameLen, mapHeight, mapWidth, objsnameLen;
     
     // Set these to NULL to avoid errors
     pMapname = 0;
@@ -107,6 +109,14 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
             sizeof(typesValueDict) / sizeof(int));
     ASSERT(rv == GFMRV_OK, rv);
     // TODO Load animations?
+    
+    // Update the camera's world space
+    rv = gfm_getCamera(&pCamera, pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmTilemap_getDimension(&mapWidth, &mapHeight, pPsCtx->pTMap);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmCamera_setWorldDimensions(pCamera, mapWidth, mapHeight);
+    ASSERT(rv == GFMRV_OK, rv);
     
     // Parse its objects
     rv = gfmParser_getNew(&pParser);
@@ -150,6 +160,7 @@ __ret:
  * @return           GFMRV_OK, GFMRV_ALLOC_FAILED, ...
  */
 gfmRV ps_init(gameCtx *pGame) {
+    gfmCamera *pCamera;
     gfmRV rv;
     psCtx *pCtx;
     
@@ -157,6 +168,14 @@ gfmRV ps_init(gameCtx *pGame) {
     pCtx = (psCtx*)malloc(sizeof(psCtx));
     ASSERT(pCtx, GFMRV_ALLOC_FAILED);
     memset(pCtx, 0x0, sizeof(psCtx));
+    
+    // Make the camera smaller than the screen, to leave UI space at the bottom
+    rv = gfm_getCamera(&pCamera, pGame->pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    // TODO Fix the UI height
+    rv = gfmCamera_init(pCamera, pGame->pCtx, GAME_BBUF_WIDTH,
+            GAME_BBUF_HEIGHT - GAME_UI_HEIGHT);
+    ASSERT(rv == GFMRV_OK, rv);
     
     if (pGame->maxParticles > 0) {
         // Alloc the particles and set its default attributes
@@ -222,7 +241,21 @@ __ret:
  * @return           GFMRV_OK, ...
  */
 gfmRV ps_update(gameCtx *pGame) {
-    return GFMRV_OK;
+    psCtx *pPsCtx;
+    gfmCtx *pCtx;
+    gfmRV rv;
+    
+    // Retrieve the context
+    pPsCtx = pGame->pState;
+    pCtx = pGame->pCtx;
+    
+    // Update everything
+    rv = gfmTilemap_update(pPsCtx->pTMap, pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
 }
 
 /**

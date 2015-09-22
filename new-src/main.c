@@ -244,8 +244,8 @@ int main(int argc, char *argv[]) {
 #endif
     
     // Create the window
-    bbufWidth = 320;
-    bbufHeight = 240;
+    bbufWidth = GAME_BBUF_WIDTH;
+    bbufHeight = GAME_BBUF_HEIGHT;
     if (isFullscreen) {
         rv = gfm_initGameFullScreen(pGame->pCtx, bbufWidth, bbufHeight,
                 0/*defRes*/, 0/*dontResize*/);
