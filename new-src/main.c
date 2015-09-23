@@ -194,6 +194,7 @@ int main(int argc, char *argv[]) {
     isFullscreen = 0;
     width = 640;
     height = 480;
+    pGame->deadzoneSpeed = 4;
     //pGame->maxParts = 2048;
     //pGame->audioFreq = 44100;
     audSettings = gfmAudio_defQuality;
@@ -257,7 +258,7 @@ int main(int argc, char *argv[]) {
     ASSERT(rv == GFMRV_OK, rv);
     
     // Set the BG color
-    rv = gfm_setBackground(pGame->pCtx, 0xff45283c);
+    rv = gfm_setBackground(pGame->pCtx, 0xff5b6ee1);
     ASSERT(rv == GFMRV_OK, rv);
     
     // TODO Remove this

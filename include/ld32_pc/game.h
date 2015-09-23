@@ -19,11 +19,11 @@
 #include <GFraMe/gfmSpriteset.h>
 #include <GFraMe/core/gfmAudio_bkend.h>
 
-#define player       gfmType_reserved_2
-#define collideable  gfmType_reserved_3
-#define spike        gfmType_reserved_4
-#define checkpoint   gfmType_reserved_5
-#define powerstone   gfmType_reserved_6
+#define tPlayer       gfmType_reserved_2
+#define tCollideable  gfmType_reserved_3
+#define tSpike        gfmType_reserved_4
+#define tCheckpoint   gfmType_reserved_5
+#define tPowerstone   gfmType_reserved_6
 
 #define GAME_BBUF_WIDTH     320
 #define GAME_BBUF_HEIGHT    240
@@ -42,6 +42,8 @@ struct stGameCtx {
 /** == Options stuff ======================================================== */
     /** Maximum number of particles on screen */
     int maxParticles;
+    /** How slowly the deadzone moves (higher means slower) */
+    int deadzoneSpeed;
 /** == Spritesets =========================================================== */
     /** 4x4 spriteset */
     gfmSpriteset *pSset4x4;
@@ -49,9 +51,11 @@ struct stGameCtx {
     gfmSpriteset *pSset8x8;
     /** 16x16 spriteset */
     gfmSpriteset *pSset16x16;
-/** ========================================================================= */
+/** == Attributes required by the game ====================================== */
     /** The game's quadtree */
     gfmQuadtreeRoot *pQt;
+    /** Whether the camera is in manual mode */
+    int isCameraManual;
 /** == Input handles ======================================================== */
     int hndLeft;
     int hndRight;

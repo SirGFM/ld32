@@ -14,6 +14,7 @@
 
 //#include <ld32_pc/actors.h>
 #include <ld32_pc/game.h>
+#include <ld32_pc/player.h>
 
 #include <string.h>
 
@@ -26,11 +27,11 @@ static char *typesNameDict[] = {
     "stone"
 };
 static int typesValueDict[] = {
-    collideable,
-    spike,
-    checkpoint,
-    player,
-    powerstone
+    tCollideable,
+    tSpike,
+    tCheckpoint,
+    tPlayer,
+    tPowerstone
 };
 
 // List of maps and object's file names
@@ -49,7 +50,7 @@ struct stPlaystateCtx {
     gfmTilemap *pTMap;
     gfmText *pText;
     int curMap;
-    // Player
+    player *pPlayer;
     // Stones
 };
 typedef struct stPlaystateCtx psCtx;
@@ -68,6 +69,7 @@ static void stPs_clean(psCtx *pCtx) {
     gfmGroup_free(&(pCtx->pParticles));
     gfmTilemap_free(&(pCtx->pTMap));
     gfmText_free(&(pCtx->pText));
+    pl_clean(&(pCtx->pPlayer));
 }
 
 /**
@@ -75,9 +77,10 @@ static void stPs_clean(psCtx *pCtx) {
  * 
  * @param  [in]pCtx The playstate
  */
-static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
+static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
     char *pMapname, *pObjsname;
     gfmCamera *pCamera;
+    gfmCtx *pCtx;
     gfmParser *pParser;
     gfmRV rv;
     int mapnameLen, mapHeight, mapWidth, objsnameLen;
@@ -86,6 +89,8 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
     pMapname = 0;
     pObjsname = 0;
     pParser = 0;
+    
+    pCtx = pGame->pCtx;
     
     // Retrieve tha map's name (stored on a static buffer because C)
 #define GETMAP(i) \
@@ -126,7 +131,6 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
     
     while (1) {
         gfmParserType type;
-        int h, w, x, y;
         
         // Retrieve the next object and check if parsing ended
         rv = gfmParser_parseNext(pParser);
@@ -135,15 +139,39 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gfmCtx *pCtx) {
             break;
         }
         
-        // Get all of the object's common attributes
+        // Get all of the object's type
         rv = gfmParser_getType(&type, pParser);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmParser_getPos(&x, &y, pParser);
-        ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmParser_getDimensions(&w, &h, pParser);
-        ASSERT(rv == GFMRV_OK, rv);
         
-        // TODO Spawn a mob with the given attributes
+        // Spawn the object
+        if (type == gfmParserType_area) {
+            int h, w, x, y;
+            
+            rv = gfmParser_getPos(&x, &y, pParser);
+            ASSERT(rv == GFMRV_OK, rv);
+            rv = gfmParser_getDimensions(&w, &h, pParser);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            // TODO Alloc the object!
+        }
+        else if (type == gfmParserType_object) {
+            char *pType;
+            
+            rv = gfmParser_getIngameType(&pType, pParser);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            if (strcmp(pType, "player") == 0) {
+                rv = pl_init(&(pPsCtx->pPlayer), pGame, pParser);
+                ASSERT(rv == GFMRV_OK, rv);
+            }
+            else if (strcmp(pType, "stone") == 0) {
+                // TODO Spawn a power stone
+            }
+            else {
+                // Force an error
+                ASSERT(0, GFMRV_PARSER_BAD_TOKEN);
+            }
+        }
     }
     
     rv = GFMRV_OK;
@@ -216,7 +244,7 @@ gfmRV ps_init(gameCtx *pGame) {
     }
     
     // Load the first map
-    rv = stPs_loadMap(pCtx, pGame->pCtx);
+    rv = stPs_loadMap(pCtx, pGame);
     ASSERT(rv == GFMRV_OK, rv);
     
     pGame->pState = pCtx;
@@ -249,14 +277,11 @@ gfmRV ps_update(gameCtx *pGame) {
     pPsCtx = pGame->pState;
     pCtx = pGame->pCtx;
     
-    // TODO Pre-update (i.e. handle input and update AI)
-    
-    // Update physics
+    // Update everything
     rv = gfmTilemap_update(pPsCtx->pTMap, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
-    // TODO Update every other object
-    
-    // TODO Post-update (i.e. Select animation and collide w/ world)
+    rv = pl_update(pPsCtx->pPlayer, pGame);
+    ASSERT(rv == GFMRV_OK, rv);
     
     // Update particles; can be done in another step since it's simply aesthetic
     if (pPsCtx->pParticles) {
@@ -286,6 +311,8 @@ gfmRV ps_draw(gameCtx *pGame) {
     
     // Draw everything
     rv = gfmTilemap_draw(pPsCtx->pTMap, pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = pl_draw(pPsCtx->pPlayer, pGame);
     ASSERT(rv == GFMRV_OK, rv);
     
     // TODO Draw everything
