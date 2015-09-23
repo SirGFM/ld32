@@ -10,6 +10,7 @@
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
 
+#include <ld32_pc/collision.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
 
@@ -168,6 +169,8 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     /** == Update the physics =============================================== */
     rv = gfmSprite_update(pPlayer->pSpr, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
+    rv = collideSprite(pGame, pPlayer->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
     
     /** == Post-update (animation, move camera, etc) ======================== */
     
@@ -178,9 +181,9 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         int alpha;
         
         border = 40;
-        h = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT;
+        h = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT - 40;
         w = 20;
-        y = 0;
+        y = 20;
         
         rv = gfmSprite_getDirection(&isFlipped, pPlayer->pSpr);
         ASSERT(rv == GFMRV_OK, rv);

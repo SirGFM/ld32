@@ -50,6 +50,8 @@ struct stPlaystateCtx {
     gfmTilemap *pTMap;
     gfmText *pText;
     int curMap;
+    int mapWidth;
+    int mapHeight;
     player *pPlayer;
     // Stones
 };
@@ -83,7 +85,7 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
     gfmCtx *pCtx;
     gfmParser *pParser;
     gfmRV rv;
-    int mapnameLen, mapHeight, mapWidth, objsnameLen;
+    int mapnameLen, objsnameLen;
     
     // Set these to NULL to avoid errors
     pMapname = 0;
@@ -118,9 +120,9 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
     // Update the camera's world space
     rv = gfm_getCamera(&pCamera, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
-    rv = gfmTilemap_getDimension(&mapWidth, &mapHeight, pPsCtx->pTMap);
+    rv = gfmTilemap_getDimension(&(pPsCtx->mapWidth), &(pPsCtx->mapHeight), pPsCtx->pTMap);
     ASSERT(rv == GFMRV_OK, rv);
-    rv = gfmCamera_setWorldDimensions(pCamera, mapWidth, mapHeight);
+    rv = gfmCamera_setWorldDimensions(pCamera, pPsCtx->mapWidth, pPsCtx->mapHeight);
     ASSERT(rv == GFMRV_OK, rv);
     
     // Parse its objects
@@ -277,6 +279,13 @@ gfmRV ps_update(gameCtx *pGame) {
     pPsCtx = pGame->pState;
     pCtx = pGame->pCtx;
     
+    // Ready the quadtree to collide with everything
+    rv = gfmQuadtree_initRoot(pGame->pQt, -8/*x*/, -8/*y*/, pPsCtx->mapWidth,
+        pPsCtx->mapHeight, 6/*maxDepth*/, 10/*maxNodes*/);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmQuadtree_populateTilemap(pGame->pQt, pPsCtx->pTMap);
+    ASSERT(rv == GFMRV_OK, rv);
+    
     // Update everything
     rv = gfmTilemap_update(pPsCtx->pTMap, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
@@ -322,6 +331,10 @@ gfmRV ps_draw(gameCtx *pGame) {
         rv = gfmGroup_update(pPsCtx->pParticles, pCtx);
         ASSERT(rv == GFMRV_OK, rv);
     }
+    
+    // Draw the quadtree's rectangles (for debugging only)
+    //rv = gfmQuadtree_drawBounds(pGame->pQt, pCtx, 0);
+    //ASSERT(rv == GFMRV_OK, rv);
     
     rv = GFMRV_OK;
 __ret:
