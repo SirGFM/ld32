@@ -12,9 +12,9 @@
 /**
  * Collide a sprite against the world
  * 
- * @param [in]pGame The game context
- * @param [in]pSpr  The sprite
- * @return          GFMRV_OK, ...
+ * @param  [in]pGame The game context
+ * @param  [in]pSpr  The sprite
+ * @return           GFMRV_OK, ...
  */
 gfmRV collideSprite(gameCtx *pGame, gfmSprite *pSpr);
 

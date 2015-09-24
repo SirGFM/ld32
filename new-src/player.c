@@ -40,6 +40,10 @@ struct stPlayer {
     int curAnim;
     /** For how long the camera has been tweening (in the range [-500,500]ms) */
     int cameraTweenTime;
+    /** Default horizontal speed */
+    int vx;
+    /** Default jump speed */
+    int vy;
 };
 
 /**
@@ -89,7 +93,7 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     // Initialize its sprite
     rv = gfmSprite_getNew(&(pCtx->pSpr));
     ASSERT(rv == GFMRV_OK, rv);
-    rv = gfmSprite_init(pCtx->pSpr, x, y, 4/*width*/, 10/*height*/,
+    rv = gfmSprite_init(pCtx->pSpr, x, y - 16, 4/*width*/, 10/*height*/,
             pGame->pSset16x16, -6/*offX*/, -6/*offY*/, pCtx/*pChild*/,
             tPlayer/*type*/);
     ASSERT(rv == GFMRV_OK, rv);
@@ -101,6 +105,12 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     pCtx->curAnim = -1;
     rv = stPl_setAnimation(pCtx, SPR_ANIM_DEF);
     ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = gfmSprite_setVerticalAcceleration(pCtx->pSpr, GAME_GRAV);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    pCtx->vx = 50;
+    pCtx->vy = 150;
     
     *ppCtx = pCtx;
     pCtx = 0;
@@ -129,6 +139,37 @@ void pl_clean(player **ppCtx) {
 }
 
 /**
+ * Collide the player against the wall/floor
+ * 
+ * @param  [in]pCtx  The player
+ * @param  [in]pWall The wall
+ * @return           GFMRV_OK, ...
+ */
+gfmRV pl_collideWall(player *pCtx, gameCtx *pGame, gfmObject *pWall) {
+    gfmCollision dir;
+    gfmObject *pObj;
+    gfmRV rv;
+    
+    // Collide the player's object against the wall
+    rv = gfmSprite_getObject(&pObj, pCtx->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmObject_collide(pObj, pWall);
+    ASSERT(rv == GFMRV_TRUE || rv == GFMRV_FALSE, rv);
+    
+    // If the player is on the floor, make it stand still
+    rv = gfmSprite_getCurrentCollision(&dir, pCtx->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    if (dir & gfmCollision_down) {
+        rv = gfmSprite_setVerticalVelocity(pCtx->pSpr, 0.0);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
+}
+
+/**
  * Update the player
  * 
  * @param  [in]pCtx The player
@@ -136,6 +177,7 @@ void pl_clean(player **ppCtx) {
  */
 gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     gfmCamera *pCamera;
+    gfmCollision dir;
     gfmCtx *pCtx;
     gfmRV rv;
     int elapsed;
@@ -148,21 +190,28 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     
     /** == Pre-update (handle inputs) ======================================= */
     
-    // Temp stuff for testing...
+    rv = gfmSprite_getCollision(&dir, pPlayer->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    
     if (pGame->stRight & gfmInput_pressed) {
         rv = gfmSprite_setDirection(pPlayer->pSpr, 0/*isFlipped*/);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, 100/*vx*/);
+        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, pPlayer->vx);
         ASSERT(rv == GFMRV_OK, rv);
     }
     else if (pGame->stLeft & gfmInput_pressed) {
         rv = gfmSprite_setDirection(pPlayer->pSpr, 1/*isFlipped*/);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, -100/*vx*/);
+        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, -pPlayer->vx);
         ASSERT(rv == GFMRV_OK, rv);
     }
     else {
         rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, 0/*vx*/);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    if ((dir & gfmCollision_down) && (pGame->stJump & gfmInput_justPressed) == gfmInput_justPressed) {
+        rv = gfmSprite_setVerticalVelocity(pPlayer->pSpr, -pPlayer->vy);
         ASSERT(rv == GFMRV_OK, rv);
     }
     
@@ -181,9 +230,9 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         int alpha;
         
         border = 40;
-        h = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT - 40;
+        h = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT - 160;
         w = 20;
-        y = 20;
+        y = 80;
         
         rv = gfmSprite_getDirection(&isFlipped, pPlayer->pSpr);
         ASSERT(rv == GFMRV_OK, rv);

@@ -36,6 +36,16 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser);
 void pl_clean(player **ppCtx);
 
 /**
+ * Collide the player against the wall/floor
+ * 
+ * @param  [in]pCtx  The player
+ * @param  [in]pGame The game context
+ * @param  [in]pWall The wall
+ * @return           GFMRV_OK, ...
+ */
+gfmRV pl_collideWall(player *pCtx, gameCtx *pGame, gfmObject *pWall);
+
+/**
  * Update the player
  * 
  * @param  [in]pCtx The player

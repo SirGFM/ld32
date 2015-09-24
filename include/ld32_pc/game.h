@@ -28,6 +28,7 @@
 #define GAME_BBUF_WIDTH     320
 #define GAME_BBUF_HEIGHT    240
 #define GAME_UI_HEIGHT      42
+#define GAME_GRAV           500
 
 struct stGameCtx {
 /** == Game and state contexts ============================================== */
