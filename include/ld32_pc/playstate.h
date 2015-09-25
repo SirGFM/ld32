@@ -42,5 +42,15 @@ gfmRV ps_draw(gameCtx *pGame);
  */
 gfmRV ps_clean(gameCtx *pGame);
 
+/**
+ * Retrieve the player's starting position
+ * 
+ * @param  [in]pX    The horizontal position
+ * @param  [in]pY    The vertical position
+ * @param  [in]pGame The game context
+ * @return           GFMRV_OK, ...
+ */
+gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame);
+
 #endif /* __PLAYSTATE_H__ */
 

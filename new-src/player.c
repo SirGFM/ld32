@@ -13,6 +13,7 @@
 #include <ld32_pc/collision.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
+#include <ld32_pc/playstate.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -161,6 +162,44 @@ gfmRV pl_collideWall(player *pCtx, gameCtx *pGame, gfmObject *pWall) {
     ASSERT(rv == GFMRV_OK, rv);
     if (dir & gfmCollision_down) {
         rv = gfmSprite_setVerticalVelocity(pCtx->pSpr, 0.0);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
+}
+
+/**
+ * Collide the player against a spike
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]pSpike The spike
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_collideSpike(player *pCtx, gameCtx *pGame, gfmObject *pSpike) {
+    gfmCollision dir;
+    gfmObject *pObj;
+    gfmRV rv;
+    
+    // Collide the player's object against the wall
+    rv = gfmSprite_getObject(&pObj, pCtx->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmObject_collide(pObj, pSpike);
+    ASSERT(rv == GFMRV_TRUE || rv == GFMRV_FALSE, rv);
+    
+    // If the player is on the floor, make it stand still
+    rv = gfmSprite_getCurrentCollision(&dir, pCtx->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    if ((dir & gfmCollision_ver) != 0) {
+        int x, y;
+        
+        // TODO Kill the player and then restart
+        rv = ps_getPlayerInitPos(&x, &y, pGame);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        rv = gfmSprite_setPosition(pCtx->pSpr, x, y);
         ASSERT(rv == GFMRV_OK, rv);
     }
     

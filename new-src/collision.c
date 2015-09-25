@@ -57,6 +57,7 @@ static gfmRV collide(gameCtx *pGame) {
         
         if (0) {}
         HANDLE_COLLISION(tPlayer, tCollideable, pl_collideWall)
+        HANDLE_COLLISION(tPlayer, tSpike, pl_collideSpike)
         else { rv = GFMRV_FUNCTION_FAILED; }
         
         ASSERT(rv == GFMRV_OK, rv);

@@ -50,6 +50,8 @@ struct stPlaystateCtx {
     gfmTilemap *pTMap;
     gfmText *pText;
     int curMap;
+    int iniX;
+    int iniY;
     int mapWidth;
     int mapHeight;
     player *pPlayer;
@@ -163,8 +165,17 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
             ASSERT(rv == GFMRV_OK, rv);
             
             if (strcmp(pType, "player") == 0) {
+                int x, y;
+                
                 rv = pl_init(&(pPsCtx->pPlayer), pGame, pParser);
                 ASSERT(rv == GFMRV_OK, rv);
+                
+                // Store the player's initial position
+                rv = gfmParser_getPos(&x, &y, pParser);
+                ASSERT(rv == GFMRV_OK, rv);
+                
+                pPsCtx->iniX = x;
+                pPsCtx->iniY = y;
             }
             else if (strcmp(pType, "stone") == 0) {
                 // TODO Spawn a power stone
@@ -348,10 +359,30 @@ __ret:
  * @return           GFMRV_OK, ...
  */
 gfmRV ps_clean(gameCtx *pGame) {
-    // TODO The state's context
+    psCtx *pPsCtx;
     
-    // TODO Clean it
-    // stPs_clean();
+    pPsCtx = pGame->pState;
+    stPs_clean(pPsCtx);
+    
+    return GFMRV_OK;
+}
+
+/**
+ * Retrieve the player's starting position
+ * 
+ * @param  [in]pX    The horizontal position
+ * @param  [in]pY    The vertical position
+ * @param  [in]pGame The game context
+ * @return           GFMRV_OK, ...
+ */
+gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame) {
+    psCtx *pPsCtx;
+    
+    pPsCtx = pGame->pState;
+    
+    *pX = pPsCtx->iniX;
+    *pY = pPsCtx->iniY;
+    
     return GFMRV_OK;
 }
 

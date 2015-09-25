@@ -46,6 +46,16 @@ void pl_clean(player **ppCtx);
 gfmRV pl_collideWall(player *pCtx, gameCtx *pGame, gfmObject *pWall);
 
 /**
+ * Collide the player against a spike
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]pSpike The spike
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_collideSpike(player *pCtx, gameCtx *pGame, gfmObject *pSpike);
+
+/**
  * Update the player
  * 
  * @param  [in]pCtx The player
