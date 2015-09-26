@@ -9,6 +9,7 @@
 #include <ld32_pc/collision.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
+#include <ld32_pc/playstate.h>
 
 /**
  * Handle collision and updates it
@@ -58,6 +59,7 @@ static gfmRV collide(gameCtx *pGame) {
         if (0) {}
         HANDLE_COLLISION(tPlayer, tCollideable, pl_collideWall)
         HANDLE_COLLISION(tPlayer, tSpike, pl_collideSpike)
+        HANDLE_COLLISION(tPlayer, tCheckpoint, st_plCollideCheckpoint)
         else { rv = GFMRV_FUNCTION_FAILED; }
         
         ASSERT(rv == GFMRV_OK, rv);

@@ -52,5 +52,15 @@ gfmRV ps_clean(gameCtx *pGame);
  */
 gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame);
 
+/**
+ * Store the current checkpoint, if the player overlaps against it
+ * 
+ * @param  [in]pPl   The player
+ * @param  [in]pGame The game context
+ * @param  [in]pCp   The checkpoint
+ * @return           GFMRV_OK, ...
+ */
+gfmRV st_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp);
+
 #endif /* __PLAYSTATE_H__ */
 

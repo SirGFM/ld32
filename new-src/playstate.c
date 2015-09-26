@@ -12,7 +12,6 @@
 #include <GFraMe/gfmTilemap.h>
 #include <GFraMe/gfmText.h>
 
-//#include <ld32_pc/actors.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
 
@@ -50,8 +49,8 @@ struct stPlaystateCtx {
     gfmTilemap *pTMap;
     gfmText *pText;
     int curMap;
-    int iniX;
-    int iniY;
+    int curCheckpointX;
+    int curCheckpointY;
     int mapWidth;
     int mapHeight;
     player *pPlayer;
@@ -174,8 +173,8 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
                 rv = gfmParser_getPos(&x, &y, pParser);
                 ASSERT(rv == GFMRV_OK, rv);
                 
-                pPsCtx->iniX = x;
-                pPsCtx->iniY = y;
+                pPsCtx->curCheckpointX = x;
+                pPsCtx->curCheckpointY = y;
             }
             else if (strcmp(pType, "stone") == 0) {
                 // TODO Spawn a power stone
@@ -380,10 +379,44 @@ gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame) {
     
     pPsCtx = pGame->pState;
     
-    *pX = pPsCtx->iniX;
-    *pY = pPsCtx->iniY;
+    *pX = pPsCtx->curCheckpointX;
+    *pY = pPsCtx->curCheckpointY;
     
     return GFMRV_OK;
+}
+
+/**
+ * Store the current checkpoint, if the player overlaps against it
+ * 
+ * @param  [in]pPl   The player
+ * @param  [in]pGame The game context
+ * @param  [in]pCp   The checkpoint
+ * @return           GFMRV_OK, ...
+ */
+gfmRV st_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp) {
+    gfmObject *pObj;
+    gfmRV rv;
+    int cx, cy;
+    psCtx *pPsCtx;
+    
+    pPsCtx = pGame->pState;
+    pObj = (gfmObject*)pCp;
+    
+    rv = gfmObject_getCenter(&cx, &cy, pObj);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    if (pPsCtx->curCheckpointX != cx && pPsCtx->curCheckpointY != cy) {
+        pPsCtx->curCheckpointX = cx;
+        pPsCtx->curCheckpointY = cy;
+        
+        // TODO Spawn particles
+        // TODO Play sound
+        // TODO Display message "Checkpoint!"
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
 }
 
 #if 0
