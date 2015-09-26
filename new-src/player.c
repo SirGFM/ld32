@@ -38,9 +38,12 @@ static int _pl_animData[] =
 
 struct stPlayer {
     gfmSprite *pSpr;
+    /** Current animation */
     int curAnim;
     /** For how long the camera has been tweening (in the range [-500,500]ms) */
     int cameraTweenTime;
+    /** Countdown to respawn the player */
+    int respawnTimer;
     /** Default horizontal speed */
     int vx;
     /** Default jump speed */
@@ -192,15 +195,9 @@ gfmRV pl_collideSpike(player *pCtx, gameCtx *pGame, gfmObject *pSpike) {
     // If the player is on the floor, make it stand still
     rv = gfmSprite_getCurrentCollision(&dir, pCtx->pSpr);
     ASSERT(rv == GFMRV_OK, rv);
-    if ((dir & gfmCollision_ver) != 0) {
-        int x, y;
-        
-        // TODO Kill the player and then restart
-        rv = ps_getPlayerInitPos(&x, &y, pGame);
-        ASSERT(rv == GFMRV_OK, rv);
-        
-        rv = gfmSprite_setPosition(pCtx->pSpr, x, y);
-        ASSERT(rv == GFMRV_OK, rv);
+    if ((dir & gfmCollision_ver) != 0 && pCtx->respawnTimer <= 0) {
+        // Kill the player
+        pCtx->respawnTimer += PL_RESPAWN_TIME;
     }
     
     rv = GFMRV_OK;
@@ -232,7 +229,12 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     rv = gfmSprite_getCollision(&dir, pPlayer->pSpr);
     ASSERT(rv == GFMRV_OK, rv);
     
-    if (pGame->stRight & gfmInput_pressed) {
+    if (pPlayer->respawnTimer > 0) {
+        // Force the player to stand still
+        rv = gfmSprite_setVelocity(pPlayer->pSpr, 0, 0);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    else if (pGame->stRight & gfmInput_pressed) {
         rv = gfmSprite_setDirection(pPlayer->pSpr, 0/*isFlipped*/);
         ASSERT(rv == GFMRV_OK, rv);
         rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, pPlayer->vx);
@@ -249,7 +251,8 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
     }
     
-    if ((dir & gfmCollision_down) && (pGame->stJump & gfmInput_justPressed) == gfmInput_justPressed) {
+    if (pPlayer->respawnTimer <= 0 && (dir & gfmCollision_down) &&
+            (pGame->stJump & gfmInput_justPressed) == gfmInput_justPressed) {
         rv = gfmSprite_setVerticalVelocity(pPlayer->pSpr, -pPlayer->vy);
         ASSERT(rv == GFMRV_OK, rv);
     }
@@ -259,6 +262,20 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     ASSERT(rv == GFMRV_OK, rv);
     rv = collideSprite(pGame, pPlayer->pSpr);
     ASSERT(rv == GFMRV_OK, rv);
+    
+    if (pPlayer->respawnTimer > 0) {
+        pPlayer->respawnTimer -= elapsed;
+        if (pPlayer->respawnTimer <= 0) {
+            int x, y;
+            
+            // Respawn the player
+            rv = ps_getPlayerInitPos(&x, &y, pGame);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            rv = gfmSprite_setPosition(pPlayer->pSpr, x, y - 16);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+    }
     
     /** == Post-update (animation, move camera, etc) ======================== */
     
@@ -298,6 +315,40 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
         rv = gfmCamera_centerAtPoint(pCamera, cx, cy);
         ASSERT(rv == GFMRV_CAMERA_MOVED || rv == GFMRV_CAMERA_DIDNT_MOVE, rv);
+    } while (0);
+    
+    // Update the current animation
+    do {
+        double vx, vy;
+        
+        rv = gfmSprite_getVelocity(&vx, &vy, pPlayer->pSpr);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        rv = GFMRV_OK;
+        if (pPlayer->respawnTimer > 0) {
+            rv = stPl_setAnimation(pPlayer, SPR_ANIM_DEATH);
+        }
+        else if (0) {
+            // TODO Check if shooting
+            rv = stPl_setAnimation(pPlayer, SPR_ANIM_LASER);
+        }
+        else if (vy != 0) {
+            rv = stPl_setAnimation(pPlayer, SPR_ANIM_JUMP);
+        }
+        else if (vx != 0) {
+            rv = stPl_setAnimation(pPlayer, SPR_ANIM_WALK);
+            ASSERT(rv == GFMRV_OK, rv);
+            if (vx > 0) {
+                rv = gfmSprite_setDirection(pPlayer->pSpr, 0/*isFlipped*/);
+            }
+            else if (vx < 0) {
+                rv = gfmSprite_setDirection(pPlayer->pSpr, 1/*isFlipped*/);
+            }
+        }
+        else {
+            rv = stPl_setAnimation(pPlayer, SPR_ANIM_DEF);
+        }
+        ASSERT(rv == GFMRV_OK, rv);
     } while (0);
     
     rv = GFMRV_OK;
