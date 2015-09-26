@@ -7,6 +7,7 @@
 #define __PLAYSTATE_H__
 
 #include <GFraMe/gfmError.h>
+#include <GFraMe/gfmGroup.h>
 
 #include <ld32_pc/game.h>
 
@@ -60,7 +61,16 @@ gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame);
  * @param  [in]pCp   The checkpoint
  * @return           GFMRV_OK, ...
  */
-gfmRV st_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp);
+gfmRV ps_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp);
+
+/**
+ * Retrive the state's particle group
+ * 
+ * @param [out]ppGrp The retrieved group
+ * @param [in] pGame The game context
+ * @return           GFMRV_OK, ...
+ */
+gfmRV ps_getParticles(gfmGroup **ppGrp, gameCtx *pGame);
 
 #endif /* __PLAYSTATE_H__ */
 

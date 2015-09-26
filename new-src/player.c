@@ -7,6 +7,7 @@
 #include <GFraMe/gfmAssert.h>
 #include <GFraMe/gfmCamera.h>
 #include <GFraMe/gfmError.h>
+#include <GFraMe/gfmGroup.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
 
@@ -29,11 +30,11 @@ enum {
 static int _pl_animData[] = 
 {
 /*              */ /*len|fps|loop|frames...*/
-/* SPR_ANIM_DEF */    12, 8 , 1  , 80,80,80,80,81,80,82,80,80,80,80,83,
-/*SPR_ANIM_WALK */    8 , 8 , 1  , 84,85,86,87,84,85,88,87,
-/*SPR_ANIM_JUMP */    1 , 0 , 0  , 82,
-/*SPR_ANIM_LASER*/    1 , 0 , 0  , 89,
-/*SPR_ANIM_DEATH*/    1 , 2 , 0  , 90,
+/* SPR_ANIM_DEF */    12, 8 , 1  , 96,96,96,96,97,96,98,96,96,96,96,99,
+/*SPR_ANIM_WALK */    8 , 8 , 1  , 100,101,102,103,100,101,104,103,
+/*SPR_ANIM_JUMP */    1 , 0 , 0  , 98,
+/*SPR_ANIM_LASER*/    1 , 0 , 0  , 105,
+/*SPR_ANIM_DEATH*/    1 , 2 , 0  , 106,
 };
 
 struct stPlayer {
@@ -331,6 +332,15 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         else if (0) {
             // TODO Check if shooting
             rv = stPl_setAnimation(pPlayer, SPR_ANIM_LASER);
+            
+            // TODO Check if should spawn particles
+            if (0) {
+                gfmGroup  *pGrp;
+                gfmSprite *pSpr;
+                
+                rv = ps_getParticles(&pGrp, pGame);
+                ASSERT(rv == GFMRV_OK, rv);
+            }
         }
         else if (vy != 0) {
             rv = stPl_setAnimation(pPlayer, SPR_ANIM_JUMP);

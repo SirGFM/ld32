@@ -17,6 +17,30 @@
 
 #include <string.h>
 
+/** List of particle animations */
+enum {
+    RED_BULLET,
+    ORANGE_BULLET,
+    YELLOW_BULLET,
+    GREEN_BULLET,
+    CYAN_BULLET,
+    BLUE_BULLET,
+    PURPLE_BULLET,
+    MAX_PART_ANIM
+};
+static int pParticleAnim[] = {
+/*                */ /*len|fps|loop|frames...*/
+/*   RED_BULLET   */    20, 8 ,  0 , 256,257,258,259, 258,259,259,259, 259,259,259,259, 258,259,260,261, 262,263,264,265,
+/* ORANGE_BULLET  */    20, 8 ,  0 , 266,267,268,269, 268,269,269,269, 269,269,269,269, 268,269,270,271, 272,273,274,275,
+/* YELLOW_BULLET  */    20, 8 ,  0 , 276,277,278,279, 278,279,279,279, 279,279,279,279, 278,279,280,281, 282,283,284,285,
+/*  GREEN_BULLET  */    20, 8 ,  0 , 288,289,290,291, 290,291,291,291, 291,291,291,291, 290,291,292,293, 294,295,296,297,
+/*  CYAN_BULLET   */    20, 8 ,  0 , 298,299,300,301, 300,301,301,301, 301,301,301,301, 300,301,302,303, 304,305,306,307,
+/*  BLUE_BULLET   */    20, 8 ,  0 , 308,309,310,311, 310,311,311,311, 311,311,311,311, 310,311,312,313, 314,315,316,317,
+/* PURPLE_BULLET  */    20, 8 ,  0 , 320,321,322,323, 322,323,323,323, 323,323,323,323, 322,323,324,325, 326,327,328,329,
+/* MAX_PART_ANIM  */     1, 0 ,  0 , -1
+};
+static int particleAnimlen = sizeof(pParticleAnim) / sizeof(int);
+
 // Dictionary relates tiles and types
 static char *typesNameDict[] = {
     "collideable",
@@ -221,13 +245,16 @@ gfmRV ps_init(gameCtx *pGame) {
         // Alloc the particles and set its default attributes
         rv = gfmGroup_getNew(&(pCtx->pParticles));
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmGroup_setDefSpriteset(pCtx->pParticles, pGame->pSset4x4);
+        rv = gfmGroup_setDefSpriteset(pCtx->pParticles, pGame->pSset8x8);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmGroup_setDefDimensions(pCtx->pParticles, 4, 4, 0, 0);
+        rv = gfmGroup_setDefDimensions(pCtx->pParticles, 8, 8, -3, -3);
         ASSERT(rv == GFMRV_OK, rv);
-        rv =  gfmGroup_setDeathOnLeave(pCtx->pParticles, 1);
+        rv = gfmGroup_setDefAnimData(pCtx->pParticles, pParticleAnim,
+                particleAnimlen);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmGroup_setDeathOnTime(pCtx->pParticles, 0);
+        rv =  gfmGroup_setDeathOnLeave(pCtx->pParticles, 0);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setDeathOnTime(pCtx->pParticles, 4000);
         ASSERT(rv == GFMRV_OK, rv);
         // Pre-cache some sprites
         rv = gfmGroup_preCache(pCtx->pParticles, pGame->maxParticles,
@@ -393,7 +420,7 @@ gfmRV ps_getPlayerInitPos(int *pX, int *pY, gameCtx *pGame) {
  * @param  [in]pCp   The checkpoint
  * @return           GFMRV_OK, ...
  */
-gfmRV st_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp) {
+gfmRV ps_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp) {
     gfmObject *pObj;
     gfmRV rv;
     int cx, cy;
@@ -416,6 +443,26 @@ gfmRV st_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp) {
     
     rv = GFMRV_OK;
 __ret:
+    return rv;
+}
+
+/**
+ * Retrive the state's particle group
+ * 
+ * @param [out]ppGrp The retrieved group
+ * @param [in] pGame The game context
+ * @return           GFMRV_OK, ...
+ */
+gfmRV ps_getParticles(gfmGroup **ppGrp, gameCtx *pGame) {
+    gfmRV rv;
+    psCtx *pPsCtx;
+    
+    // TODO Check state?
+    pPsCtx = pGame->pState;
+    
+    *ppGrp = pPsCtx->pParticles;
+    
+    rv = GFMRV_OK;
     return rv;
 }
 
