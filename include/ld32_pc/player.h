@@ -71,5 +71,16 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame);
  */
 gfmRV pl_draw(player *pPlayer, gameCtx *pGame);
 
+/**
+ * Draw the player's power bar
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]x      The horizontal position
+ * @param  [in]y      The vertical position
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_drawPowerBar(player *pPlayer, gameCtx *pGame, int x, int y);
+
 #endif /* __PLAYER_H__ */
 

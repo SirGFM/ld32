@@ -10,6 +10,7 @@
 #include <GFraMe/gfmGroup.h>
 
 #include <ld32_pc/game.h>
+#include <ld32_pc/player.h>
 
 /**
  * Initialize the playstate: stores the playstate context, loads the map, etc
@@ -66,11 +67,20 @@ gfmRV ps_plCollideCheckpoint(void *pPlayer, gameCtx *pGame, void *pCp);
 /**
  * Retrive the state's particle group
  * 
- * @param [out]ppGrp The retrieved group
- * @param [in] pGame The game context
- * @return           GFMRV_OK, ...
+ * @param  [out]ppGrp The retrieved group
+ * @param  [in] pGame The game context
+ * @return            GFMRV_OK, ...
  */
 gfmRV ps_getParticles(gfmGroup **ppGrp, gameCtx *pGame);
+
+/**
+ * Retrieve the player's reference
+ * 
+ * @param  [out]ppPlayer The retrieved player
+ * @param  [in] pGame    The game context
+ * @return               GFMRV_OK, ...
+ */
+gfmRV ps_getPlayer(player **ppPlayer, gameCtx *pGame);
 
 #endif /* __PLAYSTATE_H__ */
 

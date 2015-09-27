@@ -14,6 +14,7 @@
 
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
+#include <ld32_pc/ui.h>
 
 #include <string.h>
 
@@ -373,6 +374,9 @@ gfmRV ps_draw(gameCtx *pGame) {
     //rv = gfmQuadtree_drawBounds(pGame->pQt, pCtx, 0);
     //ASSERT(rv == GFMRV_OK, rv);
     
+    rv = ui_draw(pGame);
+    ASSERT(rv == GFMRV_OK, rv);
+    
     rv = GFMRV_OK;
 __ret:
     return rv;
@@ -461,6 +465,26 @@ gfmRV ps_getParticles(gfmGroup **ppGrp, gameCtx *pGame) {
     pPsCtx = pGame->pState;
     
     *ppGrp = pPsCtx->pParticles;
+    
+    rv = GFMRV_OK;
+    return rv;
+}
+
+/**
+ * Retrieve the player's reference
+ * 
+ * @param  [out]ppPlayer The retrieved player
+ * @param  [in] pGame    The game context
+ * @return               GFMRV_OK, ...
+ */
+gfmRV ps_getPlayer(player **ppPlayer, gameCtx *pGame) {
+    gfmRV rv;
+    psCtx *pPsCtx;
+    
+    // TODO Check state?
+    pPsCtx = pGame->pState;
+    
+    *ppPlayer = pPsCtx->pPlayer;
     
     rv = GFMRV_OK;
     return rv;

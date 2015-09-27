@@ -386,3 +386,55 @@ gfmRV pl_draw(player *pPlayer, gameCtx *pGame) {
     return gfmSprite_draw(pPlayer->pSpr, pGame->pCtx);
 }
 
+/**
+ * Draw the player's power bar
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]x      The horizontal position
+ * @param  [in]y      The vertical position
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_drawPowerBar(player *pPlayer, gameCtx *pGame, int x, int y) {
+    gfmCtx *pCtx;
+    gfmSpriteset *pSset; 
+    gfmRV rv;
+    int i, tile;
+    
+    pCtx = pGame->pCtx;
+    pSset = pGame->pSset2x8;
+    
+    tile = 1408;
+    rv = gfm_drawTile(pCtx, pSset, x, y, tile, 0/*isFlipped*/);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    x += 2;
+    i = 0;
+    while (i < pPlayer->curPower) {
+        tile = 1409;
+        tile += i >> 2;
+        
+        rv = gfm_drawTile(pCtx, pSset, x + 2*i, y, tile, 0/*isFlipped*/);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        i++;
+    }
+    while (i < 7*4) {
+        tile = 1416;
+        tile += i >> 2;
+        
+        rv = gfm_drawTile(pCtx, pSset, x + 2*i, y, tile, 0/*isFlipped*/);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        i++;
+    }
+    
+    tile = 1423;
+    rv = gfm_drawTile(pCtx, pSset, x + 2*i, y, tile, 0/*isFlipped*/);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
+}
+

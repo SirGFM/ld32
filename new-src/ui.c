@@ -7,6 +7,7 @@
 #include <GFraMe/gfmError.h>
 
 #include <ld32_pc/game.h>
+#include <ld32_pc/player.h>
 #include <ld32_pc/ui.h>
 
 /**
@@ -16,6 +17,18 @@
  * @return          GFMRV_OK
  */
 gfmRV ui_draw(gameCtx *pGame) {
-    return GFMRV_OK;
+    gfmRV rv;
+    player *pPlayer;
+    
+    // Draw the player's 'power meter'
+    rv = ps_getPlayer(&pPlayer, pGame);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = pl_drawPowerBar(pPlayer, pGame, 0/*x*/,
+            GAME_BBUF_HEIGHT - GAME_UI_HEIGHT/*y*/);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
 }
 

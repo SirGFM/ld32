@@ -47,8 +47,8 @@ struct stGameCtx {
     /** How slowly the deadzone moves (higher means slower) */
     int deadzoneSpeed;
 /** == Spritesets =========================================================== */
-    /** 4x4 spriteset */
-    gfmSpriteset *pSset4x4;
+    /** 2x8 spriteset */
+    gfmSpriteset *pSset2x8;
     /** 8x8 spriteset */
     gfmSpriteset *pSset8x8;
     /** 16x16 spriteset */

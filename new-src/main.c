@@ -120,8 +120,8 @@ static gfmRV loadAssets(gameCtx *pGame) {
     ASSERT(rv == GFMRV_OK, rv);
     
     // Create the texture's spritesets
-    rv = gfm_createSpritesetCached(&(pGame->pSset4x4), pGame->pCtx, texIndex,
-        4/*tileWidth*/, 4/*tileHeight*/);
+    rv = gfm_createSpritesetCached(&(pGame->pSset2x8), pGame->pCtx, texIndex,
+        2/*tileWidth*/, 8/*tileHeight*/);
     ASSERT(rv == GFMRV_OK, rv);
     rv = gfm_createSpritesetCached(&(pGame->pSset8x8), pGame->pCtx, texIndex,
         8/*tileWidth*/, 8/*tileHeight*/);
