@@ -16,7 +16,8 @@ CC=gcc
          $(OBJDIR)/common.o            \
          $(OBJDIR)/main.o              \
          $(OBJDIR)/player.o            \
-         $(OBJDIR)/playstate.o         
+         $(OBJDIR)/playstate.o         \
+         $(OBJDIR)/ui.o                
          #$(OBJDIR)/audio.o             \
          #$(OBJDIR)/camera.o            \
          #$(OBJDIR)/global.o            \

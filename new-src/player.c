@@ -49,6 +49,16 @@ struct stPlayer {
     int vx;
     /** Default jump speed */
     int vy;
+    /** Which stones have been retrieved */
+    int stones;
+    /** How many bars there are left */
+    int curPower;
+    /** How many bars the player has */
+    int totalPower;
+    /** How long until the next bar */
+    int nextShoot;
+    /** For how long shooting lasts (until a new bar is used) */
+    int shootDelay;
 };
 
 /**
