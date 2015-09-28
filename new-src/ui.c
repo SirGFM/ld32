@@ -8,6 +8,7 @@
 
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
+#include <ld32_pc/playstate.h>
 #include <ld32_pc/ui.h>
 
 /**

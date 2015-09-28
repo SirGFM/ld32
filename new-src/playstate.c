@@ -14,6 +14,7 @@
 
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
+#include <ld32_pc/stone.h>
 #include <ld32_pc/ui.h>
 
 #include <string.h>
@@ -78,8 +79,9 @@ struct stPlaystateCtx {
     int curCheckpointY;
     int mapWidth;
     int mapHeight;
+    int stoneCount;
     player *pPlayer;
-    // Stones
+    stone *pStone[7];
 };
 typedef struct stPlaystateCtx psCtx;
 
@@ -98,6 +100,11 @@ static void stPs_clean(psCtx *pCtx) {
     gfmTilemap_free(&(pCtx->pTMap));
     gfmText_free(&(pCtx->pText));
     pl_clean(&(pCtx->pPlayer));
+    
+    while (pCtx->stoneCount > 0) {
+        pCtx->stoneCount--;
+        st_clean(&(pCtx->pStone[pCtx->stoneCount]));
+    }
 }
 
 /**
@@ -202,7 +209,16 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
                 pPsCtx->curCheckpointY = y;
             }
             else if (strcmp(pType, "stone") == 0) {
-                // TODO Spawn a power stone
+                stone *pStone;
+                
+                ASSERT(pPsCtx->stoneCount < 7, GFMRV_FUNCTION_FAILED);
+                
+                pStone = 0;
+                rv = st_init(&pStone, pGame, pParser);
+                ASSERT(rv == GFMRV_OK, rv);
+                
+                pPsCtx->pStone[pPsCtx->stoneCount] = pStone;
+                pPsCtx->stoneCount++;
             }
             else {
                 // Force an error
@@ -312,6 +328,7 @@ gfmRV ps_update(gameCtx *pGame) {
     psCtx *pPsCtx;
     gfmCtx *pCtx;
     gfmRV rv;
+    int i;
     
     // Retrieve the context
     pPsCtx = pGame->pState;
@@ -329,6 +346,11 @@ gfmRV ps_update(gameCtx *pGame) {
     ASSERT(rv == GFMRV_OK, rv);
     rv = pl_update(pPsCtx->pPlayer, pGame);
     ASSERT(rv == GFMRV_OK, rv);
+    i = 0;
+    while (i < pPsCtx->stoneCount) {
+        st_update(pPsCtx->pStone[i], pGame);
+        i++;
+    }
     
     // Update particles; can be done in another step since it's simply aesthetic
     if (pPsCtx->pParticles) {
@@ -351,6 +373,7 @@ gfmRV ps_draw(gameCtx *pGame) {
     psCtx *pPsCtx;
     gfmCtx *pCtx;
     gfmRV rv;
+    int i;
     
     // Retrieve the context
     pPsCtx = pGame->pState;
@@ -361,6 +384,11 @@ gfmRV ps_draw(gameCtx *pGame) {
     ASSERT(rv == GFMRV_OK, rv);
     rv = pl_draw(pPsCtx->pPlayer, pGame);
     ASSERT(rv == GFMRV_OK, rv);
+    i = 0;
+    while (i < pPsCtx->stoneCount) {
+        st_draw(pPsCtx->pStone[i], pGame);
+        i++;
+    }
     
     // TODO Draw everything
     

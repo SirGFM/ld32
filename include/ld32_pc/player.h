@@ -14,6 +14,7 @@ typedef struct stPlayer player;
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 
+#include <GFraMe/gfmError.h>
 #include <GFraMe/gfmParser.h>
 
 #include <ld32_pc/game.h>
