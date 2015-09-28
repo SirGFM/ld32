@@ -217,6 +217,50 @@ __ret:
 }
 
 /**
+ * Collide the player against a stone of power
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]pStone The stone
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_collideStone(player *pCtx, gameCtx *pGame, stone *pStone) {
+    gfmObject *pObj1, *pObj2;
+    gfmRV rv;
+    
+    // Overlap the player's object against the stone
+    rv = gfmSprite_getObject(&pObj1, pCtx->pSpr);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = st_getObject(&pObj2, pStone);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    rv = gfmObject_isOverlaping(pObj1, pObj2);
+    ASSERT(rv == GFMRV_TRUE || rv == GFMRV_FALSE, rv);
+    
+    // If it's overlaping, add its powers to the player
+    if (rv == GFMRV_TRUE) {
+        int type;
+        
+        rv = st_getType(&type, pStone);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        // TODO Refactor this into its own function, so it can be loaded
+        pCtx->stones |= type;
+        pCtx->curPower += 4;
+        pCtx->totalPower += 4;
+        pCtx->shootDelay += 100;
+        
+        // Remove the stone from the screen
+        rv = gfmObject_setPosition(pObj2, -320, -240);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
+}
+
+/**
  * Update the player
  * 
  * @param  [in]pCtx The player

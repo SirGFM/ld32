@@ -162,6 +162,29 @@ void st_clean(stone **ppCtx) {
 }
 
 /**
+ * Retrieve the stone's type
+ * 
+ * @param  [out]pType  The type
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getType(int *pType, stone *pStone) {
+    *pType = pStone->type;
+    return GFMRV_OK;
+}
+
+/**
+ * Retrieve the stone's object
+ * 
+ * @param  [out]ppObj  The retrieved object
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getObject(gfmObject **ppObj, stone *pStone) {
+    return gfmSprite_getObject(ppObj, pStone->pSpr);
+}
+
+/**
  * Update the stone
  * 
  * @param  [in]pCtx The stone

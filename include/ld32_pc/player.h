@@ -18,6 +18,7 @@ typedef struct stPlayer player;
 #include <GFraMe/gfmParser.h>
 
 #include <ld32_pc/game.h>
+#include <ld32_pc/stone.h>
 
 /**
  * Initialize a player
@@ -55,6 +56,16 @@ gfmRV pl_collideWall(player *pCtx, gameCtx *pGame, gfmObject *pWall);
  * @return            GFMRV_OK, ...
  */
 gfmRV pl_collideSpike(player *pCtx, gameCtx *pGame, gfmObject *pSpike);
+
+/**
+ * Collide the player against a stone of power
+ * 
+ * @param  [in]pCtx   The player
+ * @param  [in]pGame  The game context
+ * @param  [in]pStone The stone
+ * @return            GFMRV_OK, ...
+ */
+gfmRV pl_collideStone(player *pCtx, gameCtx *pGame, stone *pStone);
 
 /**
  * Update the player

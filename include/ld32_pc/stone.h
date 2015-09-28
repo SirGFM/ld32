@@ -25,6 +25,7 @@ enum {
 #define __STONE_H__
 
 #include <GFraMe/gfmError.h>
+#include <GFraMe/gfmObject.h>
 #include <GFraMe/gfmParser.h>
 
 #include <ld32_pc/game.h>
@@ -45,6 +46,24 @@ gfmRV st_init(stone **ppCtx, gameCtx *pGame, gfmParser *pParser);
  * @param  [in|out]ppCtx The stone
  */
 void st_clean(stone **ppCtx);
+
+/**
+ * Retrieve the stone's type
+ * 
+ * @param  [out]pType  The type
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getType(int *pType, stone *pStone);
+
+/**
+ * Retrieve the stone's object
+ * 
+ * @param  [out]ppObj  The retrieved object
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getObject(gfmObject **ppObj, stone *pStone);
 
 /**
  * Update the stone

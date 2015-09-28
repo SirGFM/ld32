@@ -55,16 +55,24 @@ static gfmRV collide(gameCtx *pGame) {
 #define HANDLE_COLLISION(TYPEA, TYPEB, COL_FUNC) \
         else if (type1 == TYPEA && type2 == TYPEB) { rv = COL_FUNC(pChild1, pGame, pChild2); } \
         else if (type2 == TYPEA && type1 == TYPEB) { rv = COL_FUNC(pChild2, pGame, pChild1); }
+#define IGNORE_COLLISION(TYPEA, TYPEB) \
+        else if (type1 == TYPEA && type2 == TYPEB) { rv = GFMRV_OK; } \
+        else if (type2 == TYPEA && type1 == TYPEB) { rv = GFMRV_OK; }
         
         if (0) {}
         HANDLE_COLLISION(tPlayer, tCollideable, pl_collideWall)
         HANDLE_COLLISION(tPlayer, tSpike, pl_collideSpike)
         HANDLE_COLLISION(tPlayer, tCheckpoint, ps_plCollideCheckpoint)
-        //else { rv = GFMRV_FUNCTION_FAILED; }
+        HANDLE_COLLISION(tPlayer, tPowerstone, pl_collideStone)
+        IGNORE_COLLISION(tPowerstone, tCheckpoint)
+        IGNORE_COLLISION(tPowerstone, tSpike)
+        IGNORE_COLLISION(tPowerstone, tCollideable)
+        else { rv = GFMRV_FUNCTION_FAILED; }
         
         ASSERT(rv == GFMRV_OK, rv);
         
-#undef HANDLE_COL
+#undef IGNORE_COLLISION
+#undef HANDLE_COLLISION
         
         rv = gfmQuadtree_continue(pQt);
         ASSERT(rv == GFMRV_QUADTREE_OVERLAPED || rv == GFMRV_QUADTREE_DONE, rv);
