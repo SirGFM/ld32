@@ -59,7 +59,41 @@ struct stPlayer {
     int nextShoot;
     /** For how long shooting lasts (until a new bar is used) */
     int shootDelay;
+    /** Set the propelling speed */
+    int propelSpeed;
+    /** Set the max propelling speed */
+    int maxPropelSpeed;
 };
+
+/**
+ * Give the player a power stone and update its stats
+ * 
+ * @param  [in]pCtx  The player
+ * @param  [in]stone The stones' types
+ & @return           GFMRV_OK, ...
+ */
+static gfmRV stPl_addPower(player *pCtx, int stone) {
+    int curStone;
+    
+    curStone = 1;
+    while (stone != 0) {
+        // Check if that stone's bit should be set
+        if (stone & 1) {
+            pCtx->stones |= curStone;
+            pCtx->totalPower += 4;
+            pCtx->curPower = pCtx->totalPower;
+            pCtx->shootDelay += 100;
+            pCtx->nextShoot = 0;
+            // TODO Tune this value
+            pCtx->maxPropelSpeed += 30;
+        }
+        // Move to the next stone
+        curStone <<= 1;
+        stone >>= 1;
+    }
+    
+    return GFMRV_OK;
+}
 
 /**
  * Change the currently playing animation
@@ -244,11 +278,8 @@ gfmRV pl_collideStone(player *pCtx, gameCtx *pGame, stone *pStone) {
         rv = st_getType(&type, pStone);
         ASSERT(rv == GFMRV_OK, rv);
         
-        // TODO Refactor this into its own function, so it can be loaded
-        pCtx->stones |= type;
-        pCtx->curPower += 4;
-        pCtx->totalPower += 4;
-        pCtx->shootDelay += 100;
+        rv = stPl_addPower(pCtx, type);
+        ASSERT(rv == GFMRV_OK, rv);
         
         // Remove the stone from the screen
         rv = gfmObject_setPosition(pObj2, -320, -240);
@@ -271,13 +302,14 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     gfmCollision dir;
     gfmCtx *pCtx;
     gfmRV rv;
-    int elapsed;
+    int elapsed, isShooting;
     
     pCtx = pGame->pCtx;
     rv = gfm_getElapsedTime(&elapsed, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
     rv = gfm_getCamera(&pCamera, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
+    isShooting = 0;
     
     /** == Pre-update (handle inputs) ======================================= */
     
@@ -306,10 +338,45 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
     }
     
+    // If the player is alive and touching the floor
     if (pPlayer->respawnTimer <= 0 && (dir & gfmCollision_down) &&
             (pGame->stJump & gfmInput_justPressed) == gfmInput_justPressed) {
         rv = gfmSprite_setVerticalVelocity(pPlayer->pSpr, -pPlayer->vy);
         ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    if ((pGame->stShoot & gfmInput_justPressed) == gfmInput_justPressed &&
+            pPlayer->curPower > 0) {
+        // Remove a bar
+        pPlayer->curPower--;
+        // Set propeling speed
+        pPlayer->propelSpeed = pPlayer->maxPropelSpeed;
+        pPlayer->nextShoot = pPlayer->shootDelay;
+        isShooting = 1;
+    }
+    else if ((pGame->stShoot & gfmInput_pressed) && (pPlayer->curPower > 0 ||
+            pPlayer->nextShoot > 0)) {
+        // Update the shooting time
+        pPlayer->nextShoot -= elapsed;
+        if (pPlayer->nextShoot <= 0 && pPlayer->curPower > 0) {
+            pPlayer->curPower--;
+            // Set propeling speed
+            pPlayer->propelSpeed *= 0.8;
+            pPlayer->nextShoot += pPlayer->shootDelay;
+        }
+        if (pPlayer->nextShoot > 0) {
+            isShooting = 1;
+        }
+    }
+    
+    if (isShooting) {
+        // TODO Propel the player
+    }
+    
+    // If touching the floor, reset the shooting power
+    if (dir & gfmCollision_down) {
+        pPlayer->curPower = pPlayer->totalPower;
+        pPlayer->nextShoot = 0;
     }
     
     /** == Update the physics =============================================== */
@@ -383,8 +450,7 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         if (pPlayer->respawnTimer > 0) {
             rv = stPl_setAnimation(pPlayer, SPR_ANIM_DEATH);
         }
-        else if (0) {
-            // TODO Check if shooting
+        else if (isShooting) {
             rv = stPl_setAnimation(pPlayer, SPR_ANIM_LASER);
             
             // TODO Check if should spawn particles
