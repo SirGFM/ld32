@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
     height = 480;
     pGame->deadzoneSpeed = 4;
     pGame->maxParticles = 4096;
-    pGame->particlesDelay = 4;
+    pGame->particlesDelay = 1;
     //pGame->maxParts = 2048;
     //pGame->audioFreq = 44100;
     audSettings = gfmAudio_defQuality;
@@ -317,13 +317,13 @@ int main(int argc, char *argv[]) {
     ASSERT(rv == GFMRV_OK, rv);
     
     // Set FPS
-    ups = 60;
-    dps = 60;
+    ups = 90;
+    dps = 90;
     rv = gfm_setStateFrameRate(pGame->pCtx, ups, dps);
     ASSERT(rv == GFMRV_OK, rv);
     
     // Set the timer resolution, in frames per seconds
-    fps = 60;
+    fps = 90;
     rv = gfm_setFPS(pGame->pCtx, fps);
     ASSERT(rv == GFMRV_OK, rv);
     

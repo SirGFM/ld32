@@ -31,7 +31,7 @@
 #define GAME_GRAV           500
 #define PL_RESPAWN_TIME     1500
 #define PL_BUL_SPEED        150
-#define PL_BUL_DANG         1.0
+#define PL_BUL_DANG         3.0
 #define PI                  3.1415926
 
 struct stGameCtx {

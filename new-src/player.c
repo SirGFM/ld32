@@ -578,6 +578,8 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                         ASSERT(rv == GFMRV_OK, rv);
                         rv = gfmSprite_setVelocity(pSpr, vx, vy);
                         ASSERT(rv == GFMRV_OK, rv);
+                        rv = gfmSprite_resetAnimation(pSpr);
+                        ASSERT(rv == GFMRV_OK, rv);
                         
                         ang += dang;
                     }
@@ -587,6 +589,9 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                 }
                 
                 pPlayer->lastParticle += pGame->particlesDelay;
+            }
+            else if (pPlayer->lastParticle > 0) {
+                pPlayer->lastParticle--;
             }
         }
         else if (vy != 0) {
