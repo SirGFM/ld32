@@ -19,17 +19,6 @@
 
 #include <string.h>
 
-/** List of particle animations */
-enum {
-    RED_BULLET,
-    ORANGE_BULLET,
-    YELLOW_BULLET,
-    GREEN_BULLET,
-    CYAN_BULLET,
-    BLUE_BULLET,
-    PURPLE_BULLET,
-    MAX_PART_ANIM
-};
 static int pParticleAnim[] = {
 /*                */ /*len|fps|loop|frames...*/
 /*   RED_BULLET   */    20, 8 ,  0 , 256,257,258,259, 258,259,259,259, 259,259,259,259, 258,259,260,261, 262,263,264,265,
@@ -394,7 +383,7 @@ gfmRV ps_draw(gameCtx *pGame) {
     
     // Finally, draw the particles
     if (pPsCtx->pParticles) {
-        rv = gfmGroup_update(pPsCtx->pParticles, pCtx);
+        rv = gfmGroup_draw(pPsCtx->pParticles, pCtx);
         ASSERT(rv == GFMRV_OK, rv);
     }
     

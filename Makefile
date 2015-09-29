@@ -100,6 +100,7 @@ CC=gcc
     LFLAGS := -L/c/GFraMe/lib/ $(LFLAGS)
 # TODO Add OpenGL
   else
+    LFLAGS := $(LFLAGS) -lm
 # Prepend the framework search path
     LFLAGS := -L/usr/lib/GFraMe/ $(LFLAGS)
 # TODO Add OpenGL

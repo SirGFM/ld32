@@ -17,6 +17,7 @@
 #include <ld32_pc/player.h>
 #include <ld32_pc/playstate.h>
 
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -75,6 +76,8 @@ struct stPlayer {
     int propelSpeed;
     /** Set the max propelling speed */
     int maxPropelSpeed;
+    /** How many frames it has been since particles where spawned */
+    int lastParticle;
 };
 
 /**
@@ -518,13 +521,72 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         else if (isShooting) {
             rv = stPl_setAnimation(pPlayer, SPR_ANIM_LASER);
             
-            // TODO Check if should spawn particles
-            if (0) {
+            // Check if should spawn particles
+            if (pPlayer->lastParticle == 0 && pGame->maxParticles) {
+                double ang, dang;
                 gfmGroup  *pGrp;
-                gfmSprite *pSpr;
+                int curType, cx, cy, n, stones;
+                
+                // Retrieve the player's center
+                rv = gfmSprite_getCenter(&cx, &cy, pPlayer->pSpr);
+                ASSERT(rv == GFMRV_OK, rv);
+                // Get the shooting angle
+                ang = atan2((double)pPlayer->dx, (double)-pPlayer->dy);
+                ang -= PI / 2.0;
+                // Open the angle, according to how many bullet will be shot
+                n = 0;
+                curType = 1;
+                while (curType < 0x0100) {
+                    if (curType & pPlayer->stones)
+                        n++;
+                    curType <<= 1;
+                }
+                dang = PL_BUL_DANG * PI / 180.0;
+                if (n > 0) {
+                    ang -= dang * n / 2.0;
+                }
                 
                 rv = ps_getParticles(&pGrp, pGame);
                 ASSERT(rv == GFMRV_OK, rv);
+                
+                stones = pPlayer->stones;
+                curType = 1;
+                while (stones != 0) {
+                    // If this color was gotten
+                    if (stones & 1) {
+                        double vx, vy;
+                        gfmSprite *pSpr;
+                        
+                        vx = PL_BUL_SPEED*cos(ang);
+                        vy = PL_BUL_SPEED*sin(ang);
+                        
+                        // Recycle the particle
+                        rv = gfmGroup_recycle(&pSpr, pGrp);
+                        ASSERT(rv == GFMRV_OK, rv);
+                        rv = gfmGroup_setPosition(pGrp, cx, cy);
+                        ASSERT(rv == GFMRV_OK, rv);
+                        switch (curType) {
+                            case RED_STONE:    rv = gfmGroup_setAnimation(pGrp, RED_BULLET); break;
+                            case ORANGE_STONE: rv = gfmGroup_setAnimation(pGrp, ORANGE_BULLET); break;
+                            case YELLOW_STONE: rv = gfmGroup_setAnimation(pGrp, YELLOW_BULLET); break;
+                            case GREEN_STONE:  rv = gfmGroup_setAnimation(pGrp, GREEN_BULLET); break;
+                            case CYAN_STONE:   rv = gfmGroup_setAnimation(pGrp, CYAN_BULLET); break;
+                            case BLUE_STONE:   rv = gfmGroup_setAnimation(pGrp, BLUE_BULLET); break;
+                            case PURPLE_STONE: rv = gfmGroup_setAnimation(pGrp, PURPLE_BULLET); break;
+                            default: rv = GFMRV_FUNCTION_FAILED;
+                        }
+                        ASSERT(rv == GFMRV_OK, rv);
+                        rv = gfmSprite_setVelocity(pSpr, vx, vy);
+                        ASSERT(rv == GFMRV_OK, rv);
+                        
+                        ang += dang;
+                    }
+                    
+                    stones >>= 1;
+                    curType <<= 1;
+                }
+                
+                pPlayer->lastParticle += pGame->particlesDelay;
             }
         }
         else if (vy != 0) {

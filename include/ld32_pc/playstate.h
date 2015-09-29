@@ -3,6 +3,24 @@
  * 
  * The game's playstate
  */
+#ifndef __PLAYSTATE_STRUCT__
+
+/** List of particle animations */
+enum {
+    RED_BULLET,
+    ORANGE_BULLET,
+    YELLOW_BULLET,
+    GREEN_BULLET,
+    CYAN_BULLET,
+    BLUE_BULLET,
+    PURPLE_BULLET,
+    MAX_PART_ANIM
+};
+
+#define __PLAYSTATE_STRUCT__
+
+#endif /* __PLAYSTATE_STRUCT__ */
+
 #ifndef __PLAYSTATE_H__
 #define __PLAYSTATE_H__
 

@@ -30,6 +30,9 @@
 #define GAME_UI_HEIGHT      42
 #define GAME_GRAV           500
 #define PL_RESPAWN_TIME     1500
+#define PL_BUL_SPEED        150
+#define PL_BUL_DANG         1.0
+#define PI                  3.1415926
 
 struct stGameCtx {
 /** == Game and state contexts ============================================== */
@@ -42,6 +45,8 @@ struct stGameCtx {
     /** Whether it's the first frame */
     int firstFrame;
 /** == Options stuff ======================================================== */
+    /** How many frames until more particles are spawned */
+    int particlesDelay;
     /** Maximum number of particles on screen */
     int maxParticles;
     /** How slowly the deadzone moves (higher means slower) */

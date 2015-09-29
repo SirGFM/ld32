@@ -196,6 +196,7 @@ int main(int argc, char *argv[]) {
     height = 480;
     pGame->deadzoneSpeed = 4;
     pGame->maxParticles = 4096;
+    pGame->particlesDelay = 4;
     //pGame->maxParts = 2048;
     //pGame->audioFreq = 44100;
     audSettings = gfmAudio_defQuality;
