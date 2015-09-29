@@ -12,6 +12,7 @@
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
 
+#include <ld32_pc/common.h>
 #include <ld32_pc/collision.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
@@ -554,11 +555,12 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                 while (stones != 0) {
                     // If this color was gotten
                     if (stones & 1) {
-                        double vx, vy;
+                        double da, vx, vy;
                         gfmSprite *pSpr;
                         
-                        vx = PL_BUL_SPEED*cos(ang);
-                        vy = PL_BUL_SPEED*sin(ang);
+                        da =  (common_getPRN(pGame) % 100 - 50) / 1000.0;
+                        vx = PL_BUL_SPEED*cos(ang + da);
+                        vy = PL_BUL_SPEED*sin(ang + da);
                         
                         // Recycle the particle
                         rv = gfmGroup_recycle(&pSpr, pGrp);
@@ -566,13 +568,18 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                         rv = gfmGroup_setPosition(pGrp, cx, cy);
                         ASSERT(rv == GFMRV_OK, rv);
                         switch (curType) {
-                            case RED_STONE:    rv = gfmGroup_setAnimation(pGrp, RED_BULLET); break;
-                            case ORANGE_STONE: rv = gfmGroup_setAnimation(pGrp, ORANGE_BULLET); break;
-                            case YELLOW_STONE: rv = gfmGroup_setAnimation(pGrp, YELLOW_BULLET); break;
-                            case GREEN_STONE:  rv = gfmGroup_setAnimation(pGrp, GREEN_BULLET); break;
-                            case CYAN_STONE:   rv = gfmGroup_setAnimation(pGrp, CYAN_BULLET); break;
-                            case BLUE_STONE:   rv = gfmGroup_setAnimation(pGrp, BLUE_BULLET); break;
-                            case PURPLE_STONE: rv = gfmGroup_setAnimation(pGrp, PURPLE_BULLET); break;
+                            #define SET_ANIM(color) \
+                                case color##_STONE: { \
+                                    rv = gfmGroup_setAnimation(pGrp, \
+                                            color##_BULLET); } break
+                            SET_ANIM(RED);
+                            SET_ANIM(ORANGE);
+                            SET_ANIM(YELLOW);
+                            SET_ANIM(GREEN);
+                            SET_ANIM(CYAN);
+                            SET_ANIM(BLUE);
+                            SET_ANIM(PURPLE);
+                            #undef SET_ANIM
                             default: rv = GFMRV_FUNCTION_FAILED;
                         }
                         ASSERT(rv == GFMRV_OK, rv);

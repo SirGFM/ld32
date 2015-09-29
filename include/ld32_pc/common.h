@@ -16,7 +16,6 @@
  */
 gfmRV common_cacheInput(gameCtx *pGame);
 
-#if 0
 /**
  * Set the game's PRNG's seed
  * 
@@ -32,7 +31,6 @@ void common_setPRNGSeed(gameCtx *pGame, int seed);
  * @return           The pseudo-random number
  */
 int common_getPRN(gameCtx *pGame);
-#endif /* 0 */
 
 #endif /* __COMMON_H__ */
 

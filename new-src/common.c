@@ -48,7 +48,6 @@ __ret:
     return rv;
 }
 
-#if 0
 /**
  * Set the game's PRNG's seed
  * 
@@ -74,5 +73,4 @@ int common_getPRN(gameCtx *pGame) {
     
     return pGame->seed;
 }
-#endif /* 0 */
 
