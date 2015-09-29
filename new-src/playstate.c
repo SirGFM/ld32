@@ -335,8 +335,8 @@ gfmRV ps_update(gameCtx *pGame) {
     pCtx = pGame->pCtx;
     
     // Ready the quadtree to collide with everything
-    rv = gfmQuadtree_initRoot(pGame->pQt, -8/*x*/, -8/*y*/, pPsCtx->mapWidth,
-        pPsCtx->mapHeight, 6/*maxDepth*/, 10/*maxNodes*/);
+    rv = gfmQuadtree_initRoot(pGame->pQt, -8/*x*/, -8/*y*/, pPsCtx->mapWidth + 16,
+        pPsCtx->mapHeight + 16, 6/*maxDepth*/, 10/*maxNodes*/);
     ASSERT(rv == GFMRV_OK, rv);
     rv = gfmQuadtree_populateTilemap(pGame->pQt, pPsCtx->pTMap);
     ASSERT(rv == GFMRV_OK, rv);

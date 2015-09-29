@@ -280,20 +280,31 @@ int main(int argc, char *argv[]) {
     rv = gfm_addVirtualKey(&(pGame->hnd##handle), pGame->pCtx); \
     ASSERT(rv == GFMRV_OK, rv); \
     rv = gfm_bindInput(pGame->pCtx, pGame->hnd##handle, key); \
-    ASSERT(rv == GFMRV_OK, rv);
+    ASSERT(rv == GFMRV_OK, rv)
 #define BIND_KEY(handle, key) \
     rv = gfm_bindInput(pGame->pCtx, pGame->hnd##handle, key); \
-    ASSERT(rv == GFMRV_OK, rv);
+    ASSERT(rv == GFMRV_OK, rv)
+#define BIND_BUTTON(handle, button) \
+    rv = gfm_bindGamepadInput(pGame->pCtx, pGame->hnd##handle, button, 0); \
+    ASSERT(rv == GFMRV_OK, rv)
     
     // TODO Bind default gamepad buttons
     BIND_NEW_KEY(Left, gfmKey_left);
     BIND_KEY(Left, gfmKey_a);
+    BIND_BUTTON(Left, gfmController_left);
+    BIND_BUTTON(Left, gfmController_laxis_left);
     BIND_NEW_KEY(Right, gfmKey_right);
     BIND_KEY(Right, gfmKey_d);
+    BIND_BUTTON(Right, gfmController_right);
+    BIND_BUTTON(Right, gfmController_laxis_right);
     BIND_NEW_KEY(Jump, gfmKey_up);
     BIND_KEY(Jump, gfmKey_w);
+    BIND_BUTTON(Jump, gfmController_l1);
+    BIND_BUTTON(Jump, gfmController_r1);
     BIND_NEW_KEY(Shoot, gfmKey_x);
     BIND_KEY(Shoot, gfmKey_space);
+    BIND_BUTTON(Shoot, gfmController_l2);
+    BIND_BUTTON(Shoot, gfmController_r2);
     BIND_NEW_KEY(Quit, gfmKey_esc);
     BIND_NEW_KEY(Fullscreen, gfmKey_f12);
     

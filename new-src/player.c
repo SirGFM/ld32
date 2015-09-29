@@ -8,6 +8,7 @@
 #include <GFraMe/gfmCamera.h>
 #include <GFraMe/gfmError.h>
 #include <GFraMe/gfmGroup.h>
+#include <GFraMe/gfmInput.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
 
@@ -37,8 +38,19 @@ static int _pl_animData[] =
 /*SPR_ANIM_DEATH*/    1 , 2 , 0  , 106,
 };
 
+static int _tgt_animData[] = 
+{
+/*              */ /*len|fps|loop|frames...*/
+/* TGT_ANIM_DEF */    4 , 8 , 1  , 94,93,92,93
+};
+
 struct stPlayer {
+    /** Normalized horizontal direction of the target */
+    float dx;
+    /** Normalized vertical direction of the target */
+    float dy;
     gfmSprite *pSpr;
+    gfmSprite *pTarget;
     /** Current animation */
     int curAnim;
     /** For how long the camera has been tweening (in the range [-500,500]ms) */
@@ -85,7 +97,7 @@ static gfmRV stPl_addPower(player *pCtx, int stone) {
             pCtx->shootDelay += 100;
             pCtx->nextShoot = 0;
             // TODO Tune this value
-            pCtx->maxPropelSpeed += 30;
+            pCtx->maxPropelSpeed += 15;
         }
         // Move to the next stone
         curStone <<= 1;
@@ -147,6 +159,18 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
             tPlayer/*type*/);
     ASSERT(rv == GFMRV_OK, rv);
     
+    rv = gfmSprite_getNew(&(pCtx->pTarget));
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmSprite_init(pCtx->pTarget, -100, -100, 16/*width*/, 16/*height*/,
+            pGame->pSset16x16, -8/*offX*/, -8/*offY*/, 0/*pChild*/, 0/*type*/);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmSprite_setFrame(pCtx->pTarget, 356);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmSprite_addAnimationsStatic(pCtx->pTarget, _tgt_animData);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmSprite_playAnimation(pCtx->pTarget, 0);
+    ASSERT(rv == GFMRV_OK, rv);
+    
     // Load and set its animations
     rv = gfmSprite_addAnimationsStatic(pCtx->pSpr, _pl_animData);
     ASSERT(rv == GFMRV_OK, rv);
@@ -160,6 +184,8 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     
     pCtx->vx = 50;
     pCtx->vy = 150;
+    // TODO Tune this value
+    pCtx->maxPropelSpeed = 75;
     
     *ppCtx = pCtx;
     pCtx = 0;
@@ -182,6 +208,7 @@ void pl_clean(player **ppCtx) {
         return;
     
     gfmSprite_free(&((*ppCtx)->pSpr));
+    gfmSprite_free(&((*ppCtx)->pTarget));
     
     free(*ppCtx);
     *ppCtx = 0;
@@ -301,6 +328,7 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
     gfmCamera *pCamera;
     gfmCollision dir;
     gfmCtx *pCtx;
+    gfmInput *pInput;
     gfmRV rv;
     int elapsed, isShooting;
     
@@ -321,21 +349,19 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         rv = gfmSprite_setVelocity(pPlayer->pSpr, 0, 0);
         ASSERT(rv == GFMRV_OK, rv);
     }
-    else if (pGame->stRight & gfmInput_pressed) {
-        rv = gfmSprite_setDirection(pPlayer->pSpr, 0/*isFlipped*/);
-        ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, pPlayer->vx);
-        ASSERT(rv == GFMRV_OK, rv);
-    }
-    else if (pGame->stLeft & gfmInput_pressed) {
-        rv = gfmSprite_setDirection(pPlayer->pSpr, 1/*isFlipped*/);
-        ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, -pPlayer->vx);
-        ASSERT(rv == GFMRV_OK, rv);
-    }
-    else {
-        rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, 0/*vx*/);
-        ASSERT(rv == GFMRV_OK, rv);
+    else if (dir & gfmCollision_down) {
+        if (pGame->stRight & gfmInput_pressed) {
+            rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, pPlayer->vx);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+        else if (pGame->stLeft & gfmInput_pressed) {
+            rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, -pPlayer->vx);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+        else {
+            rv = gfmSprite_setHorizontalVelocity(pPlayer->pSpr, 0/*vx*/);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
     }
     
     // If the player is alive and touching the floor
@@ -361,7 +387,7 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         if (pPlayer->nextShoot <= 0 && pPlayer->curPower > 0) {
             pPlayer->curPower--;
             // Set propeling speed
-            pPlayer->propelSpeed *= 0.8;
+            pPlayer->propelSpeed *= 0.9;
             pPlayer->nextShoot += pPlayer->shootDelay;
         }
         if (pPlayer->nextShoot > 0) {
@@ -369,8 +395,26 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         }
     }
     
+    // Get the direction to which force will be applied
+    rv = gfm_getInput(&pInput, pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    rv = gfmInput_getGamepadAnalog(&(pPlayer->dx), &(pPlayer->dy), pInput,
+            0/*port*/, gfmController_rightAnalog);
+    ASSERT(rv == GFMRV_OK, rv);
+    // Apply a small deadzone of 0.3 x 0.3
+    if (pPlayer->dx * pPlayer->dx + pPlayer->dy * pPlayer->dy < 0.09) {
+        pPlayer->dx = 0;
+        pPlayer->dy = 0;
+    }
+    
+    // TODO Check if using the mouse and get from it
+    
     if (isShooting) {
-        // TODO Propel the player
+        // Propel the player
+        rv = gfmSprite_setVelocity(pPlayer->pSpr,
+                -pPlayer->dx * pPlayer->propelSpeed,
+                -pPlayer->dy * pPlayer->propelSpeed);
+        ASSERT(rv == GFMRV_OK, rv);
     }
     
     // If touching the floor, reset the shooting power
@@ -399,7 +443,28 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         }
     }
     
+    // Update the target, in case its animated
+    rv = gfmSprite_update(pPlayer->pTarget, pGame->pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    
     /** == Post-update (animation, move camera, etc) ======================== */
+    
+    // Check the player's direction
+    do {
+        double vx;
+        
+        rv = gfmSprite_getHorizontalVelocity(&vx, pPlayer->pSpr);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        if (vx > 0) {
+            rv = gfmSprite_setDirection(pPlayer->pSpr, 0/*isFlipped*/);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+        else if (vx < 0) {
+            rv = gfmSprite_setDirection(pPlayer->pSpr, 1/*isFlipped*/);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+    } while (0);
     
     // Update the camera deadzone and position
     do {
@@ -493,7 +558,29 @@ __ret:
  * @return          GFMRV_OK, ...
  */
 gfmRV pl_draw(player *pPlayer, gameCtx *pGame) {
-    return gfmSprite_draw(pPlayer->pSpr, pGame->pCtx);
+    gfmRV rv;
+    
+    rv = gfmSprite_draw(pPlayer->pSpr, pGame->pCtx);
+    ASSERT(rv == GFMRV_OK, rv);
+    
+    if (pPlayer->dx != 0 || pPlayer->dy != 0) {
+        int cx, cy;
+        
+        // Retrieve the player's current position
+        rv = gfmSprite_getCenter(&cx, &cy, pPlayer->pSpr);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmSprite_setPosition(pPlayer->pTarget, cx + pPlayer->dx * 24,
+                cy + pPlayer->dy * 24);
+        ASSERT(rv == GFMRV_OK, rv);
+        
+        // Render it!
+        rv = gfmSprite_draw(pPlayer->pTarget, pGame->pCtx);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
 }
 
 /**
