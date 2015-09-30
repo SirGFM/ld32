@@ -73,6 +73,7 @@ struct stGameCtx {
     int hndVolUp;
     int hndVolDown;
     int hndQuit;
+    int hndGif;
 /** == Input states ========================================================= */
     gfmInputState stDown;
     int nDown;
@@ -94,6 +95,8 @@ struct stGameCtx {
     int nVolDown;
     gfmInputState stQuit;
     int nQuit;
+    gfmInputState stGif;
+    int nGif;
 /** == Audio stuff ========================================================== */
     int sndStep;
     int sndJump;

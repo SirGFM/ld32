@@ -308,6 +308,8 @@ int main(int argc, char *argv[]) {
     BIND_BUTTON(Shoot, gfmController_r2);
     BIND_NEW_KEY(Quit, gfmKey_esc);
     BIND_NEW_KEY(Fullscreen, gfmKey_f12);
+    BIND_NEW_KEY(Gif, gfmKey_f11);
+    BIND_BUTTON(Gif, gfmController_select);
     
 #undef BIND_NEW_KEY
 #undef BIND_KEY

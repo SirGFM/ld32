@@ -34,6 +34,7 @@ gfmRV common_cacheInput(gameCtx *pGame) {
     GET_KEY_STATE(VolUp);
     GET_KEY_STATE(VolDown);
     GET_KEY_STATE(Quit);
+    GET_KEY_STATE(Gif);
     
 #undef GET_KEY_STATE
     

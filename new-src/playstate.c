@@ -349,6 +349,15 @@ gfmRV ps_update(gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
     }
     
+    if ((pGame->stGif & gfmInput_justPressed) == gfmInput_justPressed) {
+        rv = gfm_didExportGif(pCtx);
+        ASSERT(rv != GFMRV_ARGUMENTS_BAD, rv);
+        if (rv == GFMRV_TRUE) {
+            rv = gfm_recordGif(pCtx, 10000, "anim.gif", 8, 0);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+    }
+    
     rv = GFMRV_OK;
 __ret:
     return rv;
