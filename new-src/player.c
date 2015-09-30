@@ -98,10 +98,10 @@ static gfmRV stPl_addPower(player *pCtx, int stone) {
             pCtx->stones |= curStone;
             pCtx->totalPower += 4;
             pCtx->curPower = pCtx->totalPower;
-            pCtx->shootDelay += 100;
+            pCtx->shootDelay += 75;
             pCtx->nextShoot = 0;
             // TODO Tune this value
-            pCtx->maxPropelSpeed += 15;
+            pCtx->maxPropelSpeed += 8;
         }
         // Move to the next stone
         curStone <<= 1;
@@ -189,7 +189,7 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     pCtx->vx = 50;
     pCtx->vy = 150;
     // TODO Tune this value
-    pCtx->maxPropelSpeed = 75;
+    pCtx->maxPropelSpeed = 90;
     
     *ppCtx = pCtx;
     pCtx = 0;
