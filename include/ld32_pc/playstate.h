@@ -100,5 +100,18 @@ gfmRV ps_getParticles(gfmGroup **ppGrp, gameCtx *pGame);
  */
 gfmRV ps_getPlayer(player **ppPlayer, gameCtx *pGame);
 
+/**
+ * Retrieve the pointer to the next stone; The position is already local to
+ * screen (i.e., on its border), but it's punctual and ignores the possible
+ * icon's dimensions
+ * 
+ * @param  [out]pX    The horizontal position
+ * @param  [out]pY    The vertical position
+ * @param  [out]pType The type of the stone (or STONE_MAX)
+ * @param  [in] pGame The game context
+ * @return            GFMRV_OK, ...
+ */
+gfmRV ps_getNextStone(int *pX, int *pY, int *pType, gameCtx *pGame);
+
 #endif /* __PLAYSTATE_H__ */
 

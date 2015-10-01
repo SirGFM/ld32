@@ -185,6 +185,18 @@ gfmRV st_getObject(gfmObject **ppObj, stone *pStone) {
 }
 
 /**
+ * Get the stone's center
+ * 
+ * @param  [out]pX     The horizontal position
+ * @param  [out]pY     The vertical position
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getCenter(int *pX, int *pY, stone *pStone) {
+    return gfmSprite_getCenter(pX, pY, pStone->pSpr);
+}
+
+/**
  * Update the stone
  * 
  * @param  [in]pCtx The stone

@@ -516,6 +516,73 @@ gfmRV ps_getPlayer(player **ppPlayer, gameCtx *pGame) {
     return rv;
 }
 
+/**
+ * Retrieve the pointer to the next stone; The position is already local to
+ * screen (i.e., on its border), but it's punctual and ignores the possible
+ * icon's dimensions
+ * 
+ * @param  [out]pX    The horizontal position
+ * @param  [out]pY    The vertical position
+ * @param  [out]pType The type of the stone (or STONE_MAX)
+ * @param  [in] pGame The game context
+ * @return            GFMRV_OK, ...
+ */
+gfmRV ps_getNextStone(int *pX, int *pY, int *pType, gameCtx *pGame) {
+    gfmRV rv;
+    int i;
+    psCtx *pPsCtx;
+    
+    // TODO Check state?
+    pPsCtx = pGame->pState;
+    
+    // TODO Do stuff!
+    i = 0;
+    while (i < pPsCtx->stoneCount) {
+        int cx, cy;
+        
+        // Check that it still wasn't gotten
+        rv = st_getCenter(&cx, &cy, pPsCtx->pStone[i]);
+        ASSERT(rv == GFMRV_OK, rv);
+        if (cx > 0 && cy > 0) {
+            gfmCamera *pCamera;
+            int isInside, h, w, x, y;
+            
+            // Retrieve its type
+            rv = st_getType(pType, pPsCtx->pStone[i]);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            // Bound it to the screen
+            rv = gfm_getCamera(&pCamera, pGame->pCtx);
+            ASSERT(rv == GFMRV_OK, rv);
+            rv = gfmCamera_getPosition(&x, &y, pCamera);
+            ASSERT(rv == GFMRV_OK, rv);
+            rv = gfmCamera_getDimensions(&w, &h, pCamera);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            // Get the correct position
+            isInside = 0;
+            if (cx < x) { *pX = 0; }
+            else if (cx > x + w) { *pX = GAME_BBUF_WIDTH; }
+            else { *pX = cx - x; isInside++; }
+            if (cy < y) { *pY = 0; }
+            else if (cy > y + h) { *pY = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT; }
+            else { *pY = cy - y; isInside++; }
+            
+            if (isInside == 2) {
+                *pType = MAX_STONE;
+            }
+            
+            break;
+        }
+        
+        i++;
+    }
+    
+    rv = GFMRV_OK;
+__ret:
+    return rv;
+}
+
 #if 0
 #include <GFraMe/GFraMe_controller.h>
 #include <GFraMe/GFraMe_error.h>

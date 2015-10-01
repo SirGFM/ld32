@@ -16,7 +16,8 @@ enum {
     GREEN_STONE  = 0x0008,
     CYAN_STONE   = 0x0010,
     BLUE_STONE   = 0x0020,
-    PURPLE_STONE = 0x0040
+    PURPLE_STONE = 0x0040,
+    MAX_STONE    = 0x0080
 };
 
 #endif /* __STONE_STRUCT__ */
@@ -64,6 +65,16 @@ gfmRV st_getType(int *pType, stone *pStone);
  * @return             GFMRV_OK, ...
  */
 gfmRV st_getObject(gfmObject **ppObj, stone *pStone);
+
+/**
+ * Get the stone's center
+ * 
+ * @param  [out]pX     The horizontal position
+ * @param  [out]pY     The vertical position
+ * @param  [in] pStone The stone
+ * @return             GFMRV_OK, ...
+ */
+gfmRV st_getCenter(int *pX, int *pY, stone *pStone);
 
 /**
  * Update the stone
