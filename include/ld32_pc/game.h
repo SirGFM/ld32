@@ -19,11 +19,12 @@
 #include <GFraMe/gfmSpriteset.h>
 #include <GFraMe/core/gfmAudio_bkend.h>
 
-#define tPlayer       gfmType_reserved_2
-#define tCollideable  gfmType_reserved_3
-#define tSpike        gfmType_reserved_4
-#define tCheckpoint   gfmType_reserved_5
-#define tPowerstone   gfmType_reserved_6
+#define tPlayer         gfmType_reserved_2
+#define tCollideable    gfmType_reserved_3
+#define tSpike          gfmType_reserved_4
+#define tCheckpoint     gfmType_reserved_5
+#define tPowerstone     gfmType_reserved_6
+#define tParticle       gfmType_reserved_7
 
 #define GAME_BBUF_WIDTH     320
 #define GAME_BBUF_HEIGHT    240
@@ -33,6 +34,7 @@
 #define PL_BUL_SPEED        150
 #define PL_BUL_DANG         3.0
 #define PI                  3.1415926
+#define PARTICLE_TIME       2500
 
 struct stGameCtx {
 /** == Game and state contexts ============================================== */
@@ -51,6 +53,8 @@ struct stGameCtx {
     int maxParticles;
     /** How slowly the deadzone moves (higher means slower) */
     int deadzoneSpeed;
+    /** Quality of particles collision */
+    gfmGroupCollision particleCollision;
 /** == Spritesets =========================================================== */
     /** 2x8 spriteset */
     gfmSpriteset *pSset2x8;

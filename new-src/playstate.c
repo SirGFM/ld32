@@ -12,6 +12,7 @@
 #include <GFraMe/gfmTilemap.h>
 #include <GFraMe/gfmText.h>
 
+#include <ld32_pc/collision.h>
 #include <ld32_pc/game.h>
 #include <ld32_pc/player.h>
 #include <ld32_pc/stone.h>
@@ -20,14 +21,21 @@
 #include <string.h>
 
 static int pParticleAnim[] = {
-/*                */ /*len|fps|loop|frames...*/
-/*   RED_BULLET   */    20, 15,  0 , 256,257,258,259, 258,259,259,259, 259,259,259,259, 258,259,260,261, 262,263,264,265,
-/* ORANGE_BULLET  */    20, 15,  0 , 266,267,268,269, 268,269,269,269, 269,269,269,269, 268,269,270,271, 272,273,274,275,
-/* YELLOW_BULLET  */    20, 15,  0 , 276,277,278,279, 278,279,279,279, 279,279,279,279, 278,279,280,281, 282,283,284,285,
-/*  GREEN_BULLET  */    20, 15,  0 , 288,289,290,291, 290,291,291,291, 291,291,291,291, 290,291,292,293, 294,295,296,297,
-/*  CYAN_BULLET   */    20, 15,  0 , 298,299,300,301, 300,301,301,301, 301,301,301,301, 300,301,302,303, 304,305,306,307,
-/*  BLUE_BULLET   */    20, 15,  0 , 308,309,310,311, 310,311,311,311, 311,311,311,311, 310,311,312,313, 314,315,316,317,
-/* PURPLE_BULLET  */    20, 15,  0 , 320,321,322,323, 322,323,323,323, 323,323,323,323, 322,323,324,325, 326,327,328,329,
+/*                   */ /*len|fps|loop|frames...*/
+/*     RED_BULLET    */    20, 15,  0 , 256,257,258,259, 258,259,259,259, 259,259,259,259, 258,259,260,261, 262,263,264,265,
+/*   ORANGE_BULLET   */    20, 15,  0 , 266,267,268,269, 268,269,269,269, 269,269,269,269, 268,269,270,271, 272,273,274,275,
+/*   YELLOW_BULLET   */    20, 15,  0 , 276,277,278,279, 278,279,279,279, 279,279,279,279, 278,279,280,281, 282,283,284,285,
+/*    GREEN_BULLET   */    20, 15,  0 , 288,289,290,291, 290,291,291,291, 291,291,291,291, 290,291,292,293, 294,295,296,297,
+/*    CYAN_BULLET    */    20, 15,  0 , 298,299,300,301, 300,301,301,301, 301,301,301,301, 300,301,302,303, 304,305,306,307,
+/*    BLUE_BULLET    */    20, 15,  0 , 308,309,310,311, 310,311,311,311, 311,311,311,311, 310,311,312,313, 314,315,316,317,
+/*   PURPLE_BULLET   */    20, 15,  0 , 320,321,322,323, 322,323,323,323, 323,323,323,323, 322,323,324,325, 326,327,328,329,
+/*   RED_EXPLOSION   */    6 , 15,  0 , 260,261,262,263, 264,265,
+/* ORANGE_EXPLOSION  */    6 , 15,  0 , 270,271,272,273, 274,275,
+/* YELLOW_EXPLOSION  */    6 , 15,  0 , 280,281,282,283, 284,285,
+/*  GREEN_EXPLOSION  */    6 , 15,  0 , 292,293,294,295, 296,297,
+/*  CYAN_EXPLOSION   */    6 , 15,  0 , 302,303,304,305, 306,307,
+/*  BLUE_EXPLOSION   */    6 , 15,  0 , 312,313,314,315, 316,317,
+/* PURPLE_EXPLOSION  */    6 , 15,  0 , 324,325,326,327, 328,329,
 /* MAX_PART_ANIM  */     1, 0 ,  0 , -1
 };
 static int particleAnimlen = sizeof(pParticleAnim) / sizeof(int);
@@ -253,14 +261,19 @@ gfmRV ps_init(gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
         rv = gfmGroup_setDefSpriteset(pCtx->pParticles, pGame->pSset8x8);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmGroup_setDefDimensions(pCtx->pParticles, 8, 8, -3, -3);
+        rv = gfmGroup_setDefDimensions(pCtx->pParticles, 4, 4, -2, -2);
         ASSERT(rv == GFMRV_OK, rv);
         rv = gfmGroup_setDefAnimData(pCtx->pParticles, pParticleAnim,
                 particleAnimlen);
         ASSERT(rv == GFMRV_OK, rv);
         rv =  gfmGroup_setDeathOnLeave(pCtx->pParticles, 0);
         ASSERT(rv == GFMRV_OK, rv);
-        rv = gfmGroup_setDeathOnTime(pCtx->pParticles, 4000);
+        rv = gfmGroup_setDeathOnTime(pCtx->pParticles, PARTICLE_TIME);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setCollisionQuality(pCtx->pParticles,
+                pGame->particleCollision);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmGroup_setDefType(pCtx->pParticles, tParticle);
         ASSERT(rv == GFMRV_OK, rv);
         // Pre-cache some sprites
         rv = gfmGroup_preCache(pCtx->pParticles, pGame->maxParticles,
@@ -347,6 +360,9 @@ gfmRV ps_update(gameCtx *pGame) {
     if (pPsCtx->pParticles) {
         rv = gfmGroup_update(pPsCtx->pParticles, pCtx);
         ASSERT(rv == GFMRV_OK, rv);
+        
+        rv = collideGroup(pGame, pPsCtx->pParticles);
+        ASSERT(rv == GFMRV_OK, rv);
     }
     
     if ((pGame->stGif & gfmInput_justPressed) == gfmInput_justPressed) {
@@ -380,20 +396,16 @@ gfmRV ps_draw(gameCtx *pGame) {
     // Draw everything
     rv = gfmTilemap_draw(pPsCtx->pTMap, pCtx);
     ASSERT(rv == GFMRV_OK, rv);
+    if (pPsCtx->pParticles) {
+        rv = gfmGroup_draw(pPsCtx->pParticles, pCtx);
+        ASSERT(rv == GFMRV_OK, rv);
+    }
     rv = pl_draw(pPsCtx->pPlayer, pGame);
     ASSERT(rv == GFMRV_OK, rv);
     i = 0;
     while (i < pPsCtx->stoneCount) {
         st_draw(pPsCtx->pStone[i], pGame);
         i++;
-    }
-    
-    // TODO Draw everything
-    
-    // Finally, draw the particles
-    if (pPsCtx->pParticles) {
-        rv = gfmGroup_draw(pPsCtx->pParticles, pCtx);
-        ASSERT(rv == GFMRV_OK, rv);
     }
     
     // Draw the quadtree's rectangles (for debugging only)
@@ -535,7 +547,6 @@ gfmRV ps_getNextStone(int *pX, int *pY, int *pType, gameCtx *pGame) {
     // TODO Check state?
     pPsCtx = pGame->pState;
     
-    // TODO Do stuff!
     i = 0;
     while (i < pPsCtx->stoneCount) {
         int cx, cy;

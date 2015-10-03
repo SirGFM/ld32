@@ -531,6 +531,7 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                 // Retrieve the player's center
                 rv = gfmSprite_getCenter(&cx, &cy, pPlayer->pSpr);
                 ASSERT(rv == GFMRV_OK, rv);
+                cy -= 6;
                 // Get the shooting angle
                 ang = atan2((double)pPlayer->dx, (double)-pPlayer->dy);
                 ang -= PI / 2.0;
@@ -557,21 +558,17 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                     if (stones & 1) {
                         double da, vx, vy;
                         gfmSprite *pSpr;
+                        int anim;
                         
                         da =  (common_getPRN(pGame) % 100 - 50) / 1000.0;
                         vx = PL_BUL_SPEED*cos(ang + da);
                         vy = PL_BUL_SPEED*sin(ang + da);
                         
-                        // Recycle the particle
-                        rv = gfmGroup_recycle(&pSpr, pGrp);
-                        ASSERT(rv == GFMRV_OK, rv);
-                        rv = gfmGroup_setPosition(pGrp, cx, cy);
-                        ASSERT(rv == GFMRV_OK, rv);
+                        // Get the animation and type
                         switch (curType) {
                             #define SET_ANIM(color) \
                                 case color##_STONE: { \
-                                    rv = gfmGroup_setAnimation(pGrp, \
-                                            color##_BULLET); } break
+                                    anim = color##_BULLET; } break
                             SET_ANIM(RED);
                             SET_ANIM(ORANGE);
                             SET_ANIM(YELLOW);
@@ -582,6 +579,12 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
                             #undef SET_ANIM
                             default: rv = GFMRV_FUNCTION_FAILED;
                         }
+                        // Recycle the particle
+                        rv = gfmGroup_recycle(&pSpr, pGrp);
+                        ASSERT(rv == GFMRV_OK, rv);
+                        rv = gfmGroup_setPosition(pGrp, cx, cy);
+                        ASSERT(rv == GFMRV_OK, rv);
+                        rv = gfmGroup_setAnimation(pGrp, anim);
                         ASSERT(rv == GFMRV_OK, rv);
                         rv = gfmSprite_setVelocity(pSpr, vx, vy);
                         ASSERT(rv == GFMRV_OK, rv);
