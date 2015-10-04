@@ -191,6 +191,10 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     // TODO Tune this value
     pCtx->maxPropelSpeed = 90;
     
+    // Enable full-power (for debug)
+    //rv = stPl_addPower(pCtx, 0x7f);
+    //ASSERT(rv == GFMRV_OK, rv);
+    
     *ppCtx = pCtx;
     pCtx = 0;
     rv = GFMRV_OK;
