@@ -33,6 +33,9 @@
 #define PL_RESPAWN_TIME     1500
 #define PL_BUL_SPEED        150
 #define PL_BUL_DANG         3.0
+#define PL_INITIAL_PROPEL   100
+#define PL_SHOOT_DELAY_INC  78
+#define PL_PROPEL_INC       5
 #define PI                  3.1415926
 #define PARTICLE_TIME       2500
 
@@ -46,6 +49,12 @@ struct stGameCtx {
     void *pState;
     /** Whether it's the first frame */
     int firstFrame;
+    /** Whether the game is in full-screen mode */
+    int isFullscreen;
+    /** Window's width */
+    int width;
+    /** Window's height */
+    int height;
 /** == Options stuff ======================================================== */
     /** How many frames until more particles are spawned */
     int particlesDelay;

@@ -98,10 +98,9 @@ static gfmRV stPl_addPower(player *pCtx, int stone) {
             pCtx->stones |= curStone;
             pCtx->totalPower += 4;
             pCtx->curPower = pCtx->totalPower;
-            pCtx->shootDelay += 75;
+            pCtx->shootDelay += PL_SHOOT_DELAY_INC;
             pCtx->nextShoot = 0;
-            // TODO Tune this value
-            pCtx->maxPropelSpeed += 8;
+            pCtx->maxPropelSpeed += PL_PROPEL_INC;
         }
         // Move to the next stone
         curStone <<= 1;
@@ -188,8 +187,7 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     
     pCtx->vx = 50;
     pCtx->vy = 150;
-    // TODO Tune this value
-    pCtx->maxPropelSpeed = 90;
+    pCtx->maxPropelSpeed = PL_INITIAL_PROPEL;
     
     // Enable full-power (for debug)
     //rv = stPl_addPower(pCtx, 0x7f);
@@ -415,7 +413,29 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         pPlayer->dy = 0;
     }
     
-    // TODO Check if using the mouse and get from it
+    // If not using the gamepad, get input from the mouse (only if shooting)
+    if (isShooting && pPlayer->dx == 0 && pPlayer->dy == 0) {
+        int cx, cy, px, py;
+        double delta;
+        
+        rv = gfmInput_getPointerPosition(&px, &py, pInput);
+        ASSERT(rv == GFMRV_OK, rv);
+        rv = gfmCamera_screenToWorld(&px, &py, pCamera);
+        
+        if (rv == GFMRV_OK) {
+            rv = gfmSprite_getCenter(&cx, &cy, pPlayer->pSpr);
+            ASSERT(rv == GFMRV_OK, rv);
+            
+            pPlayer->dx = px - cx;
+            pPlayer->dy = py - cy;
+            
+            // Normalize it
+            delta = pPlayer->dx * pPlayer->dx + pPlayer->dy * pPlayer->dy;
+            delta = 1 / sqrt(delta);
+            pPlayer->dx *= delta;
+            pPlayer->dy *= delta;
+        }
+    }
     
     if (isShooting) {
         // Propel the player

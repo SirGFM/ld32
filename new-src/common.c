@@ -43,6 +43,19 @@ gfmRV common_cacheInput(gameCtx *pGame) {
         rv = gfm_setQuitFlag(pGame->pCtx);
         ASSERT(rv == GFMRV_OK, rv);
     }
+    // If full-screen key was pressed, switch to/from fullscreen
+    if ((pGame->stFullscreen & gfmInput_justPressed) == gfmInput_justPressed) {
+        if (pGame->isFullscreen) {
+            rv = gfm_setWindowed(pGame->pCtx);
+            ASSERT(rv == GFMRV_OK, rv);
+            rv = gfm_setDimensions(pGame->pCtx, pGame->width, pGame->height);
+        }
+        else {
+            rv = gfm_setFullscreen(pGame->pCtx);
+            ASSERT(rv == GFMRV_OK, rv);
+        }
+        pGame->isFullscreen = !(pGame->isFullscreen);
+    }
     
     rv = GFMRV_OK;
 __ret:

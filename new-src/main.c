@@ -246,6 +246,9 @@ int main(int argc, char *argv[]) {
         argc--;
     }
 #endif
+    pGame->isFullscreen = isFullscreen;
+    pGame->width = width;
+    pGame->height = height;
     
     // Create the window
     bbufWidth = GAME_BBUF_WIDTH;
@@ -255,8 +258,8 @@ int main(int argc, char *argv[]) {
                 0/*defRes*/, 0/*dontResize*/);
     }
     else {
-        rv = gfm_initGameWindow(pGame->pCtx, bbufWidth, bbufHeight, width, height,
-                0/*dontResize*/);
+        rv = gfm_initGameWindow(pGame->pCtx, bbufWidth, bbufHeight,
+                pGame->width, pGame->height, 0/*dontResize*/);
     }
     ASSERT(rv == GFMRV_OK, rv);
     
@@ -301,12 +304,13 @@ int main(int argc, char *argv[]) {
     BIND_BUTTON(Right, gfmController_laxis_right);
     BIND_NEW_KEY(Jump, gfmKey_up);
     BIND_KEY(Jump, gfmKey_w);
+    BIND_KEY(Jump, gfmKey_space);
     BIND_BUTTON(Jump, gfmController_l1);
     BIND_BUTTON(Jump, gfmController_r1);
     BIND_NEW_KEY(Shoot, gfmKey_x);
-    BIND_KEY(Shoot, gfmKey_space);
     BIND_BUTTON(Shoot, gfmController_l2);
     BIND_BUTTON(Shoot, gfmController_r2);
+    BIND_BUTTON(Shoot, gfmPointer_button);
     BIND_NEW_KEY(Quit, gfmKey_esc);
     BIND_NEW_KEY(Fullscreen, gfmKey_f12);
     BIND_NEW_KEY(Gif, gfmKey_f11);
