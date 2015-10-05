@@ -425,7 +425,7 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         ASSERT(rv == GFMRV_OK, rv);
         rv = gfmCamera_screenToWorld(&px, &py, pCamera);
         
-        if (rv == GFMRV_OK) {
+        if (rv == GFMRV_OK || rv == GFMRV_CAMERA_POINTER_OUT_OF_SCREEN) {
             rv = gfmSprite_getCenter(&cx, &cy, pPlayer->pSpr);
             ASSERT(rv == GFMRV_OK, rv);
             
