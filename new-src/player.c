@@ -145,6 +145,9 @@ gfmRV pl_init(player **ppCtx, gameCtx *pGame, gfmParser *pParser) {
     player *pCtx;
     int x, y;
     
+    // Initialize to null
+    pCtx = 0;
+    
     // Retrieve the player's attributes from the parser
     rv = gfmParser_getPos(&x, &y, pParser);
     ASSERT(rv == GFMRV_OK, rv);

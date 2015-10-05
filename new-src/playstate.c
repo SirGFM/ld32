@@ -136,6 +136,7 @@ static gfmRV stPs_loadMap(psCtx *pPsCtx, gameCtx *pGame) {
         case 0: GETMAP(0); break;
         default: {
             // TODO Load a "default" level
+            ASSERT(0, GFMRV_FUNCTION_FAILED);
         }
     }
 #undef GETMAP

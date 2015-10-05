@@ -59,6 +59,7 @@ static gfmRV collide(gameCtx *pGame) {
     
     pQt = pGame->pQt;
     
+    rv = GFMRV_QUADTREE_OVERLAPED;
     while (rv != GFMRV_QUADTREE_DONE) {
         gfmObject *pObj1, *pObj2;
         gfmSprite *pSpr1, *pSpr2;
