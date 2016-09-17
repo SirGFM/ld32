@@ -502,6 +502,10 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         int cx, cy, isFlipped;
         int border, h, w, x, y;
         int alpha;
+        double vx;
+        
+        rv = gfmSprite_getHorizontalVelocity(&vx, pPlayer->pSpr);
+        ASSERT(rv == GFMRV_OK, rv);
         
         border = 40;
         h = GAME_BBUF_HEIGHT - GAME_UI_HEIGHT - 160;
@@ -510,7 +514,21 @@ gfmRV pl_update(player *pPlayer, gameCtx *pGame) {
         
         rv = gfmSprite_getDirection(&isFlipped, pPlayer->pSpr);
         ASSERT(rv == GFMRV_OK, rv);
-        if (!isFlipped && pPlayer->cameraTweenTime > -500) {
+        if (vx == 0 && pPlayer->cameraTweenTime < 0) {
+            // If the player isn't moving, center the camera
+            pPlayer->cameraTweenTime += elapsed / pGame->deadzoneSpeed ;
+            if (pPlayer->cameraTweenTime > 0) {
+                pPlayer->cameraTweenTime = 0;
+            }
+        }
+        else if (vx == 0 && pPlayer->cameraTweenTime > 0) {
+            // If the player isn't moving, center the camera
+            pPlayer->cameraTweenTime -= elapsed / pGame->deadzoneSpeed ;
+            if (pPlayer->cameraTweenTime < 0) {
+                pPlayer->cameraTweenTime = 0;
+            }
+        }
+        else if (!isFlipped && pPlayer->cameraTweenTime > -500) {
             // If the player is facing right and the camera isn't to the left
             pPlayer->cameraTweenTime -= elapsed / pGame->deadzoneSpeed ;
             if (pPlayer->cameraTweenTime < -500) {
