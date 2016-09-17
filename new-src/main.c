@@ -184,6 +184,10 @@ int main(int argc, char *argv[]) {
     // Start the library
     rv = gfm_getNew(&(pGame->pCtx));
     ASSERT(rv == GFMRV_OK, rv);
+
+    rv = gfm_setVideoBackend(pGame->pCtx, GFM_VIDEO_GL3);
+    ASSERT(rv == GFMRV_OK, rv);
+
     rv = gfm_initStatic(pGame->pCtx, "com.gfmgamecorner", "ld32-v2-port");
     ASSERT(rv == GFMRV_OK, rv);
     
@@ -255,11 +259,11 @@ int main(int argc, char *argv[]) {
     bbufHeight = GAME_BBUF_HEIGHT;
     if (isFullscreen) {
         rv = gfm_initGameFullScreen(pGame->pCtx, bbufWidth, bbufHeight,
-                0/*defRes*/, 0/*dontResize*/);
+                0/*defRes*/, 0/*dontResize*/, 1/*useVsync*/);
     }
     else {
         rv = gfm_initGameWindow(pGame->pCtx, bbufWidth, bbufHeight,
-                pGame->width, pGame->height, 0/*dontResize*/);
+                pGame->width, pGame->height, 0/*dontResize*/, 1/*useVsync*/);
     }
     ASSERT(rv == GFMRV_OK, rv);
     
