@@ -9,6 +9,13 @@ if pyexpat.version_info < (2, 4, 1):
 	raise Exception('pyexpat must be on version 2.4.1 or newer!')
 
 
+tile_info = tuple[int, str]
+"""Associates a tile's index to the name of its type."""
+
+tileset_info = list[tile_info]
+"""A simple list of tile_info."""
+
+
 def main() -> None:
 	"""map-converter's entrypoint.
 
@@ -35,6 +42,13 @@ def main() -> None:
 		action='store_true',
 		default=False,
 	)
+	parser.add_argument(
+		'-t',
+		'--tileset',
+		help='Name of the tileset with type information',
+		action='store',
+		type=str,
+	)
 	args = parser.parse_args()
 
 	# Check that the dest_dir is within the project's directory.
@@ -48,7 +62,7 @@ def main() -> None:
 	dest_dir.mkdir(parents=True, exist_ok=True)
 
 	# Convert the tiled file.
-	convert_world(args.tmx_file, dest_dir)
+	convert_world(args.tmx_file, dest_dir, args.tileset)
 
 
 def assert_path_within(container: pathlib.Path, path: pathlib.Path) -> None:
@@ -93,7 +107,7 @@ def remove_dir(path: pathlib.Path) -> None:
 		path.rmdir()
 
 
-def convert_world(in_file: str, dest_dir: pathlib.Path) -> None:
+def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None = None) -> None:
 	"""Converts a world, defined in a single Tiled file.
 
 	:param in_file:
@@ -101,19 +115,24 @@ def convert_world(in_file: str, dest_dir: pathlib.Path) -> None:
 	"""
 
 	tree = ET.parse(in_file)
-
 	root = tree.getroot()
+
+	# Extract the tileset information/types.
+	tm: tileset_info = []
+	if tileset_name:
+		tm = get_tile_types(root, tileset_name)
+
 	for child in root:
 		if child.tag == 'group':
 			sub_dir = dest_dir / child.attrib['name']
-			convert_map(child, sub_dir)
+			convert_map(child, sub_dir, tm)
 		elif child.tag == 'layer':
-			convert_layer(child, dest_dir)
+			convert_layer(child, dest_dir, tm)
 		elif child.tag == 'objectgroup':
 			convert_objects(child, dest_dir)
 
 
-def convert_map(root: ET.Element, dest_dir: pathlib.Path) -> None:
+def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> None:
 	"""Converts an entire map, which may be composed of various layers.
 
 	:param root:
@@ -124,29 +143,31 @@ def convert_map(root: ET.Element, dest_dir: pathlib.Path) -> None:
 
 	for child in root:
 		if child.tag == 'layer':
-			convert_layer(child, dest_dir)
+			convert_layer(child, dest_dir, tm)
 		elif child.tag == 'objectgroup':
 			convert_objects(child, dest_dir)
 		else:
 			print(f'ignoring layer {child.tag} in {dest_dir}')
 
 
-def convert_layer(el: ET.Element, dest_dir: pathlib.Path) -> None:
+def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> None:
 	"""Converts a single layer.
 
-	A layer is comprised of 3 components:
+	A layer is comprised of:
 
-	- A line with the layer's width, in tiles;
-	- A line with the layer's height, in tiles;
-	- As many lines as the layer's height, with tiles separated by commas.
+	- A few type descriptions (a name followed by its tile index)
+	- Tile animations (TODO)
+	- Collider areas (TODO)
+	- The map itself (the descriptor 'map' followed by the map's width, height and tiles)
 
-	For example:
+	For example, a 5x3 tilemap with tiles 1 and 2 having the 'floor' type:
 
-	w=5
-	h=3
-	0,0,0,0,0,
-	0,1,1,1,0,
-	0,0,0,0,0,
+	floor 1
+	floor 2
+	map 5 3
+	  -1 -1 -1 -1 -1
+	  -1  2  3  2 -1
+	  -1 -1 -1 -1 -1
 
 	:param ET.Element el: The layer element.
 	:param pathlib.Path dest_dir: The destination directory for this layer.
@@ -154,16 +175,22 @@ def convert_layer(el: ET.Element, dest_dir: pathlib.Path) -> None:
 
 	dest_file = dest_dir / el.attrib['name']
 	with dest_file.open('wb') as out:
+		for tile in tm:
+			out.write(f'type {tile[1]} {tile[0]}\n'.encode('utf-8'))
+
 		w = int(el.attrib["width"])
 		h = int(el.attrib["height"])
 
-		out.write(f'w={w}\n'.encode('utf-8'))
-		out.write(f'h={h}\n'.encode('utf-8'))
+		out.write(f'map {w} {h}\n'.encode('utf-8'))
 
 		data = el.find('data').text.strip().split(',')
 		for i in range(h):
+			# Tiled has 1-indexed tiles.
+			# Convert it to 0-indexed, using -1 as the 'empty' tile.
 			line = [x.strip() for x in data[i*w:(i+1)*w]]
-			out.write(f'{",".join(line)},\n'.encode('utf-8'))
+			line = [str(int(x) - 1) for x in line]
+
+			out.write(f'  {" ".join(line)}\n'.encode('utf-8'))
 
 
 def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
@@ -227,6 +254,62 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 				value = child.attrib['value']
 				out.write(f'\t{name}={value}\n'.encode('utf-8'))
 			out.write(f'\n'.encode('utf-8'))
+
+
+def get_tile_types(root: ET.Element, tileset_name: str) -> tileset_info:
+	"""Extracts the type information from the tileset.
+
+	:param ET.Element root: The object group being converted.
+	:param str tileset_name: The name of the tileset with type information.
+	:return tileset_info: The list of tile_info found in this tileset.
+	"""
+
+	for tm in root.findall('tileset'):
+		name = tm.attrib['name']
+		if name != tileset_name:
+			continue
+
+		# This assumes there's only a single terrain in the tileset!
+		tm = tm.find('wangsets')
+		tm = tm.find('wangset')
+
+		types: list[str] = []
+		for child in tm.findall('wangcolor'):
+			types.append(child.attrib['name'])
+
+		# Associate every type to its list of tiles in the tileset.
+		unsorted_tiles: dict[str, list[int]] = {}
+		for child in tm.findall('wangtile'):
+			typ = ''
+
+			# This has the info for every corner/direction/position.
+			# For simplicity, assume every tile is fully filled,
+			# and that the first non-zero value is the type's index.
+			tiled_terrain = child.attrib['wangid'].split(',')
+			for value in [int(x) for x in tiled_terrain]:
+				if value != 0:
+					typ = types[value - 1]
+					break
+			if typ == '':
+				raise Exception(f'could not find a type for tileid {idx}')
+
+			idx = child.attrib['tileid']
+			if typ in unsorted_tiles:
+				unsorted_tiles[typ].append(idx)
+			else:
+				unsorted_tiles[typ] = [idx]
+
+		# Finally, create the tileset info.
+		tiles: tileset_info = []
+		for typ in unsorted_tiles:
+			for idx in unsorted_tiles[typ]:
+				tile: tile_info = (idx, typ)
+				tiles.append(tile)
+
+		return tiles
+
+	raise Exception(f'could not find the tileset {tileset_name}')
+
 
 if __name__ == '__main__':
 	main()
