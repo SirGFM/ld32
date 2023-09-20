@@ -202,34 +202,20 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 	Most properties are defined as tag attributes,
 	but a few may also be defined in a 'property' tag.
 
-	Before any object,
-	a single line is added with the number of objects in this file.
+	Each object is identified by the 'obj' descriptor,
+	followed by their type (a simple name),
+	then by their x and y position, then their width and height.
+	Finally, each object's property is converted to an attribute,
+	which is a key/value pair enclosed in square brackets.
 
-	Each generated object shall have a name,
-	which doesn't need to be unique and is simply used to identify the object.
-	The name must be placed at the start of a line!
-	After that, each property must be defined in a new line,
-	preceded by a single tab character
-	and with an equals sign separating the property name from its value.
+	For example, a file the two objects of type 'some_type',
+	the first on position (123,456) and dimensions 24x16,
+	and the second on position (8,32), dimensions 16x16,
+	and with an attribute named 'custom' and value 'foo'
+	would be described by the file:
 
-	E.g.:
-
-	count=2
-
-	object
-		type=some type
-		x=123
-		y=456
-		w=24
-		h=16
-
-	another object
-		type=some type
-		x=123
-		y=456
-		w=24
-		h=16
-		custom=foo
+	obj some_type 123 456 24 16
+	obj some_type 8 32 16 16 [ custom , foo ]
 
 	:param ET.Element root: The object group being converted.
 	:param pathlib.Path dest_dir: The destination directory for this object group.
@@ -237,22 +223,22 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 
 	dest_file = dest_dir / root.attrib['name']
 	with dest_file.open('wb') as out:
-		out.write(f'count={len(root)}\n\n'.encode('utf-8'))
-
 		for child in root:
 			if child.tag != 'object':
 				raise Exception(f'Invalid tag "{child.tag}" in object')
 
-			out.write(f'{child.attrib["name"]}\n'.encode('utf-8'))
-			out.write(f'\ttype={child.attrib["type"]}\n'.encode('utf-8'))
-			out.write(f'\tx={child.attrib["x"]}\n'.encode('utf-8'))
-			out.write(f'\ty={child.attrib["y"]}\n'.encode('utf-8'))
-			out.write(f'\tw={child.attrib["width"]}\n'.encode('utf-8'))
-			out.write(f'\th={child.attrib["height"]}\n'.encode('utf-8'))
-			for prop in child.findall('property'):
-				name = child.attrib['name']
-				value = child.attrib['value']
-				out.write(f'\t{name}={value}\n'.encode('utf-8'))
+			typ = child.attrib["type"]
+			x = int(child.attrib["x"])
+			y = int(child.attrib["y"])
+			w = int(child.attrib["width"])
+			h = int(child.attrib["height"])
+			out.write(f'obj {typ} {x} {y} {w} {h}'.encode('utf-8'))
+
+			for props in child.findall('properties'):
+				for prop in props.findall('property'):
+					name = prop.attrib['name']
+					value = prop.attrib['value']
+					out.write(f' [ {name} , {value} ]'.encode('utf-8'))
 			out.write(f'\n'.encode('utf-8'))
 
 
