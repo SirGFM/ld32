@@ -208,12 +208,17 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 	Finally, each object's property is converted to an attribute,
 	which is a key/value pair enclosed in square brackets.
 
+	First, however, the number of objects in the group is
+	listed in an attribute (identified by the 'attr' description)
+	named 'count'.
+
 	For example, a file the two objects of type 'some_type',
 	the first on position (123,456) and dimensions 24x16,
 	and the second on position (8,32), dimensions 16x16,
 	and with an attribute named 'custom' and value 'foo'
 	would be described by the file:
 
+	attr [ count , 2 ]
 	obj some_type 123 456 24 16
 	obj some_type 8 32 16 16 [ custom , foo ]
 
@@ -223,6 +228,8 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 
 	dest_file = dest_dir / root.attrib['name']
 	with dest_file.open('wb') as out:
+		out.write(f'attr [ count , {len(root)} ]\n'.encode('utf-8'))
+
 		for child in root:
 			if child.tag != 'object':
 				raise Exception(f'Invalid tag "{child.tag}" in object')
