@@ -15,6 +15,12 @@ tile_info = tuple[int, str]
 tileset_info = list[tile_info]
 """A simple list of tile_info."""
 
+attribute = tuple[str, str]
+"""A simple key/value attribute."""
+
+attributes = list[attribute]
+"""A list of attributes."""
+
 
 def main() -> None:
 	"""map-converter's entrypoint.
@@ -110,8 +116,15 @@ def remove_dir(path: pathlib.Path) -> None:
 def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None = None) -> None:
 	"""Converts a world, defined in a single Tiled file.
 
-	:param in_file:
-	:param dest_dir:
+	Each group is converted into a sub-directory,
+	with files for each layer within it.
+
+	Similarly, layers outside any group are converted into files
+	directly on dest_dir.
+
+	:param str in_file: The name of the Tiled file to be converted.
+	:param pathlib.Path dest_dir: The directory where the converted files are created.
+	:param str|None tileset_name: Name of the tileset with type information.
 	"""
 
 	tree = ET.parse(in_file)
@@ -135,22 +148,64 @@ def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None
 def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> None:
 	"""Converts an entire map, which may be composed of various layers.
 
-	:param root:
-	:param dest_dir:
+	Each layer is converted into its own file, within the supplied directory.
+	Additionally, the extra metada file, 'meta.txt',
+	is created with the list of layers in this map
+	and any accompanying attributes for each layer.
+
+	Layers may be of two types:
+
+	- 'tilemap', identified by the 'layer' tag;
+	- 'obj', identified by the 'objectgroup' tag.
+
+	The metadata file contains one 'attr' entry for each layer.
+	Additionally, there's a first 'attr' describing the number of layers in this map.
+
+	For example, considering a map with a single object layer
+	and two tilemap layers,
+	and in which the tilemap layer 'bg.txt' has the attribute 'bg_color',
+	the metadata file would look something like:
+
+	attr [ layer_count , 2 ] [ obj_count , 1 ]
+	attr [ name , some-file.txt ] [ type , tilemap ]
+	attr [ name , another-file.txt ] [ type , obj ]
+	attr [ name , bg.txt ] [ type , tilemap ] [ bg_color , #000000 ]
+
+	:param ET.Element root: The map element, containing various layers.
+	:param pathlib.Path dest_dir: The directory where layers are created.
+	:param tileset_info tm: The list of tile_info that tilemaps may contain.
 	"""
 
 	dest_dir.mkdir(parents=True, exist_ok=True)
 
+	attrs: dict[str, attributes] = {}
+	layer_count = 0
+	obj_count = 0
 	for child in root:
 		if child.tag == 'layer':
-			convert_layer(child, dest_dir, tm)
+			name, child_attrs = convert_layer(child, dest_dir, tm)
+			child_attrs.insert(0, ('type', 'tilemap'))
+			attrs[name] = child_attrs
+			layer_count += 1
 		elif child.tag == 'objectgroup':
-			convert_objects(child, dest_dir)
+			name, child_attrs = convert_objects(child, dest_dir)
+			child_attrs.insert(0, ('type', 'obj'))
+			attrs[name] = child_attrs
+			obj_count += 1
 		else:
 			print(f'ignoring layer {child.tag} in {dest_dir}')
 
+	dest_file = dest_dir / 'meta.txt'
+	with dest_file.open('wb') as out:
+		out.write(f'attr [ layer_count , {layer_count} ] [ obj_count , {obj_count} ]\n'.encode('utf-8'))
+		for name, layer_attrs in attrs.items():
+			out.write(f'attr [ name , {name} ]'.encode('utf-8'))
+			for attr in layer_attrs:
+				out.write(f' [ {attr[0]} , {attr[1]} ]'.encode('utf-8'))
+			out.write(f'\n'.encode('utf-8'))
 
-def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> None:
+
+def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> tuple[str, attributes]:
 	"""Converts a single layer.
 
 	A layer is comprised of:
@@ -171,9 +226,14 @@ def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> N
 
 	:param ET.Element el: The layer element.
 	:param pathlib.Path dest_dir: The destination directory for this layer.
+	:param tileset_info tm: The list of tile_info that tilemaps may contain.
+	:return tuple[str, attributes]: The name of the layer and its list of attributes.
 	"""
 
-	dest_file = dest_dir / el.attrib['name']
+	file_name = el.attrib['name']
+	attrs = get_attributes(el)
+
+	dest_file = dest_dir / file_name
 	with dest_file.open('wb') as out:
 		for tile in tm:
 			out.write(f'type {tile[1]} {tile[0]}\n'.encode('utf-8'))
@@ -192,8 +252,10 @@ def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> N
 
 			out.write(f'  {" ".join(line)}\n'.encode('utf-8'))
 
+	return file_name, attrs
 
-def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
+
+def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> tuple[str, attributes]:
 	"""Converts an object group into a single file.
 
 	The file is named after the root element's name attribute.
@@ -224,14 +286,21 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 
 	:param ET.Element root: The object group being converted.
 	:param pathlib.Path dest_dir: The destination directory for this object group.
+	:return tuple[str, attributes]: The name of the layer and its list of attributes.
 	"""
 
-	dest_file = dest_dir / root.attrib['name']
+	file_name = root.attrib['name']
+	attrs = get_attributes(root)
+
+	dest_file = dest_dir / file_name
 	with dest_file.open('wb') as out:
 		out.write(f'attr [ count , {len(root)} ]\n'.encode('utf-8'))
 
 		for child in root:
-			if child.tag != 'object':
+			if child.tag == 'properties':
+				# Skip the properties tags, as it's parsed in get_attributes().
+				continue
+			elif child.tag != 'object':
 				raise Exception(f'Invalid tag "{child.tag}" in object')
 
 			typ = child.attrib["type"]
@@ -241,12 +310,29 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> None:
 			h = int(child.attrib["height"])
 			out.write(f'obj {typ} {x} {y} {w} {h}'.encode('utf-8'))
 
-			for props in child.findall('properties'):
-				for prop in props.findall('property'):
-					name = prop.attrib['name']
-					value = prop.attrib['value']
-					out.write(f' [ {name} , {value} ]'.encode('utf-8'))
+			for attr in get_attributes(child):
+				out.write(f' [ {attr[0]} , {attr[1]} ]'.encode('utf-8'))
 			out.write(f'\n'.encode('utf-8'))
+
+	return file_name, attrs
+
+
+def get_attributes(el: ET.Element) -> attributes:
+	"""Extracts the list of attributes in the current object, if any.
+
+	:param ET.Element el: The object whose attributes are being parsed.
+	:return attributes: The list of attributes found.
+	"""
+
+	attrs: attributes = []
+	for props in el.findall('properties'):
+		for prop in props.findall('property'):
+			name = prop.attrib['name']
+			value = prop.attrib['value']
+
+			attrs.append((name, value))
+
+	return attrs
 
 
 def get_tile_types(root: ET.Element, tileset_name: str) -> tileset_info:
