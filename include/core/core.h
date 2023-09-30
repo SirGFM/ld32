@@ -35,4 +35,14 @@ int core_free();
 int core_initWindowless(struct config *cfg);
 
 
+/**
+ * core_init fully initialize core,
+ * creating the game's window and initializing every subsystem.
+ *
+ * @param [in] cfg: The game's configuration.
+ * @return 0: Success; Anything else: failure.
+ */
+int core_init(struct config *cfg);
+
+
 #endif /* CORE_H */
