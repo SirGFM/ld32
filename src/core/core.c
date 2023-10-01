@@ -1,7 +1,11 @@
 #include <GFraMe/gframe.h>
+#ifdef EMCC
+#	include <emscripten/emscripten.h>
+#endif /* EMCC */
 
 #include <core/core.h>
 #include <error.h>
+#include <mainloop.h>
 
 
 gfmCtx *gameCtx;
@@ -82,6 +86,7 @@ int core_init(struct config *cfg) {
 		, __ret
 	);
 	ASSERT_OK(grv = gfm_initAudio(pCtx, cfg->audioMode), __ret);
+	ASSERT_OK(grv = gfm_initFPSCounter(pCtx, 0, 0), __ret);
 
 	gameCtx = pCtx;
 	pCtx = 0;
@@ -91,4 +96,100 @@ __ret:
 	}
 
 	return rv || grv;
+}
+
+
+/**
+ * Configure core_runLoop as returning only when running natively,
+ * as EMCC doesn't expect it to return anything.
+ */
+#ifdef EMCC
+#	define	LOOP_RET void
+#else
+#	define	LOOP_RET int
+#endif
+
+/**
+ * core_runLoop handles executing the game's actual loop.
+ */
+static LOOP_RET core_runLoop() {
+	/**  The return value. */
+	int rv;
+	gfmRV grv = GFMRV_OK;
+
+	/* If on HTML5, manually issue a frame. */
+#ifdef EMCC
+	ASSERT_OK(grv = gfm_issueFrame(gameCtx), __ret);
+#endif /* EMCC */
+
+	/* Wait for an event */
+	ASSERT_OK(grv = gfm_handleEvents(gameCtx), __ret);
+
+	while (gfm_isUpdating(gameCtx) == GFMRV_TRUE) {
+		ASSERT_OK(grv = gfm_fpsCounterUpdateBegin(gameCtx), __ret);
+		ASSERT_OK(rv = mainloop_update(), __ret);
+		ASSERT_OK(grv = gfm_fpsCounterUpdateEnd(gameCtx), __ret);
+	}
+
+	while (gfm_isDrawing(gameCtx) == GFMRV_TRUE) {
+		ASSERT_OK(grv = gfm_drawBegin(gameCtx), __ret);
+
+		ASSERT_OK(rv = mainloop_draw(), __ret);
+
+		ASSERT_OK(
+			grv = gfm_drawRenderInfo(
+				gameCtx
+				, 0 /* ignored */
+				, 0 /* x */
+				, 24 /* y */
+				, 0 /* ignored */
+			)
+			, __ret
+		);
+		ASSERT_OK(grv = gfm_drawEnd(gameCtx), __ret);
+	}
+
+	/* If on HTML5, manually sleep until the next frame. */
+#ifdef EMCC
+	ASSERT_OK(grv = gfm_waitFrame(gameCtx), __ret);
+#endif /* EMCC */
+
+__ret:
+#ifndef EMCC
+	return rv || grv;
+#else
+	/* On EMCC, add a noop so the label above may be valid. */
+	do {} while (0);
+#endif /* EMCC */
+}
+
+
+int core_runGame() {
+	/** Whether the game should be unloaded. */
+	int unload = 0;
+	/**  The return value. */
+	int rv;
+
+	ASSERT_OK(rv = mainloop_init(), __ret);
+#ifndef EMCC
+	/* Avoid unloading if running on the web,
+	 * since the mainloop is called at a later time. */
+	unload = 1;
+#endif /* EMCC */
+
+#ifndef EMCC
+	while (gfm_didGetQuitFlag(gameCtx) != GFMRV_TRUE) {
+		ASSERT_OK(rv = core_runLoop(), __ret);
+	}
+#else /* ifdef EMCC */
+	emscripten_set_main_loop((em_callback_func)core_runLoop, 0, 0);
+#endif /* EMCC */
+
+__ret:
+	if (unload) {
+		int tmp = mainloop_free();
+		rv = rv || tmp;
+	}
+
+	return rv;
 }

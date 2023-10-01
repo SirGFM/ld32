@@ -45,4 +45,20 @@ int core_initWindowless(struct config *cfg);
 int core_init(struct config *cfg);
 
 
+/**
+ * core_runGame handles executing the game's mainloop.
+ *
+ * Initially, mainloop_init() is called to configure the game's initial state.
+ *
+ * Then, mainloop_update() and mainloop_draw() are called as many times as needed.
+ * When running natively, this won't return until the game has finished!
+ *
+ * Lastly, mainloop_free() is called to release the game's resources.
+ * However, if running on the web, this last step is skipped!
+ *
+ * @return 0: Success; Anything else: failure.
+ */
+int core_runGame();
+
+
 #endif /* CORE_H */

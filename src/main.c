@@ -11,8 +11,14 @@ int main(int argc, char *argv[]) {
 	ASSERT_OK(rv = core_init(&cfg), __ret);
 	ASSERT_OK(rv = assets_loadGfx(), __ret);
 
+	ASSERT_OK(rv = core_runGame(), __ret);
+
 __ret:
+#ifndef EMCC
+	/* Avoid unloading if running on the web,
+	 * since the mainloop is called at a later time. */
 	core_free();
+#endif /* EMCC */
 
 	return rv;
 }
