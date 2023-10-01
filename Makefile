@@ -128,6 +128,9 @@ OBJECTS := $(SOURCE_OBJECTS) $(ICON_OBJECTS)
 
 MAPS := $(call rwildcard,assets,*tmx)
 MAP_OBJECTS := $(MAPS:%.tmx=obj/%.map)
+
+WEB_ASSETS_BMP := $(call rwildcard,assets,*bmp)
+WEB_ASSETS := $(WEB_ASSETS_BMP)
 # =========================================================================
 
 
@@ -161,11 +164,11 @@ maps: obj/maps.generated
 
 bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT): $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 	@ echo -e '\t[ CC] Release target: $@'
-	$(CC) $(OLEVEL) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	@ $(CC) $(OLEVEL) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-bin/$(TGT_DIR)/$(OUTPUT_BIN).html: bin/$(TGT_DIR)/$(OUTPUT_BIN).bc
+bin/$(TGT_DIR)/$(OUTPUT_BIN).html: bin/$(TGT_DIR)/$(OUTPUT_BIN).bc $(WEB_ASSETS)
 	@ echo -e '\t[ CC] Release target: $@'
-	@ $(CC) -o $@ $^ $(LDLIBS)
+	@ $(CC) -o $@ $< $(LDLIBS) $(foreach FILE,$(WEB_ASSETS),--preload-file $(FILE)@/$(FILE:assets/%=%))
 
 bin/$(TGT_DIR)/$(OUTPUT_BIN).bc: $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 	@ echo -e '\t[ CC] Release target: $@'

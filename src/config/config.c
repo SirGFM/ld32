@@ -42,6 +42,12 @@ static int config_loadFromFile(struct config *cfg, gfmSave *pSave) {
 
 
 int config_load(struct config *cfg) {
+#ifdef EMCC
+	/* Since there are no saved files in the web version,
+	 * simply load the default configuration. */
+	*cfg = config_getDefault();
+	return 0;
+#else
 	/** The loaded config file (if any). */
 	gfmSave *pSave = 0;
 	/** Whether core should be unloaded. */
@@ -86,4 +92,5 @@ __ret:
 	}
 
 	return rv || grv;
+#endif /* EMCC */
 }
