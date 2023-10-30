@@ -169,7 +169,7 @@ def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> N
 	attr [ layer_count , 2 ] [ obj_count , 1 ]
 	attr [ name , some-file.txt ] [ type , tilemap ]
 	attr [ name , another-file.txt ] [ type , obj ]
-	attr [ name , bg.txt ] [ type , tilemap ] [ bg_color , #000000 ]
+	attr [ name , bg.txt ] [ type , tilemap ] [ bg_color , 0x000000 ]
 
 	:param ET.Element root: The map element, containing various layers.
 	:param pathlib.Path dest_dir: The directory where layers are created.
@@ -329,6 +329,10 @@ def get_attributes(el: ET.Element) -> attributes:
 		for prop in props.findall('property'):
 			name = prop.attrib['name']
 			value = prop.attrib['value']
+
+			# If the attribute is a color, convert it to a hexadecimal value.
+			if prop.attrib['type'] == 'color':
+				value = f'0x{value[1:]}'
 
 			attrs.append((name, value))
 
