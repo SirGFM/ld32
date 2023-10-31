@@ -1,0 +1,10 @@
+type floor 1
+type floor 2
+type floor 3
+type floor 4
+type spikes 5
+map 8 4
+  0 1 1 1 1 0 0 0
+  0 2 2 2 2 0 0 0
+  0 3 3 3 3 0 0 0
+  0 5 5 5 5 5 5 0

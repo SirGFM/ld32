@@ -1,0 +1,2 @@
+attr [ count , 1 ]
+obj player 0 0 16 16 [ nope, 0 ]

@@ -1,0 +1,2 @@
+attr [ count , 1 ]
+obj nope 0 0 16 16

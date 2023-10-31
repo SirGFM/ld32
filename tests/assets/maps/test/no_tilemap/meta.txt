@@ -1,0 +1,2 @@
+attr [ layer_count , 1 ]
+attr [ name , nope.txt ] [ type , tilemap ]

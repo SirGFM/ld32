@@ -1,0 +1,2 @@
+attr [ count , 1 ]
+obj player 1 23 456 89 [ id , 1234 ] [ id , 5 ] [ id , 67 ]

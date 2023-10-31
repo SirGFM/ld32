@@ -1,5 +1,7 @@
 #include <setup.h>
 
+#include <core/map_test.h>
+
 #include <stdlib.h>
 
 #define TEST_INIT {if (setup_init() != 0) { abort(); }}
@@ -8,5 +10,6 @@
 #include <acutest.h>
 
 TEST_LIST = {
-	{NULL, NULL}
+	{"map", test_map}
+	, {NULL, NULL}
 };

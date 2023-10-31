@@ -1,0 +1,2 @@
+attr [ obj_count , 1 ]
+attr [ name , nope.txt ] [ type , obj ] [ is_obj , true ]

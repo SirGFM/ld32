@@ -1,0 +1,2 @@
+attr [ layer_count , 1 ]
+attr [ name , map.txt ] [ type , tilemap ] [ bg-color , 0x12345678 ]
