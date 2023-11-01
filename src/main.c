@@ -1,6 +1,7 @@
 #include <config/config.h>
 #include <core/assets.h>
 #include <core/core.h>
+#include <core/store.h>
 #include <error.h>
 
 int main(int argc, char *argv[]) {
@@ -17,6 +18,7 @@ __ret:
 #ifndef EMCC
 	/* Avoid unloading if running on the web,
 	 * since the mainloop is called at a later time. */
+	store_free();
 	core_free();
 #endif /* EMCC */
 
