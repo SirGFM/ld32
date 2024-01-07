@@ -1,6 +1,7 @@
 .PHONY: linux linux-32 linux-64 linux-debug linux-debug-32 linux-debug-64 \
 	win win-32 win-64 win-debug win-debug-32 win-debug-64 \
 	web \
+	tests \
 	all game clean
 
 
@@ -34,7 +35,14 @@ ifneq ($(filter web,$(MAKECMDGOALS)),)
   TGT := $(TGT)web
 endif
 
-ifneq ($(filter-out linux win web,$(TGT)),)
+ifneq ($(filter tests,$(MAKECMDGOALS)),)
+  OUTPUT_BIN := unit-tests
+  OS := linux
+  ARCH := x86_64
+  TGT := $(TGT)tests
+endif
+
+ifneq ($(filter-out linux win web tests,$(TGT)),)
   $(error multiple targets were specified!)
 endif
 
@@ -65,16 +73,28 @@ endif
 MODE := release
 ifneq ($(filter %-debug,$(MAKECMDGOALS)),)
   MODE := debug
+endif
+ifeq ($(OUTPUT_BIN), unit-tests)
+    MODE := tests
+endif
 
+ifeq ($(filter-out debug tests,$(MODE)),)
   OLEVEL := -O0 -g
   CFLAGS := $(CFLAGS) $(OLEVEL) -DDEBUG
   LIB_SUFFIX := _dbg
 endif
+
 # =========================================================================
 
 # =========================================================================
 # Configure the required libs and include paths
 CFLAGS := $(CFLAGS) -Iinclude
+
+# Also add test headers, if necessary.
+ifeq ($(OUTPUT_BIN), unit-tests)
+  CFLAGS := $(CFLAGS) -Itests/include -Itests/vendor/acutest/include
+endif
+
 LDLIBS := -lGFraMe$(LIB_SUFFIX) -lCSynth
 
 ifeq (win, $(OS))
@@ -117,6 +137,13 @@ all: game
 # Find every input file in ./src and convert it to a target object.
 # Additionally, for Windows, also add the icon to the list of objects.
 SOURCES := $(call rwildcard,src,*.c)
+
+# Also add test sources, if necessary.
+ifeq ($(OUTPUT_BIN), unit-tests)
+  SOURCES := $(filter-out src/main.c,$(SOURCES))
+  SOURCES := $(SOURCES) $(call rwildcard,tests,*.c)
+endif
+
 SOURCE_OBJECTS := $(SOURCES:%.c=obj/$(TGT_DIR)/%.o)
 
 ifeq (win,$(OS))
@@ -176,6 +203,9 @@ bin/$(TGT_DIR)/$(OUTPUT_BIN).bc: $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 
 obj/maps.generated: $(MAP_OBJECTS)
 	@ date > $@
+
+tests: bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT)
+	@ cp bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT) tests/
 # =========================================================================
 
 
