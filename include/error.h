@@ -2,6 +2,12 @@
 #define ERROR_H
 
 
+#ifdef DEBUG
+/** Global variable used to disable logging (for example, in tests). */
+extern int logErrors;
+#endif
+
+
 /**
  * LOG_STMT logs the current position and the supplied stmt.
  *
@@ -11,12 +17,14 @@
 #	include <stdio.h>
 #	define LOG_STMT(stmt) \
 		do { \
-			printf( \
-				"[%s() - %s @ %d] : " #stmt "\n" \
-				, __FUNCTION__ \
-				, __FILE__ \
-				, __LINE__ \
-			); \
+			if (logErrors) { \
+				printf( \
+					"[%s() - %s @ %d] : " #stmt "\n" \
+					, __FUNCTION__ \
+					, __FILE__ \
+					, __LINE__ \
+				); \
+			} \
 		} while (0)
 #else
 #	define LOG_STMT(stmt) do {} while (0)
