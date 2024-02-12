@@ -45,7 +45,7 @@ int sidedCollisionsLen = sizeof(sidedCollisions) / sizeof(int);
 
 struct typeName {
 	/** The name of the type. */
-	const char const *name;
+	const char * const name;
 	/** The length of the name, assuming no terminating '\0'. */
 	int len;
 	/** The underlying type. */
