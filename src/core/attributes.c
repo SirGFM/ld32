@@ -6,7 +6,7 @@
 
 struct attrName {
 	/** The name of the attribute. */
-	const char const *name;
+	const char * const name;
 	/** The length of the name, assuming no terminating '\0'. */
 	int len;
 }
