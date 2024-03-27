@@ -29,7 +29,7 @@ struct entityVTable {
 	 * An update function called before gfmSprite's update and before the collision.
 	 *
 	 * Note that the scene's entities are automatically collided.
-	 * However, and entity's sub-object must be manually collided.
+	 * However, each entity's sub-object must be manually collided.
 	 *
 	 * The default implementation does nothing!
 	 */
