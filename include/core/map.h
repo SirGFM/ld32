@@ -10,6 +10,12 @@
 #include <stdint.h>
 
 
+/* A single tile's horizontal dimension. */
+#define TILE_WIDTH 8
+/* A single tile's vertical dimension. */
+#define TILE_HEIGHT 8
+
+
 struct mapAttribute {
 	/** The attribute's type/identifier. */
 	enum attribute type;
