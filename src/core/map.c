@@ -34,6 +34,10 @@ struct mapMetadata {
 	int objCount;
 	/** The map's background color (in AARRGGBB). */
 	int bgColor;
+	/** The map's horizontal offset, in tiles. */
+	int offsetX;
+	/** The map's vertical offset, in tiles. */
+	int offsetY;
 	/** Which fields were set in this structure. */
 	enum metadataFlags flags;
 };
@@ -206,6 +210,12 @@ static int map_parseCount(struct map *map, struct mapMetadata *meta) {
 	memset(map->tilemaps, 0, sizeof(gfmTilemap*) * meta->layerCount);
 	map->numTilemaps = meta->layerCount;
 
+	ASSERT(
+		map->offsets = malloc(sizeof(struct mapObject) * meta->layerCount)
+		, __ret
+	);
+	memset(map->offsets, 0, sizeof(struct mapObject) * meta->layerCount);
+
 	rv = 0;
 __ret:
 	return rv;
@@ -282,6 +292,8 @@ static int map_parseTilemap(
 	);
 
 	map->tilemaps[i] = tilemap;
+	map->offsets[i].x = meta->offsetX;
+	map->offsets[i].y = meta->offsetY;
 	tilemap = 0;
 	rv = 0;
 __ret:
@@ -565,6 +577,12 @@ static int map_parseMetaEntry(
 			ASSERT_OK(str2int(&meta.objCount, val), __ret);
 			meta.flags |= META_IS_COUNT;
 		}
+		else if (0 == strcmp(key, "offx")) {
+			ASSERT_OK(str2int(&meta.offsetX, val), __ret);
+		}
+		else if (0 == strcmp(key, "offy")) {
+			ASSERT_OK(str2int(&meta.offsetY, val), __ret);
+		}
 	}
 
 	ASSERT(meta.flags, __ret);
@@ -658,6 +676,9 @@ void map_free(struct map *map) {
 	free(map->tilemaps);
 	map->tilemaps = 0;
 	map->numTilemaps = 0;
+
+	free(map->offsets);
+	map->offsets = 0;
 
 	for (i = 0; i < map->numObjectLists; i++) {
 		map_freeObjectList(map->objects + i);

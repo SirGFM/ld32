@@ -7,6 +7,8 @@
 
 #include <GFraMe/gfmTilemap.h>
 
+#include <stdint.h>
+
 
 struct mapAttribute {
 	/** The attribute's type/identifier. */
@@ -47,9 +49,19 @@ struct objectList {
 };
 
 
+struct mapOffset {
+	/** The horizontal offset, in tiles. */
+	int16_t x;
+	/** The vertical offset, in tiles. */
+	int16_t y;
+};
+
+
 struct map {
 	/** List of objects in this map. */
 	struct objectList *objects;
+	/** The offset of each tilemap, in tiles. */
+	struct mapOffset *offsets;
 	/** List of tilemaps, in the order they should be rendered. */
 	gfmTilemap **tilemaps;
 	/** How many tilemaps there are in this map. */
