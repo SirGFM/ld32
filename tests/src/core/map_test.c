@@ -134,6 +134,8 @@ TEST_FUNC(parse_single_tilemap) {
 	TEST_CHECK_STOP(0 == gfmTilemap_getDimension(&w, &h, map->tilemaps[0]));
 	TEST_CHECK(w == 80);
 	TEST_CHECK(h == 40);
+	TEST_CHECK(map->offsets[0].x == 0);
+	TEST_CHECK(map->offsets[0].y == 0);
 
 	TEST_CHECK_STOP(0 == gfmTilemap_getAreasLength(&num, map->tilemaps[0]));
 	TEST_CHECK_STOP(num == 9);
@@ -192,6 +194,8 @@ TEST_FUNC(parse_complex_map) {
 	TEST_CHECK_STOP(0 == gfmTilemap_getDimension(&w, &h, map->tilemaps[0]));
 	TEST_CHECK(w == 80);
 	TEST_CHECK(h == 40);
+	TEST_CHECK(map->offsets[0].x == 0);
+	TEST_CHECK(map->offsets[0].y == 0);
 
 	TEST_CHECK_STOP(0 == gfmTilemap_getAreasLength(&num, map->tilemaps[0]));
 	TEST_CHECK_STOP(num == 9);
@@ -221,6 +225,8 @@ TEST_FUNC(parse_complex_map) {
 	TEST_CHECK_STOP(0 == gfmTilemap_getDimension(&w, &h, map->tilemaps[1]));
 	TEST_CHECK(w == 64);
 	TEST_CHECK(h == 32);
+	TEST_CHECK(map->offsets[1].x == 3);
+	TEST_CHECK(map->offsets[1].y == 4);
 
 	TEST_CHECK_STOP(0 == gfmTilemap_getAreasLength(&num, map->tilemaps[1]));
 	TEST_CHECK_STOP(num == 5);
