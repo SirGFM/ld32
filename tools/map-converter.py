@@ -233,6 +233,13 @@ def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> t
 	file_name = el.attrib['name']
 	attrs = get_attributes(el)
 
+	offx = int(el.attrib.get('offsetx', '0'))
+	if offx != 0:
+		attrs.append(('offx', offx))
+	offy = int(el.attrib.get('offsety', '0'))
+	if offy != 0:
+		attrs.append(('offy', offy))
+
 	dest_file = dest_dir / file_name
 	with dest_file.open('wb') as out:
 		for tile in tm:
