@@ -27,24 +27,26 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
 
-	/* Initialize the quadtrees and calculate the map's dimensions. */
+	/* Position every map and retrieve the map's dimensions,
+	 * assuming that every maps has the same dimension. */
+	for (i = 0; i < map->numTilemaps; i++) {
+		gfmTilemap *cur;
+		int x, y;
+
+		cur = map->tilemaps[i];
+		x = map->offsets[i].x;
+		y = map->offsets[i].y;
+
+		if (i == 0) {
+			ASSERT_OK(grv = gfmTilemap_getDimension(&width, &height, cur), __ret);
+		}
+		ASSERT_OK(grv = gfmTilemap_setPosition(cur, x, y), __ret);
+	}
+
+	/* Initialize the quadtrees and load the static one. */
 	ASSERT_OK(grv = gfmQuadtree_getNew(&staticCollider), __ret);
 	ASSERT_OK(grv = gfmQuadtree_getNew(&dynamicCollider), __ret);
 
-	for (i = 0; i < map->numTilemaps; i++) {
-		gfmTilemap *cur = map->tilemaps[i];
-		int tmpW, tmpH;
-
-		ASSERT_OK(grv = gfmTilemap_getDimension(&tmpW, &tmpH, cur), __ret);
-		if (tmpW > width) {
-			width = tmpW;
-		}
-		if (tmpH > height) {
-			height = tmpH;
-		}
-	}
-
-	/* Load the static quadtree. */
 	ASSERT_OK(
 		grv = gfmQuadtree_initRoot(
 			staticCollider
@@ -138,12 +140,10 @@ __ret:
 }
 
 
-int scene_draw(struct scene *scene, int x, int y) {
+int scene_draw(struct scene *scene) {
 	int i;
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
-
-	/* TODO: Adjust the camera. */
 
 	for (i = 0; i < scene->map->numTilemaps; i++) {
 		gfmTilemap *cur = scene->map->tilemaps[i];
@@ -155,6 +155,69 @@ int scene_draw(struct scene *scene, int x, int y) {
 		struct entity *cur = scene->entities[i];
 
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
+	}
+
+__ret:
+	return rv | grv;
+}
+
+
+int scene_setRelativePosition(
+	struct scene *self
+	, struct scene *other
+	, enum scene_relativePosition pos
+	, int doorOffsetX
+	, int doorOffsetY
+) {
+	int i, offsetX, offsetY, otherW, otherH;
+	int rv = 0;
+	gfmRV grv = GFMRV_OK;
+
+	/* Get self's position relative to other. */
+	if (pos != SCENE_RESET) {
+		ASSERT_OK(
+			grv = gfmTilemap_getDimension(
+				&otherW
+				, &otherH
+				, other->map->tilemaps[0]
+			)
+			, __ret
+		);
+	}
+
+	switch (pos) {
+	case SCENE_RESET:
+		offsetX = 0;
+		offsetY = 0;
+		break;
+	case SCENE_LEFT_OF:
+		offsetX = -otherW;
+		offsetY = 0;
+		break;
+	case SCENE_RIGHT_OF:
+		offsetX = otherW;
+		offsetY = 0;
+		break;
+	case SCENE_ABOVE:
+		offsetX = 0;
+		offsetY = -otherH;
+		break;
+	case SCENE_BELLOW:
+		offsetX = 0;
+		offsetY = otherH;
+		break;
+	}
+
+	/* Move self to its new position. */
+	for (i = 0; i < self->map->numTilemaps; i++) {
+		gfmTilemap *cur;
+		int x, y;
+
+		cur = self->map->tilemaps[i];
+		x = (self->map->offsets[i].x + doorOffsetX) * TILE_WIDTH + offsetX;
+		y = (self->map->offsets[i].y + doorOffsetY) * TILE_HEIGHT + offsetY;
+
+		ASSERT_OK(grv = gfmTilemap_setPosition(cur, x, y), __ret);
 	}
 
 __ret:

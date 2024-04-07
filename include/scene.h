@@ -13,6 +13,20 @@ struct scene;
 #include <GFraMe/gfmQuadtree.h>
 
 
+/**
+ * The relative position of a scene in relation to another.
+ *
+ * SCENE_RESET is a special value that causes the scene to reset back to the origin.
+ */
+enum scene_relativePosition {
+	SCENE_RESET = 0
+	, SCENE_LEFT_OF
+	, SCENE_RIGHT_OF
+	, SCENE_ABOVE
+	, SCENE_BELLOW
+};
+
+
 struct scene {
 	/**
 	 * map stores the scene's tilemaps.
@@ -73,16 +87,40 @@ int scene_update(struct scene *scene);
 
 
 /**
- * scene_draw renders the provided scene
- * offsetting it by the amount of pixels provided
- * from the top-left corner of the window.
+ * scene_draw renders the provided scene.
  *
  * @param [in] scene: The scene being rendered.
- * @param [in] x: The horizontal offset.
- * @param [in] y: The vertical offset.
  * @return 0: Success; Anything else: failure.
  */
-int scene_draw(struct scene *scene, int x, int y);
+int scene_draw(struct scene *scene);
+
+
+/**
+ * scene_setRelativePosition moves self so its on pos relative to other.
+ *
+ * In addition to moving self based on other's dimension,
+ * doorOffset is used to move self further,
+ * ensuring the door/scene transitions are properly connected.
+ *
+ * After the scene is moved,
+ * the camera must be controlled independently
+ * (changing the deadzone as need so it may scroll over this other scene)
+ * to properly scroll from one room to another.
+ *
+ * @param [in] self: The scene being moved.
+ * @param [in] other: The scene relative to which to move.
+ * @param [in] pos: The new relative position of self in relatio to other.
+ * @param [in] doorOffsetX: The horizontal door distance, in tiles.
+ * @param [in] doorOffsetY: The vertical door distance, in tiles.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_setRelativePosition(
+	struct scene *self
+	, struct scene *other
+	, enum scene_relativePosition pos
+	, int doorOffsetX
+	, int doorOffsetY
+);
 
 
 /**
