@@ -1,5 +1,6 @@
 #include <core/core.h>
 #include <entity.h>
+#include <entities/new_by_type.h>
 #include <error.h>
 #include <scene.h>
 
@@ -12,6 +13,12 @@
 
 
 /**
+ * How bigger (in pixel) the quadtree is on each direction (up, down, left, right).
+ */
+#define QUADTREE_PADDING 16
+
+
+/**
  * scene_loadScene loads a scene from a pre-loaded map,
  * instantiating objects as needed.
  *
@@ -20,10 +27,8 @@
  * @return 0: Success; Anything else: failure.
  */
 int scene_loadScene(struct scene *scene, struct map *map) {
-	gfmQuadtreeRoot *staticCollider;
-	gfmQuadtreeRoot *dynamicCollider;
-	int i;
-	int height = 0, width = 0;
+	struct scene tmp = {0};
+	int count, i;
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
 
@@ -38,56 +43,68 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 		y = map->offsets[i].y;
 
 		if (i == 0) {
-			ASSERT_OK(grv = gfmTilemap_getDimension(&width, &height, cur), __ret);
+			ASSERT_OK(grv = gfmTilemap_getDimension(&tmp.width, &tmp.height, cur), __ret);
 		}
 		ASSERT_OK(grv = gfmTilemap_setPosition(cur, x, y), __ret);
 	}
 
 	/* Initialize the quadtrees and load the static one. */
-	ASSERT_OK(grv = gfmQuadtree_getNew(&staticCollider), __ret);
-	ASSERT_OK(grv = gfmQuadtree_getNew(&dynamicCollider), __ret);
+	ASSERT_OK(grv = gfmQuadtree_getNew(&tmp.staticCollider), __ret);
+	ASSERT_OK(grv = gfmQuadtree_getNew(&tmp.dynamicCollider), __ret);
 
 	ASSERT_OK(
 		grv = gfmQuadtree_initRoot(
-			staticCollider
-			, -16/*x*/
-			, -16/*y*/
-			, width
-			, height
+			tmp.staticCollider
+			, -QUADTREE_PADDING/*x*/
+			, -QUADTREE_PADDING/*y*/
+			, tmp.width + (QUADTREE_PADDING * 2)
+			, tmp.height + (QUADTREE_PADDING * 2)
 			, 8/*depth*/
 			, 16/*nodes*/
 		)
 		, __ret
 	);
 
-	ASSERT_OK(grv = gfmQuadtree_setStatic(staticCollider), __ret);
-	ASSERT_OK(grv = gfmQuadtree_enableContinuosCollision(staticCollider), __ret);
+	ASSERT_OK(grv = gfmQuadtree_setStatic(tmp.staticCollider), __ret);
+	ASSERT_OK(grv = gfmQuadtree_enableContinuosCollision(tmp.staticCollider), __ret);
 
 	for (i = 0; i < map->numTilemaps; i++) {
 		gfmTilemap *cur = map->tilemaps[i];
 
-		ASSERT_OK(grv = gfmQuadtree_populateTilemap(staticCollider, cur), __ret);
+		ASSERT_OK(grv = gfmQuadtree_populateTilemap(tmp.staticCollider, cur), __ret);
 	}
 
-	/* TODO: Load the entities. */
+	/* Load the entities. */
+	count = 0;
+	for (i = 0; i < map->numObjectLists; i++) {
+		count += map->objects[i].count;
+	}
+	ASSERT_OK((tmp.entities = malloc(sizeof(struct entity*) * count)) != 0, __ret);
 
-	return -1;
+	for (i = 0; i < map->numObjectLists; i++) {
+		int j;
 
-	scene->map = map;
-	scene->staticCollider = staticCollider;
-	scene->dynamicCollider = dynamicCollider;
-	scene->width = width;
-	scene->height = height;
+		for (j = 0; j < map->objects[i].count; j++) {
+			struct mapObject *data = map->objects[i].data + j;
 
-	staticCollider = 0;
-	dynamicCollider = 0;
+			ASSERT_OK(
+				rv = entity_newByType(
+					tmp.entities + tmp.numEntities
+					, data
+				)
+				, __ret
+			);
+
+			tmp.numEntities++;
+		}
+	}
+
+	tmp.map = map;
+	memcpy(scene, &tmp, sizeof(struct scene));
+	memset(&tmp, 0, sizeof(struct scene));
+
 __ret:
-	if (staticCollider) {
-		gfmQuadtree_free(&staticCollider);
-	}
-	if (dynamicCollider) {
-		gfmQuadtree_free(&dynamicCollider);
-	}
+	scene_free(&tmp);
 
 	return rv | grv;
 }
@@ -102,10 +119,10 @@ int scene_update(struct scene *scene) {
 	ASSERT_OK(
 		grv = gfmQuadtree_initRoot(
 			scene->dynamicCollider
-			, -16/*x*/
-			, -16/*y*/
-			, scene->width
-			, scene->height
+			, -QUADTREE_PADDING/*x*/
+			, -QUADTREE_PADDING/*y*/
+			, scene->width + (QUADTREE_PADDING * 2)
+			, scene->height + (QUADTREE_PADDING * 2)
 			, 8/*depth*/
 			, 16/*nodes*/
 		)
