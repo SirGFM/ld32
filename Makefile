@@ -156,6 +156,9 @@ OBJECTS := $(SOURCE_OBJECTS) $(ICON_OBJECTS)
 MAPS := $(call rwildcard,assets,*tmx)
 MAP_OBJECTS := $(MAPS:%.tmx=obj/%.map)
 
+COLLISION := $(call rwildcard,assets,*col)
+COLLISION_OBJECTS := $(COLLISION:%.col=obj/%.col)
+
 WEB_ASSETS_BMP := $(call rwildcard,assets,*bmp)
 WEB_ASSETS := $(WEB_ASSETS_BMP)
 # =========================================================================
@@ -188,6 +191,7 @@ linux linux-32 linux-64 linux-debug linux-debug-32 linux-debug-64 \
 web: bin/$(TGT_DIR)/$(OUTPUT_BIN).html
 game: bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT)
 maps: obj/maps.generated
+collision: obj/collision.generated
 
 bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT): $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 	@ echo -e '\t[ CC] Release target: $@'
@@ -202,6 +206,9 @@ bin/$(TGT_DIR)/$(OUTPUT_BIN).bc: $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 	@ $(CC) $(OLEVEL) -shared -o $@ $^
 
 obj/maps.generated: $(MAP_OBJECTS)
+	@ date > $@
+
+obj/collision.generated: $(COLLISION_OBJECTS)
 	@ date > $@
 
 tests: bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT)
@@ -227,6 +234,16 @@ obj/%.map: %.tmx | obj/%.mkdir
 	@ echo -e '\t[MAP] assets/maps/$(*F)'
 	@ python3 ./tools/map-converter.py -t $(TYPE_TILESET) --rm $< ./assets/maps/$(*F)
 	@ date > $@
+
+obj/%.col: %.col | obj/%.mkdir
+	@ echo -e '\t[COL] src/auto/auto_collision.c'
+	@ python3 ./tools/collision-generator.py --rm $< ./src/auto/
+	@ date > $@
+# =========================================================================
+
+# =========================================================================
+# Check if the collision file must be updated.
+src/auto/auto_collision.c: obj/collision.generated
 # =========================================================================
 
 
