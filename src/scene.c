@@ -1,4 +1,5 @@
 #include <core/core.h>
+#include <collision.h>
 #include <entity.h>
 #include <entities/new_by_type.h>
 #include <error.h>
@@ -142,7 +143,20 @@ int scene_update(struct scene *scene) {
 
 		ASSERT_OK(rv = cur->fn.preUpdate(cur, scene), __ret);
 		ASSERT_OK(grv = gfmSprite_update(cur->sprite, gameCtx), __ret);
-		/* TODO: Collide. */
+		ASSERT_OK(
+			rv = collision_collideSprite(
+				scene->staticCollider
+				, cur->sprite
+			)
+			, __ret
+		);
+		ASSERT_OK(
+			rv = collision_collideSprite(
+				scene->dynamicCollider
+				, cur->sprite
+			)
+			, __ret
+		);
 	}
 
 	/* Execute any custom post-update. */

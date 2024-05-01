@@ -50,4 +50,14 @@ int collision_handleFloor(struct collision_node *floor, struct collision_node *o
 int collision_handleSpikes(struct collision_node *spikes, struct collision_node *other);
 
 
+/**
+ * collision_collideSprite collides the given sprite with the provided quadtree.
+ *
+ * @param [in] qt: The quadtree.
+ * @param [in] sprite: The colliding entity.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite);
+
+
 #endif /* COLLISION_H */

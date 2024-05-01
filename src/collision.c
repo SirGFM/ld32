@@ -54,13 +54,6 @@ int _collision_sweepJustOverlap(gfmObject *ref, gfmObject *obj) {
 }
 
 
-/**
- * collision_handleFloor handles colliding a floor with some other object.
- *
- * @param [in] floor: The floor node.
- * @param [in] other: The colliding node.
- * @return 0: Success; Anything else: failure.
- */
 int collision_handleFloor(struct collision_node *floor, struct collision_node *other) {
 	gfmCollision dir;
 	gfmRV grv = GFMRV_OK;
@@ -102,13 +95,6 @@ __ret:
 }
 
 
-/**
- * collision_handleSpikes handles colliding spikes with some other object.
- *
- * @param [in] spikes: The spikes node.
- * @param [in] other: The colliding node.
- * @return 0: Success; Anything else: failure.
- */
 int collision_handleSpikes(struct collision_node *spikes, struct collision_node *other) {
 	/* Ensure that the objects are overlapping,
 	 * since the extended hitbox may graze each other
@@ -125,4 +111,26 @@ int collision_handleSpikes(struct collision_node *spikes, struct collision_node 
 	 */
 
 	return 0;
+}
+
+
+int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite) {
+	/** GFraMe return value */
+	gfmRV grv = GFMRV_OK;
+	int rv = 0;
+
+	rv = gfmQuadtree_collideSprite(qt, sprite);
+	ASSERT(rv == GFMRV_QUADTREE_OVERLAPED || rv == GFMRV_QUADTREE_DONE, __ret);
+
+	/* Continue colliding until the quadtree finishes. */
+	while (rv != GFMRV_QUADTREE_DONE) {
+		ASSERT_OK(rv = collision_handle(qt), __ret);
+
+		rv = gfmQuadtree_continue(qt);
+		ASSERT(rv == GFMRV_QUADTREE_OVERLAPED || rv == GFMRV_QUADTREE_DONE, __ret);
+	}
+
+	rv = GFMRV_OK;
+__ret:
+	return grv || rv;
 }
