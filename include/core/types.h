@@ -48,6 +48,18 @@
 
 
 /**
+ * MERGE_TYPES merges two types into a single int,
+ * encoding one in the T_BITS higher bits and the other in the lower ones.
+ *
+ * This is useful for easily comparing two interacting types.
+ *
+ * type1 - One of the object's type.
+ * type2 - The other object's type.
+ */
+#define MERGE_TYPES(type1, type2) (GET_TYPE(type1) | (GET_TYPE(type2) << T_BITS))
+
+
+/**
  * List of types.
  *
  * Types marked as TM shall be used exclusively in tilemaps,
