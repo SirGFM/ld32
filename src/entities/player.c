@@ -93,6 +93,7 @@ int player_new(struct entity **entity, int x, int y) {
 
 	tmp.base.fn.preUpdate = player_preUpdate;
 	tmp.base.fn.postUpdate = player_postUpdate;
+	tmp.base.fn.free = player_free;
 
 	/* TODO: Load animations */
 
