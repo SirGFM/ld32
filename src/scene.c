@@ -5,6 +5,7 @@
 #include <error.h>
 #include <scene.h>
 
+#include <GFraMe/gframe.h>
 #include <GFraMe/gfmQuadtree.h>
 #include <GFraMe/gfmSprite.h>
 #include <GFraMe/gfmTilemap.h>
@@ -98,6 +99,11 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 
 			tmp.numEntities++;
 		}
+	}
+
+	/* Set the BG color. */
+	if (map->bgColor != 0) {
+		ASSERT_OK(grv = gfm_setBackground(gameCtx, map->bgColor), __ret);
 	}
 
 	tmp.map = map;
