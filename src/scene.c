@@ -30,7 +30,7 @@
 int scene_loadScene(struct scene *scene, struct map *map) {
 	struct scene tmp = {0};
 	int count, i;
-	int rv = 0;
+	int rv = 1;
 	gfmRV grv = GFMRV_OK;
 
 	/* Position every map and retrieve the map's dimensions,
@@ -80,7 +80,7 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 	for (i = 0; i < map->numObjectLists; i++) {
 		count += map->objects[i].count;
 	}
-	ASSERT_OK((tmp.entities = malloc(sizeof(struct entity*) * count)) != 0, __ret);
+	ASSERT((tmp.entities = malloc(sizeof(struct entity*) * count)) != 0, __ret);
 
 	for (i = 0; i < map->numObjectLists; i++) {
 		int j;
@@ -295,8 +295,12 @@ int scene_free(struct scene *scene) {
 	free(scene->entities);
 	scene->entities = 0;
 
-	ASSERT_OK(grv = gfmQuadtree_free(&scene->staticCollider), __ret);
-	ASSERT_OK(grv = gfmQuadtree_free(&scene->dynamicCollider), __ret);
+	if (scene->staticCollider) {
+		ASSERT_OK(grv = gfmQuadtree_free(&scene->staticCollider), __ret);
+	}
+	if (scene->dynamicCollider) {
+		ASSERT_OK(grv = gfmQuadtree_free(&scene->dynamicCollider), __ret);
+	}
 
 	if (scene->fromFile) {
 		map_free(scene->map);
