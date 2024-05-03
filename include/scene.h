@@ -62,6 +62,11 @@ struct scene {
 	int width;
 	/** The scene's height in pixels. */
 	int height;
+	/**
+	 * Whether the scene was loaded from a file,
+	 * instead of being loaded from a previously loaded map.
+	 */
+	int fromFile;
 };
 
 
@@ -74,6 +79,17 @@ struct scene {
  * @return 0: Success; Anything else: failure.
  */
 int scene_loadScene(struct scene *scene, struct map *map);
+
+
+/**
+ * scene_loadSceneFromFile a scene from a file.
+ *
+ * @param [in] scene: The struct where the scene is loaded.
+ * @param [in] dir: The directory, within assets, with the scene.
+ * @param [in] len: Length of dir.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_loadSceneFromFile(struct scene *scene, char *dir, int len);
 
 
 /**

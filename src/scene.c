@@ -256,6 +256,32 @@ __ret:
 }
 
 
+int scene_loadSceneFromFile(struct scene *scene, char *dir, int len) {
+	struct map *map;
+	struct scene tmp = {0};
+	int rv = 1;
+
+	ASSERT(map = malloc(sizeof(struct map)), __ret);
+	memset(map, 0x0, sizeof(struct map));
+
+	ASSERT_OK(rv = map_loadMap(map, dir, len), __ret);
+	ASSERT_OK(rv = scene_loadScene(&tmp, map), __ret);
+
+	map = 0;
+	tmp.fromFile = 1;
+	memcpy(scene, &tmp, sizeof(tmp));
+	memset(&tmp, 0x0, sizeof(tmp));
+
+__ret:
+	scene_free(&tmp);
+	if (map != 0) {
+		map_free(map);
+	}
+
+	return rv;
+}
+
+
 int scene_free(struct scene *scene) {
 	int i;
 	int rv = 0;
@@ -271,6 +297,12 @@ int scene_free(struct scene *scene) {
 
 	ASSERT_OK(grv = gfmQuadtree_free(&scene->staticCollider), __ret);
 	ASSERT_OK(grv = gfmQuadtree_free(&scene->dynamicCollider), __ret);
+
+	if (scene->fromFile) {
+		map_free(scene->map);
+		free(scene->map);
+		scene->map = 0;
+	}
 
 __ret:
 	return rv | grv;
