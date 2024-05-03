@@ -105,6 +105,11 @@ ifeq (emscript, $(OS))
   CFLAGS := $(CFLAGS)
   LDLIBS := -s USE_SDL=2 -s WASM=1 $(LIB_DIR)/libGFraMe.bc $(LIB_DIR)/libCSynth.bc
 endif
+
+ifeq ($(MODE)-$(OS), debug-linux)
+  CFLAGS := $(CFLAGS) -fsanitize=address -fno-omit-frame-pointer
+  LDFLAGS := $(LDFLAGS) -fsanitize=address -fno-omit-frame-pointer
+endif
 # =========================================================================
 
 
