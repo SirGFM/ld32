@@ -15,9 +15,9 @@ int str2int(int *num, const char *str) {
 	value = strtol(str, &end, 0);
 	ASSERT(end && end != str && *end == '\0', __ret);
 	ASSERT(value != LONG_MIN && value != LONG_MAX, __ret);
-	ASSERT(value >= INT_MIN && value <= INT_MAX, __ret);
+	ASSERT(value >= 0 && value <= UINT_MAX, __ret);
 
-	*num = (int)value;
+	*((unsigned int*)num) = (unsigned int)value;
 
 	rv = 0;
 __ret:
