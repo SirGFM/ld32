@@ -1,0 +1,19 @@
+attr [ count , 18 ]
+obj title 68 48 32 32
+obj title 100 48 32 32
+obj title 132 48 32 32
+obj title 164 48 32 32
+obj title 196 48 32 32
+obj title 228 48 32 32
+obj title 84 80 32 32 [ rainbow , a ]
+obj title 52 80 32 32 [ rainbow , r ]
+obj title 116 80 32 32 [ rainbow , i ]
+obj title 148 80 32 32 [ rainbow , n ]
+obj title 180 80 32 32 [ rainbow , b ]
+obj title 212 80 32 32 [ rainbow , o ]
+obj title 244 80 32 32 [ rainbow , w ]
+obj title 84 112 32 32
+obj title 116 112 32 32
+obj title 148 112 32 32
+obj title 180 112 32 32
+obj title 212 112 32 32

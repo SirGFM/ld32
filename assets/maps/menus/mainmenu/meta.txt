@@ -1,0 +1,3 @@
+attr [ layer_count , 1 ] [ obj_count , 1 ]
+attr [ name , bg.txt ] [ type , tilemap ]
+attr [ name , objs.txt ] [ type , obj ]
