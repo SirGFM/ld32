@@ -338,7 +338,7 @@ def get_attributes(el: ET.Element) -> attributes:
 			value = prop.attrib['value']
 
 			# If the attribute is a color, convert it to a hexadecimal value.
-			if prop.attrib['type'] == 'color':
+			if prop.attrib.get('type') == 'color':
 				value = f'0x{value[1:]}'
 
 			attrs.append((name, value))
@@ -361,6 +361,8 @@ def get_tile_types(root: ET.Element, tileset_name: str) -> tileset_info:
 
 		# This assumes there's only a single terrain in the tileset!
 		tm = tm.find('wangsets')
+		if tm is None:
+			return []
 		tm = tm.find('wangset')
 
 		types: list[str] = []
