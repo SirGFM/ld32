@@ -51,7 +51,7 @@ void store_free() {
 		free(store.str.list[i].data);
 	}
 	if (store.str.list) {
-		free(store.str.list[i].data);
+		free(store.str.list);
 	}
 	memset(&store.str, 0, sizeof(store.str));
 }
@@ -70,9 +70,9 @@ int store_addStr(int *id, char *src, int len) {
 		/** The new capacity of the list. */
 		int cap = 1 + store.str.cap * 2;
 
-		ASSERT(new = realloc(store.str.list, sizeof(struct str)), __ret);
-		memset(store.str.list, 0, (cap - store.str.cap) * sizeof(struct str));
+		ASSERT(new = realloc(store.str.list, cap * sizeof(struct str)), __ret);
 		store.str.list = new;
+		memset(store.str.list + store.str.cap, 0, (cap - store.str.cap) * sizeof(struct str));
 		store.str.cap = cap;
 	}
 
