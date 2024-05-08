@@ -315,6 +315,11 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> tuple[str, attr
 			y = int(child.attrib["y"])
 			w = int(child.attrib["width"])
 			h = int(child.attrib["height"])
+
+			# Adjust the origin of objects with a tile (from bottom to top).
+			if 'gid' in child.attrib:
+				y -= h
+
 			out.write(f'obj {typ} {x} {y} {w} {h}'.encode('utf-8'))
 
 			for attr in get_attributes(child):
