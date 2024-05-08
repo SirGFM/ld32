@@ -2,6 +2,15 @@
 #define ERROR_H
 
 
+#if defined(DEBUG) && !(defined(__WIN32) || defined(__WIN32__) || defined(TEST))
+#  include <stdlib.h>
+#  include <signal.h>
+#  define BREAK() raise(SIGINT)
+#else
+#  define BREAK() do {} while (0)
+#endif /* defined(DEBUG) && !(defined(__WIN32) || defined(__WIN32__) || defined(TEST)) */
+
+
 #ifdef DEBUG
 /** Global variable used to disable logging (for example, in tests). */
 extern int logErrors;
@@ -24,6 +33,7 @@ extern int logErrors;
 					, __FILE__ \
 					, __LINE__ \
 				); \
+				BREAK(); \
 			} \
 		} while (0)
 #else
