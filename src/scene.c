@@ -72,8 +72,12 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 
 	for (i = 0; i < map->numTilemaps; i++) {
 		gfmTilemap *cur = map->tilemaps[i];
+		int len;
 
-		ASSERT_OK(grv = gfmQuadtree_populateTilemap(tmp.staticCollider, cur), __ret);
+		ASSERT_OK(grv = gfmTilemap_getAreasLength(&len, cur), __ret);
+		if (len > 0) {
+			ASSERT_OK(grv = gfmQuadtree_populateTilemap(tmp.staticCollider, cur), __ret);
+		}
 	}
 
 	/* Load the entities. */
