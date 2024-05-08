@@ -1,6 +1,7 @@
 #include <setup.h>
 
 #include <core/map_test.h>
+#include <core/store_test.h>
 
 #include <stdlib.h>
 
@@ -11,5 +12,6 @@
 
 TEST_LIST = {
 	{"map", test_map}
+	, {"store", test_store}
 	, {NULL, NULL}
 };
