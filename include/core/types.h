@@ -87,9 +87,9 @@
  * Also defines the color used to debug the object.
  */
 enum baseType {
-      BTYP_HAZARD = gfmType_reserved_2 /* ( 5) pink */
-    , BTYP_PLAYER = gfmType_reserved_3 /* ( 6) light blue */
-    , BTYP_FLOOR  = gfmType_reserved_5 /* ( 8) purple */
+	  BTYP_HAZARD = gfmType_reserved_2 /* ( 5) pink */
+	, BTYP_PLAYER = gfmType_reserved_3 /* ( 6) light blue */
+	, BTYP_FLOOR  = gfmType_reserved_5 /* ( 8) purple */
 };
 
 
