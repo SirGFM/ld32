@@ -1,4 +1,6 @@
-            , TYP_FLOOR , TYP_SPIKES ,       TYP_PLAYER
- TYP_FLOOR  ,  _noop_   ,   _noop_   , collision_handleFloor
- TYP_SPIKES ,  _dupl_   ,   _noop_   , collision_handleSpikes
- TYP_PLAYER ,  _dupl_   ,   _dupl_   ,         _noop_
+            , TYP_FLOOR , TYP_SPIKES ,       TYP_PLAYER       , TYP_TITLE , TYP_OPTION
+ TYP_FLOOR  ,  _noop_   ,   _noop_   , collision_handleFloor  ,  _noop_   ,   _noop_
+ TYP_SPIKES ,  _dupl_   ,   _noop_   , collision_handleSpikes ,  _noop_   ,   _noop_
+ TYP_PLAYER ,  _dupl_   ,   _dupl_   ,         _noop_         ,  _noop_   ,   _noop_
+ TYP_TITLE  ,  _dupl_   ,   _dupl_   ,         _dupl_         ,  _noop_   ,   _noop_
+ TYP_OPTION ,  _dupl_   ,   _dupl_   ,         _dupl_         ,  _dupl_   ,   _noop_

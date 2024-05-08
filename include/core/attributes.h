@@ -11,7 +11,10 @@ enum attrType {
 
 
 #define ATTRIBUTES \
-	X(ATTR_ID, "id", ATTR_TYPE_INT)
+	X(ATTR_ID, "id", ATTR_TYPE_INT) \
+	X(ATTR_MAINMENU_LETTER, "mm_letter", ATTR_TYPE_STR) \
+	X(ATTR_MAINMENU_RAINBOW, "mm_rainbow", ATTR_TYPE_STR) \
+	X(ATTR_MAINMENU_OPTION, "mm_option", ATTR_TYPE_STR)
 
 
 /**
