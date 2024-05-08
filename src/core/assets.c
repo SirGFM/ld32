@@ -7,6 +7,7 @@
 
 gfmSpriteset *gfx8x8;
 gfmSpriteset *gfx16x16;
+gfmSpriteset *gfx32x32;
 
 
 int assets_loadGfx() {
@@ -16,7 +17,7 @@ int assets_loadGfx() {
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
 
-	if (gfx8x8 || gfx16x16) {
+	if (gfx8x8 || gfx16x16 || gfx32x32) {
 		rv = 1;
 		ASSERT(1 /* already initialized! */, __ret);
 	}
@@ -49,6 +50,17 @@ int assets_loadGfx() {
 			, texture
 			, 16
 			, 16
+		)
+		, __ret
+	);
+
+	ASSERT_OK(
+		grv = gfm_createSpritesetCached(
+			&gfx32x32
+			, gameCtx
+			, texture
+			, 32
+			, 32
 		)
 		, __ret
 	);

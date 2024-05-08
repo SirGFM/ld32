@@ -17,6 +17,8 @@
 extern gfmSpriteset *gfx8x8;
 /** Spritesheet for 16x16 sprites. */
 extern gfmSpriteset *gfx16x16;
+/** Spritesheet for 32x32 sprites. */
+extern gfmSpriteset *gfx32x32;
 
 
 /**
