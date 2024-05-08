@@ -48,8 +48,7 @@ int attr_get(enum attribute *attr, char *name, int len) {
 			len == got->len &&
 			0 == memcmp(got->name, name, len * sizeof(char))
 		) {
-			/** Add 1 for ATTR_NONE. */
-			*attr = (enum attribute)(i + 1);
+			*attr = (enum attribute)(i);
 			return 0;
 		}
 	}

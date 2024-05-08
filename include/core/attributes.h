@@ -18,12 +18,12 @@ enum attrType {
  * Identifiers for attributes.
  */
 enum attribute {
-	ATTR_NONE,
 #define X(attr, ...) \
 	attr,
 	ATTRIBUTES
 #undef X
-	ATTR_MAX
+	ATTR_MAX,
+	ATTR_NONE
 };
 
 
