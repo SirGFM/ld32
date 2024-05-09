@@ -105,6 +105,12 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 		}
 	}
 
+	for (i = 0; i < tmp.numEntities; i++) {
+		struct entity *cur = tmp.entities[i];
+
+		ASSERT_OK(rv = cur->fn.onLoad(cur, &tmp), __ret);
+	}
+
 	/* Set the BG color. */
 	if (map->bgColor != 0) {
 		ASSERT_OK(grv = gfm_setBackground(gameCtx, map->bgColor), __ret);
