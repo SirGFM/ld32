@@ -1,19 +1,24 @@
-attr [ count , 18 ]
-obj title 68 48 32 32
-obj title 100 48 32 32
-obj title 132 48 32 32
-obj title 164 48 32 32
-obj title 196 48 32 32
-obj title 228 48 32 32
-obj title 84 80 32 32 [ rainbow , a ]
-obj title 52 80 32 32 [ rainbow , r ]
-obj title 116 80 32 32 [ rainbow , i ]
-obj title 148 80 32 32 [ rainbow , n ]
-obj title 180 80 32 32 [ rainbow , b ]
-obj title 212 80 32 32 [ rainbow , o ]
-obj title 244 80 32 32 [ rainbow , w ]
-obj title 84 112 32 32
-obj title 116 112 32 32
-obj title 148 112 32 32
-obj title 180 112 32 32
-obj title 212 112 32 32
+attr [ count , 23 ]
+obj title 68 16 32 32 [ mm_letter , u ]
+obj title 100 16 32 32 [ mm_letter , m ]
+obj title 132 16 32 32 [ mm_letter , b ]
+obj title 164 16 32 32 [ mm_letter , r ]
+obj title 196 16 32 32 [ mm_letter , a ]
+obj title 228 16 32 32 [ mm_letter , 's ]
+obj title 84 48 32 32 [ mm_rainbow , a ]
+obj title 52 48 32 32 [ mm_rainbow , r ]
+obj title 116 48 32 32 [ mm_rainbow , i ]
+obj title 148 48 32 32 [ mm_rainbow , n ]
+obj title 180 48 32 32 [ mm_rainbow , b ]
+obj title 212 48 32 32 [ mm_rainbow , o ]
+obj title 244 48 32 32 [ mm_rainbow , w ]
+obj title 84 80 32 32 [ mm_letter , q ]
+obj title 116 80 32 32 [ mm_letter , u ]
+obj title 148 80 32 32 [ mm_letter , e ]
+obj title 180 80 32 32 [ mm_letter , s ]
+obj title 212 80 32 32 [ mm_letter , t ]
+obj option 0 122 320 8 [ mm_option , file_1 ]
+obj option 0 132 320 8 [ mm_option , file_2 ]
+obj option 0 142 320 8 [ mm_option , file_3 ]
+obj option 0 152 320 8 [ mm_option , options ]
+obj option 0 162 320 8 [ mm_option , exit ]
