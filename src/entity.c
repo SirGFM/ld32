@@ -9,6 +9,17 @@
 
 
 /**
+ * The default on load function (that does nothing).
+ *
+ * @param [in] self: The entity itself.
+ * @param [in] scene: The scene that called this custom function.
+ */
+static int _entity_onLoad(struct entity *self, struct scene *scene) {
+	return 0;
+}
+
+
+/**
  * The default pre-update function (that does nothing).
  *
  * @param [in] self: The entity itself.
@@ -110,6 +121,7 @@ int entity_init(
 		, __ret
 	);
 
+	entity->fn.onLoad = &_entity_onLoad;
 	entity->fn.preUpdate = &_entity_preUpdate;
 	entity->fn.postUpdate = &_entity_postUpdate;
 	entity->fn.draw = &_entity_draw;

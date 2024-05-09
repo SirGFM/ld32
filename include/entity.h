@@ -26,6 +26,12 @@ typedef int(*entity_fn)(struct entity *self, struct scene *scene);
 /** The list of functions available to custom entities. */
 struct entityVTable {
 	/**
+	 * A function called after the entire scene was loaded.
+	 *
+	 * The default implementation does nothing!
+	 */
+	entity_fn onLoad;
+	/**
 	 * An update function called before gfmSprite's update and before the collision.
 	 *
 	 * Note that the scene's entities are automatically collided.
