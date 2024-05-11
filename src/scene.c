@@ -292,6 +292,7 @@ __ret:
 	scene_free(&tmp);
 	if (map != 0) {
 		map_free(map);
+		free(map);
 	}
 
 	return rv;
