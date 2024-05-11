@@ -98,7 +98,7 @@ ifeq ($(OUTPUT_BIN), unit-tests)
   CFLAGS := $(CFLAGS) -Itests/include -Itests/vendor/acutest/include
 endif
 
-LDLIBS := -lGFraMe$(LIB_SUFFIX) -lCSynth
+LDLIBS := -lGFraMe$(LIB_SUFFIX) -lCSynth -lm
 
 ifeq (win, $(OS))
   LDFLAGS := $(LDFLAGS) -mwindows
