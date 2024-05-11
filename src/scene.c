@@ -132,6 +132,8 @@ int scene_update(struct scene *scene) {
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
 
+	ASSERT_OK(grv = gfm_getElapsedTime(&scene->elapsedMs, gameCtx), __ret);
+
 	/* Reset the dynamic quadtree. */
 	ASSERT_OK(
 		grv = gfmQuadtree_initRoot(

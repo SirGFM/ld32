@@ -67,6 +67,8 @@ struct scene {
 	 * instead of being loaded from a previously loaded map.
 	 */
 	int fromFile;
+	/** The time, in milliseconds, elapsed since the last frame. */
+	int elapsedMs;
 };
 
 
