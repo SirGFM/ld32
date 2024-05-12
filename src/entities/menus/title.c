@@ -24,6 +24,8 @@
 #define VER_WAVE_OFFSET 8.0f
 /** Vertical wave multiplier (to offset the horizontal and vertical components). */
 #define VER_WAVE_MULT 2.0f
+/** Offset, in milliseconds, between each element in the trail. */
+#define TRAIL_DELAY_MS 80
 
 
 /**
@@ -35,13 +37,41 @@
  */
 static int title_preUpdate(struct entity *entity, struct scene *scene) {
 	struct title *title = (struct title*)entity;
+	int i;
 
 	title->timerMs += scene->elapsedMs;
-	if (title->timerMs > MAX_TIMER_MS) {
+	if (title->timerMs >= MAX_TIMER_MS) {
 		title->timerMs -= MAX_TIMER_MS;
+	}
+	for (i = 0; i < TITLE_NUM_TRAIL; i++) {
+		title->trailTimerMs[i] += scene->elapsedMs;
+		if (title->trailTimerMs[i] >= MAX_TIMER_MS) {
+			title->trailTimerMs[i] -= MAX_TIMER_MS;
+		}
 	}
 
 	return 0;
+}
+
+
+/**
+ * title_getWavePosition calculates the letter's position within the wave.
+ *
+ * @param [out] x: The letter's new horizontal position.
+ * @param [out] y: The letter's new vertical position.
+ * @param [in] timerMs: Timer used by the wave effect.
+ * @param [in] ox: The letter's original horizontal position.
+ * @param [in] oy: The letter's original vertical position.
+ */
+static void title_getWavePosition(int *x, int *y, int timerMs, int ox, int oy) {
+	float perc;
+
+	/* How far along the wave this letter is. */
+	perc = timerMs / (float)MAX_TIMER_MS;
+
+	/* Calculate the new position in the wave. */
+	*x = ox + (int)(HOR_WAVE_OFFSET * cos(perc * M_PI * 2.0f * HOR_WAVE_MULT));
+	*y = oy + (int)(VER_WAVE_OFFSET * sin(perc * M_PI * 2.0f * VER_WAVE_MULT));
 }
 
 
@@ -55,55 +85,27 @@ static int title_preUpdate(struct entity *entity, struct scene *scene) {
 static int title_draw(struct entity *entity, struct scene *scene) {
 	struct title *title = (struct title*)entity;
 	int rv = 1;
-	int i;
 
 	if (title->isRainbow) {
-		float perc;
+		int i;
 		int x;
 		int y;
 
-		/* TODO: Fix for variable FPS. */
-
-		/* How far along the wave this letter is. */
-		perc = title->timerMs / (float)MAX_TIMER_MS;
-
-		/* Calculate the new position in the wave. */
-		x = title->ox + (int)(
-			HOR_WAVE_OFFSET * cos(perc * M_PI * 2.0f * HOR_WAVE_MULT)
-		);
-		y = title->oy + (int)(
-			VER_WAVE_OFFSET * sin(perc * M_PI * 2.0f * VER_WAVE_MULT)
-		);
-
 		/* Draw the trail component of the wave. */
 		for (i = 0; i < TITLE_NUM_TRAIL; i++) {
-			int idx = TITLE_NUM_TRAIL - i - 1;
+			int timer = title->trailTimerMs[TITLE_NUM_TRAIL - i - 1];
 
-			if (title->lastX[idx] == 0) {
+			if (timer < 0) {
 				continue;
 			}
-			ASSERT_OK(
-				gfmSprite_setPosition(
-					title->base.sprite
-					, title->lastX[idx]
-					, title->lastY[idx]
-				)
-				, __ret
-			);
+
+			title_getWavePosition(&x, &y, timer, title->ox, title->oy);
+			ASSERT_OK(gfmSprite_setPosition(title->base.sprite, x, y), __ret);
 			ASSERT_OK(gfmSprite_draw(title->base.sprite, gameCtx), __ret);
 		}
 
-		/** Update the trail positions from back to front. */
-		for (i = 1; i < TITLE_NUM_TRAIL; i++) {
-			int idx = TITLE_NUM_TRAIL - i - 1;
-
-			title->lastX[idx] = title->lastX[idx - 1];
-			title->lastY[idx] = title->lastY[idx - 1];
-		}
-		title->lastX[0] = x;
-		title->lastY[0] = y;
-
 		/** Update the first element. */
+		title_getWavePosition(&x, &y, title->timerMs, title->ox, title->oy);
 		ASSERT_OK(gfmSprite_setPosition(title->base.sprite, x, y), __ret);
 	}
 
@@ -131,13 +133,29 @@ static int title_free(struct entity *entity, struct scene *scene) {
 }
 
 
-static int _title_isRainbowTile(char c) {
+/**
+ * title_isRainbowTile checks if the rainbow stone
+ * associated with the given character
+ * was gotten in any save file.
+ *
+ * @param [in] c: The lower-case character.
+ * @return 1: True, 0: False.
+ */
+static int title_isRainbowTile(char c) {
 	/* TODO: Get if rainbow is enable from the global save file. */
 	return 1;
 }
 
 
-static int _title_getTile(int *tile, int *isRainbow, struct mapObject *data) {
+/**
+ * title_getTile retrieves the spriteset tile associated with the given data.
+ *
+ * @param [out] tile: The tile.
+ * @param [out] isRainbow: Whether this tile is using the rainbow effect.
+ * @param [in] data: The title's configuration.
+ * @return 0: Success; Anything else: failure.
+ */
+static int title_getTile(int *tile, int *isRainbow, struct mapObject *data) {
 	char *str;
 	int len;
 	int rv = 1;
@@ -154,7 +172,7 @@ static int _title_getTile(int *tile, int *isRainbow, struct mapObject *data) {
 
 	*isRainbow = (
 		data->attributes[0].type == ATTR_MAINMENU_RAINBOW
-		&& _title_isRainbowTile(str[0])
+		&& title_isRainbowTile(str[0])
 	);
 
 	switch (str[0]) {
@@ -251,9 +269,17 @@ int title_new(struct entity **entity, struct mapObject *data) {
 	int rv = 1;
 	int tile;
 
-	ASSERT_OK(_title_getTile(&tile, &tmp.isRainbow, data), __ret);
+	ASSERT_OK(title_getTile(&tile, &tmp.isRainbow, data), __ret);
 	tmp.ox = data->x;
 	tmp.oy = data->y;
+
+	if (tmp.isRainbow) {
+		int i;
+
+		for (i = 0; i < TITLE_NUM_TRAIL; i++) {
+			tmp.trailTimerMs[i] = -TRAIL_DELAY_MS * (i + 1);
+		}
+	}
 
 	ASSERT_OK(
 		entity_init(

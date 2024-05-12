@@ -7,24 +7,25 @@
 
 
 /** How many letters should trail behind a rainbow letter. */
-#define TITLE_NUM_TRAIL 12
+#define TITLE_NUM_TRAIL 3
 
 
 struct title {
 	/** The base entity. */
 	struct entity base;
-	/** Whether this is a rainbow letter. */
+	/**
+	 * Whether this is a rainbow letter,
+	 * enabling the wave and trail effects.
+	 */
 	int isRainbow;
 	/** The letter's original horizontal position. */
 	int ox;
-	/** The previous horizontal positions, for the trailing effect. */
-	int lastX[TITLE_NUM_TRAIL];
 	/** The letter's original vertical position. */
 	int oy;
-	/** The previous vertical positions, for the trailing effect. */
-	int lastY[TITLE_NUM_TRAIL];
-	/** Timer used by the trail effect. */
+	/** Timer used by the wave effect. */
 	int timerMs;
+	/** Timer used by the trail effect. */
+	int trailTimerMs[TITLE_NUM_TRAIL];
 };
 
 
