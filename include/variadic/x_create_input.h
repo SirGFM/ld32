@@ -14,12 +14,30 @@
  *
  * For example, a given action may look like:
  *
- *	X( \
- *		INPUT_UP, "UP", = 0, \
- *		X_INPUT(gfmKey_left), \
- *		X_INPUT(gfmKey_a), \
- *		X_INPUT(gfmController_laxis_left) \
- *	) \
+ * 	X( \
+ * 		INPUT_UP, "UP", = 0, \
+ * 		X_INPUT(gfmKey_left), \
+ * 		X_INPUT(gfmKey_a), \
+ * 		X_INPUT(gfmController_laxis_left), \
+ * 	)
+ *
+ * Even if an action's value is automatically initialized,
+ * its empty initialization expression must be followed by a comma.
+ * E.g.:
+ *
+ * 	X( \
+ * 		INPUT_FIRE_UP, "FIRE UP", , \ // Note the ", ," at the end of the line.
+ * 		X_INPUT(gfmController_raxis_up), \
+ * 	) \
+ *
+ * Note that the list of inputs MUST end in a comma.
+ * Otherwise, an empty list would be incorrectly detected as not empty.
+ * E.g.:
+ *
+ * 	// Example of an alias to INPUT_JUMP, and thus has no bindings.
+ * 	X( \
+ * 		(INPUT_ACCEPT, "", = INPUT_JUMP
+ * 	)
  *
  * @param action - The enumeration representing the action.
  * @param name - The printable name of the action (ignored).

@@ -6,10 +6,18 @@
  * PP_NARG returns the number of arguments passed to it,
  * to a maximum of 10 arguments.
  *
+ * Note that the argument list MUST end in a comma
+ * to properly detect when no arguments are passed.
+ *
+ * E.g.:
+ *
+ * 	PP_NARG(arg_1, arg_2,) // Resolves to 2
+ * 	PP_NARG()              // Resolves to 0
+ *
  * Source:
  *   https://groups.google.com/forum/#!topic/comp.std.c/d-6Mj5Lko_s
  */
-#define PP_NARG(...) PP_NARG_(__VA_ARGS__, PP_RSEQ_N())
+#define PP_NARG(...) PP_NARG_(__VA_ARGS__ PP_RSEQ_N())
 
 
 /**

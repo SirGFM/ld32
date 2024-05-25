@@ -26,25 +26,25 @@ struct button {
 		INPUT_UP, "UP", = 0, \
 		X_INPUT(gfmKey_up), \
 		X_INPUT(gfmKey_w), \
-		X_INPUT(gfmController_laxis_up) \
+		X_INPUT(gfmController_laxis_up), \
 	) \
 	X( \
 		INPUT_DOWN, "DOWN",/*auto*/, \
 		X_INPUT(gfmKey_down), \
 		X_INPUT(gfmKey_s), \
-		X_INPUT(gfmController_laxis_down) \
+		X_INPUT(gfmController_laxis_down), \
 	) \
 	X( \
 		INPUT_LEFT, "LEFT",/*auto*/, \
 		X_INPUT(gfmKey_left), \
 		X_INPUT(gfmKey_a), \
-		X_INPUT(gfmController_laxis_left) \
+		X_INPUT(gfmController_laxis_left), \
 	) \
 	X( \
 		INPUT_RIGHT, "RIGHT",/*auto*/, \
 		X_INPUT(gfmKey_right), \
 		X_INPUT(gfmKey_d), \
-		X_INPUT(gfmController_laxis_right) \
+		X_INPUT(gfmController_laxis_right), \
 	) \
 	X( \
 		INPUT_JUMP, "JUMP",/*auto*/, \
@@ -60,19 +60,19 @@ struct button {
 	) \
 	X( \
 		INPUT_FIRE_UP, "FIRE UP",/*auto*/, \
-		X_INPUT(gfmController_raxis_up) \
+		X_INPUT(gfmController_raxis_up), \
 	) \
 	X( \
 		INPUT_FIRE_DOWN, "FIRE DOWN",/*auto*/, \
-		X_INPUT(gfmController_raxis_down) \
+		X_INPUT(gfmController_raxis_down), \
 	) \
 	X( \
 		INPUT_FIRE_LEFT, "FIRE LEFT",/*auto*/, \
-		X_INPUT(gfmController_raxis_left) \
+		X_INPUT(gfmController_raxis_left), \
 	) \
 	X( \
 		INPUT_FIRE_RIGHT, "FIRE RIGHT",/*auto*/, \
-		X_INPUT(gfmController_raxis_right) \
+		X_INPUT(gfmController_raxis_right), \
 	) \
 	X(INPUT_MAX, "MAX",/*auto*/) \
 	/* INPUT_ACCEPT is basically an alias for INPUT_JUMP. */ \
