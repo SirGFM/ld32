@@ -3,6 +3,7 @@
 #include <error.h>
 
 #include <GFraMe/gframe.h>
+#include <GFraMe/gfmInput.h>
 
 
 /** List of every virtual button in the game. */
@@ -13,6 +14,7 @@ static struct button buttons[INPUT_MAX] = {0};
  * forward-declared from the end of the file for better organization).
  */
 struct buttonMapping defaultMapping[];
+const int numDefaultMapping;
 
 int input_isPressed(enum input action) {
 	return (buttons[action].state & gfmInput_pressed) != 0;
@@ -33,11 +35,7 @@ int input_init() {
 	int rv = 1;
 	int i;
 
-	for (i = 0; i < INPUT_MAX; i++) {
-		int *handle = &buttons[i].handle;
-
-		ASSERT(GFMRV_OK == gfm_addVirtualKey(handle, gameCtx), __ret);
-	}
+	ASSERT_OK(input_rebindAll(defaultMapping, numDefaultMapping), __ret);
 
 	rv = 0;
 __ret:
@@ -47,6 +45,65 @@ __ret:
 
 int input_update() {
 	int rv = 1;
+	int i;
+
+	for (i = 0; i < INPUT_MAX; i++) {
+		struct button *button = buttons + i;
+
+		ASSERT(
+			GFMRV_OK == gfm_getKeyState(
+				&button->state
+				, &button->numPressed
+				, gameCtx
+				, button->handle
+			)
+			, __ret
+		);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int input_rebindAll(struct buttonMapping *mappings, int count) {
+	int rv = 1;
+	int i;
+
+	ASSERT(GFMRV_OK == gfm_resetInput(gameCtx), __ret);
+
+	for (i = 0; i < INPUT_MAX; i++) {
+		int *handle = &buttons[i].handle;
+
+		ASSERT(GFMRV_OK == gfm_addVirtualKey(handle, gameCtx), __ret);
+	}
+
+	for (i = 0; i < count; i++) {
+		struct buttonMapping *mapping = mappings + 1;
+		int handle = buttons[mapping->action].handle;
+
+		if (mapping->key >= gfmController_left) {
+			ASSERT(
+				GFMRV_OK == gfm_bindGamepadInput(
+					gameCtx
+					, handle
+					, mapping->key
+					, mapping->port
+				)
+				, __ret
+			);
+		}
+		else {
+			ASSERT(
+				GFMRV_OK == gfm_bindInput(
+					gameCtx
+					, handle
+					, mapping->key
+				)
+				, __ret);
+		}
+	}
 
 	rv = 0;
 __ret:
@@ -57,6 +114,10 @@ __ret:
 #include <variadic/x_create_input.h>
 
 
+/** The default biding for every action. */
 struct buttonMapping defaultMapping[] = {
 	INPUT_LIST
 };
+
+/** The number of default bidings. */
+const int numDefaultMapping = sizeof(defaultMapping) / sizeof(struct buttonMapping);

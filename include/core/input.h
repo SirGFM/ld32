@@ -137,14 +137,28 @@ int input_isJustReleased(enum input action);
  *
  * It tries to load the previously saved button configuration,
  * but defaults to the hard-coded one if not found.
+ *
+ * @return 0: Success; Anything else: failure.
  */
 int input_init();
 
 
 /**
  * input_update retrieves the state of every button.
+ *
+ * @return 0: Success; Anything else: failure.
  */
 int input_update();
+
+
+/**
+ * input_rebindAll rebinds the actions to the supplied mappings.
+ *
+ * @param [in] mappings: The desired mapping.
+ * @param [in] count: The number of entries in mappings.
+ * @return 0: Success; Anything else: failure.
+ */
+int input_rebindAll(struct buttonMapping *mappings, int count);
 
 
 #endif /* INPUT_H */
