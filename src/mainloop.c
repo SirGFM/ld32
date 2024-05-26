@@ -1,3 +1,4 @@
+#include <core/input.h>
 #include <error.h>
 #include <scene.h>
 #include <mainloop.h>
@@ -33,6 +34,7 @@ __ret:
 int mainloop_update() {
 	int rv;
 
+	ASSERT_OK(rv = input_update(), __ret);
 	ASSERT_OK(rv = scene_update(&_curScene), __ret);
 
 __ret:

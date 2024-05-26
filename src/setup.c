@@ -1,6 +1,7 @@
 #include <config/config.h>
 #include <core/assets.h>
 #include <core/core.h>
+#include <core/input.h>
 #include <core/store.h>
 #include <error.h>
 
@@ -10,6 +11,7 @@ int setup_init() {
 
 	ASSERT_OK(rv = config_load(&cfg), __ret);
 	ASSERT_OK(rv = core_init(&cfg), __ret);
+	ASSERT_OK(rv = input_init(), __ret);
 	ASSERT_OK(rv = assets_loadGfx(), __ret);
 
 __ret:
