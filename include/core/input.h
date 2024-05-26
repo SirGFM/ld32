@@ -49,6 +49,7 @@ struct button {
 	X( \
 		INPUT_JUMP, "JUMP",/*auto*/, \
 		X_INPUT(gfmKey_space), \
+		X_INPUT(gfmKey_return), \
 		X_INPUT(gfmController_a), \
 		X_INPUT(gfmController_r1), \
 	) \
