@@ -80,7 +80,7 @@ int input_rebindAll(struct buttonMapping *mappings, int count) {
 	}
 
 	for (i = 0; i < count; i++) {
-		struct buttonMapping *mapping = mappings + 1;
+		struct buttonMapping *mapping = mappings + i;
 		int handle = buttons[mapping->action].handle;
 
 		if (mapping->key >= gfmController_left) {
