@@ -2,6 +2,7 @@
 #include <core/assets.h>
 #include <config/config.h>
 #include <core/core.h>
+#include <core/input.h>
 #include <core/map.h>
 #include <core/store.h>
 #include <core/types.h>
@@ -83,10 +84,47 @@ static int option_onLoad(struct entity *entity, struct scene *scene) {
  * @return 0: Success; Anything else: failure.
  */
 static int option_preUpdate(struct entity *entity, struct scene *scene) {
-	struct option *option = (struct option*)entity;
+	struct option *self = (struct option*)entity;
+	struct option *new = 0;
 	int rv = 1;
 
-	ASSERT(GFMRV_OK == gfmText_update(option->text, gameCtx), __ret);
+	if (!self->isActive || !self->wasActive) {
+		/* Option isn't or just became active, do nothing!. */
+	}
+	else if (input_isJustPressed(INPUT_UP)) {
+		new = self->prev;
+	}
+	else if (input_isJustPressed(INPUT_DOWN)) {
+		new = self->next;
+	}
+
+	if (new != 0) {
+		self->isActive = 0;
+		new->isActive = 1;
+
+		ASSERT_OK(
+			menu_setText(
+				self->text
+				, self->type
+				, self->idx
+				, self->isActive
+			)
+			, __ret
+		);
+		ASSERT_OK(
+			menu_setText(
+				new->text
+				, new->type
+				, new->idx
+				, new->isActive
+			)
+			, __ret
+		);
+	}
+
+	ASSERT(GFMRV_OK == gfmText_update(self->text, gameCtx), __ret);
+
+	self->wasActive = self->isActive;
 
 	rv = 0;
 __ret:

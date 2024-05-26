@@ -20,6 +20,8 @@ struct option {
 	struct option *next;
 	/** Whether this options is currently active. */
 	int isActive;
+	/** Whether this options was active on the previous frame. */
+	int wasActive;
 	/** The type of menu in which this options was loaded. */
 	enum menu type;
 	/** The index of the option in the scene. */
