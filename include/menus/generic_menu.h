@@ -64,4 +64,14 @@ int menu_getText(char **text, int *len, enum menu type, int idx);
 int menu_setText(gfmText *text, enum menu type, int idx, int isActive);
 
 
+/**
+ * menu_accept handles pressing 'accept' on the option.
+ *
+ * @param [in] type: The menu type.
+ * @param [in] idx: The option's index.
+ * @return 0: Success; Anything else: failure.
+ */
+int menu_accept(enum menu type, int idx);
+
+
 #endif /* GENERIC_MENU_H */

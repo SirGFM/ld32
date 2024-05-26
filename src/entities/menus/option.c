@@ -97,6 +97,9 @@ static int option_preUpdate(struct entity *entity, struct scene *scene) {
 	else if (input_isJustPressed(INPUT_DOWN)) {
 		new = self->next;
 	}
+	else if (input_isJustPressed(INPUT_ACCEPT)) {
+		ASSERT_OK(menu_accept(self->type, self->idx), __ret);
+	}
 
 	if (new != 0) {
 		self->isActive = 0;

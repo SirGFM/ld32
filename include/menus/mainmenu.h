@@ -23,4 +23,13 @@ int mainmenu_getIdx(int *idx, char *tag, int len);
 int mainmenu_getText(char **text, int *len, int idx);
 
 
+/**
+ * mainmenu_accept handles pressing 'accept' on the option.
+ *
+ * @param [in] idx: The option's index.
+ * @return 0: Success; Anything else: failure.
+ */
+int mainmenu_accept(int idx);
+
+
 #endif /* MAINMENU_H */

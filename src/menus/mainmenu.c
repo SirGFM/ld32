@@ -1,6 +1,9 @@
+#include <core/core.h>
 #include <error.h>
 #include <menus/mainmenu.h>
 #include <menus/menu_utils.h>
+
+#include <GFraMe/gframe.h>
 
 #include <string.h>
 
@@ -92,6 +95,31 @@ int mainmenu_getText(char **text, int *len, int idx) {
 	case MM_EXIT:
 		*text = (char *)defaultText[idx].value;
 		*len = defaultText[idx].len;
+		break;
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int mainmenu_accept(int idx) {
+	int rv = 1;
+
+	ASSERT(idx >= 0 && idx < MM_MAX, __ret);
+
+	switch (idx) {
+	case MM_FILE_1:
+	case MM_FILE_2:
+	case MM_FILE_3:
+		/* TODO */
+		break;
+	case MM_OPTIONS:
+		/* TODO */
+		break;
+	case MM_EXIT:
+		ASSERT(GFMRV_OK == gfm_setQuitFlag(gameCtx), __ret);
 		break;
 	}
 

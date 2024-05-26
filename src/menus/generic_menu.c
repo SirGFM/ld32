@@ -99,3 +99,21 @@ int menu_setText(gfmText *text, enum menu type, int idx, int isActive) {
 __ret:
 	return rv;
 }
+
+
+int menu_accept(enum menu type, int idx) {
+	int rv = 1;
+
+	switch (type){
+	case MENU_MAINMENU:
+		ASSERT_OK(mainmenu_accept(idx), __ret);
+		break;
+	default:
+		ASSERT(0 /* invalid menu type */, __ret);
+		break;
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
