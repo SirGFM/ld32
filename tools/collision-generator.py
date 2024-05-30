@@ -36,14 +36,8 @@ def main() -> None:
 
 	# Check that the dest_dir is within the project's directory,
 	# and then create it.
-	project_dir = (pathlib.Path(__file__) / '../..').resolve(strict=True)
-	dest_dir = pathlib.Path(args.dest_dir).resolve()
-	file_manip.assert_path_within(project_dir, dest_dir)
-
-	# Clean up the destination directory, if requested.
-	if args.rm and dest_dir.exists():
-		file_manip.remove_dir(dest_dir)
-	dest_dir.mkdir(parents=True, exist_ok=True)
+	project_dir = (pathlib.Path(__file__) / '../..')
+	dest_dir = file_manip.create_dir(args.dest_dir, project_dir, args.rm)
 
 	# Convert the CSV collision file.
 	convert_collision(args.csv_file, dest_dir)
