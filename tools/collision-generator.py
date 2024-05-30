@@ -3,7 +3,7 @@ import csv
 import importlib
 import pathlib
 
-map_converter = importlib.import_module('map-converter')
+file_manip = importlib.import_module('file-manip')
 
 
 def main() -> None:
@@ -38,11 +38,11 @@ def main() -> None:
 	# and then create it.
 	project_dir = (pathlib.Path(__file__) / '../..').resolve(strict=True)
 	dest_dir = pathlib.Path(args.dest_dir).resolve()
-	map_converter.assert_path_within(project_dir, dest_dir)
+	file_manip.assert_path_within(project_dir, dest_dir)
 
 	# Clean up the destination directory, if requested.
 	if args.rm and dest_dir.exists():
-		map_converter.remove_dir(dest_dir)
+		file_manip.remove_dir(dest_dir)
 	dest_dir.mkdir(parents=True, exist_ok=True)
 
 	# Convert the CSV collision file.
