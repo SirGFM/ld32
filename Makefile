@@ -2,7 +2,8 @@
 	win win-32 win-64 win-debug win-debug-32 win-debug-64 \
 	web \
 	tests \
-	all game clean
+	all game clean \
+	maps collision preloader
 
 
 # =========================================================================
@@ -164,6 +165,8 @@ OBJECTS := $(SOURCE_OBJECTS) $(ICON_OBJECTS)
 MAPS := $(call rwildcard,assets,*tmx)
 MAP_OBJECTS := $(MAPS:%.tmx=obj/%.map)
 
+PRELOADED_MAP_OBJECTS := $(filter obj/%/levels.map, $(MAP_OBJECTS))
+
 COLLISION := $(call rwildcard,assets,*col)
 COLLISION_OBJECTS := $(COLLISION:%.col=obj/%.col)
 
@@ -200,6 +203,7 @@ web: bin/$(TGT_DIR)/$(OUTPUT_BIN).html
 game: bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT)
 maps: obj/maps.generated
 collision: obj/collision.generated
+preloader: src/auto/auto_preloaded_map.c
 
 bin/$(TGT_DIR)/$(OUTPUT_BIN)$(EXT): $(OBJECTS) | bin/$(TGT_DIR)/$(OUTPUT_BIN).mkdir
 	@ echo -e '\t[ CC] Release target: $@'
@@ -245,13 +249,22 @@ obj/%.map: %.tmx | obj/%.mkdir
 
 obj/%.col: %.col | obj/%.mkdir
 	@ echo -e '\t[COL] src/auto/auto_collision.c'
-	@ python3 ./tools/collision-generator.py --rm $< ./src/auto/
+	@ python3 ./tools/collision-generator.py $< ./src/auto/
 	@ date > $@
 # =========================================================================
+
 
 # =========================================================================
 # Check if the collision file must be updated.
 src/auto/auto_collision.c: obj/collision.generated
+# =========================================================================
+
+
+# =========================================================================
+# Regenerate the preloaded map list if the map changed.
+src/auto/auto_preloaded_map.c: $(PRELOADED_MAP_OBJECTS)
+	@ echo -e '\t[MAP] $@'
+	@ python3 ./tools/preloaded-map-generator.py ./assets/maps/levels $(@D)
 # =========================================================================
 
 
