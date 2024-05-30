@@ -1,0 +1,3 @@
+attr [ count , 2 ]
+obj player 152 152 16 16
+obj loader -8 168 16 48 [ exit , 0 ] [ map , no-way-back? ]

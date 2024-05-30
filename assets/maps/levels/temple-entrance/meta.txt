@@ -1,0 +1,3 @@
+attr [ layer_count , 1 ] [ obj_count , 1 ]
+attr [ name , obj.txt ] [ type , obj ]
+attr [ name , bg.txt ] [ type , tilemap ] [ bg-color , 0xff222034 ]
