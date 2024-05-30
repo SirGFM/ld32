@@ -11,7 +11,6 @@
 static const char *values[] = {
 	"a",
 	"b",
-	"a",
 	"twas brilig, and the slithy toves",
 	"did gyre and gimble in the wabe",
 	"all mimsy were the borogoves",
@@ -33,7 +32,7 @@ static void _test_store(void *noop) {
 
 	for (i = 0; i < total; i++) {
 		int len = strlen(values[i]);
-		int id;
+		int id, gotId;
 
 		TEST_CHECK_STOP(0 == store_addStr(&id, (char*)(values[i]), len));
 		TEST_CHECK_STOP(id == i);
@@ -53,6 +52,10 @@ static void _test_store(void *noop) {
 				TEST_CHECK_STOP(0 != store_getStr(&gotStr, &gotLen, j));
 			}
 		}
+
+		/* Add the string again, ensuring that it results in the same ID. */
+		TEST_CHECK_STOP(0 == store_addStr(&gotId, (char*)(values[i]), len));
+		TEST_CHECK_STOP(gotId == id);
 	}
 }
 

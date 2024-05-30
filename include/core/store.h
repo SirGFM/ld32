@@ -11,6 +11,9 @@ void store_free();
 /**
  * store_addStr stores a string in the storage.
  *
+ * If the same string is stored multiple times,
+ * the same identifier shall be returned.
+ *
  * @param [out] id: The identifier used to later retrieve this value.
  * @param [in] str: The string to be stored.
  * @param [in] len: The length of the string.

@@ -57,11 +57,40 @@ void store_free() {
 }
 
 
+/**
+ * store_find retrieves a string's identifier, if it's on the store.
+ *
+ * @param [out] id: The string's identifier.
+ * @param [in] str: The string being searched.
+ * @param [in] len: The length of the string.
+ * @return 0: The string was found; Anything else otherwise.
+ */
+static int store_find(int *id, char *str, int len) {
+	int i;
+
+	for (i = 0; i < store.str.len; i++) {
+		struct str *want = store.str.list + i;
+
+		if (len == want->len && 0 == memcmp(want->data, str, len)) {
+			*id = i;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+
 int store_addStr(int *id, char *src, int len) {
 	/** The region where the string will be stored. */
 	struct str *dst;
 	/** The return value (initialized to an error). */
 	int rv = 1;
+
+	/* Check if the string is already in the store. */
+	if (0 == store_find(id, src, len)) {
+		return 0;
+	}
 
 	/* If the list is full, double its capacity. */
 	if (store.str.len == store.str.cap) {
