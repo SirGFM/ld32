@@ -41,3 +41,28 @@ def remove_dir(path: pathlib.Path) -> None:
 		for child in path.iterdir():
 			remove_dir(child)
 		path.rmdir()
+
+
+def create_dir(dest_dir: str, container: pathlib.Path, rm: bool = False) -> pathlib.Path:
+	"""Creates the requested directory, ensuring that its within the container directory.
+
+	If the requested directory isn't within the requested one,
+	a simple exception is raised with a textual description.
+
+	:param str dest_dir: The path to be created.
+	:param pathlib.Path container: The path that must contain 'dest_dir'.
+	:param bool rm: Whether the directory should be cleared, if it already exists.
+	:raises: Exception
+	"""
+
+	# Check that the dest_dir is within the requested directory.
+	container = container.resolve(strict=True)
+	dest_dir = pathlib.Path(dest_dir).resolve()
+	assert_path_within(container, dest_dir)
+
+	# Clean up the destination directory, if requested.
+	if rm and dest_dir.exists():
+		remove_dir(dest_dir)
+	dest_dir.mkdir(parents=True, exist_ok=True)
+
+	return dest_dir
