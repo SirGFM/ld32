@@ -2,6 +2,7 @@
 #include <error.h>
 #include <scene.h>
 #include <mainloop.h>
+#include <preload_map.h>
 
 
 /**
@@ -17,6 +18,8 @@ static struct scene _curScene = {0};
 
 int mainloop_init() {
 	int rv;
+
+	ASSERT_OK(rv = preloadMap_loadAll(), __ret);
 
 	ASSERT_OK(
 		rv = scene_loadSceneFromFile(
@@ -56,6 +59,7 @@ int mainloop_free() {
 	int rv;
 
 	ASSERT_OK(rv = scene_free(&_curScene), __ret);
+	ASSERT_OK(rv = preloadMap_free(), __ret);
 
 __ret:
 	return rv;
