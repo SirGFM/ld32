@@ -1,7 +1,10 @@
 import argparse
+import importlib
 import pathlib
 import pyexpat
 import xml.etree.ElementTree as ET
+
+file_manip = importlib.import_module('file-manip')
 
 # Ensure that a recent version of expat is being used.
 # https://docs.python.org/3/library/xml.html#xml-vulnerabilities
@@ -60,57 +63,15 @@ def main() -> None:
 	# Check that the dest_dir is within the project's directory.
 	project_dir = (pathlib.Path(__file__) / '../..').resolve(strict=True)
 	dest_dir = pathlib.Path(args.dest_dir).resolve()
-	assert_path_within(project_dir, dest_dir)
+	file_manip.assert_path_within(project_dir, dest_dir)
 
 	# Clean up the destination directory, if requested.
 	if args.rm and dest_dir.exists():
-		remove_dir(dest_dir)
+		file_manip.remove_dir(dest_dir)
 	dest_dir.mkdir(parents=True, exist_ok=True)
 
 	# Convert the tiled file.
 	convert_world(args.tmx_file, dest_dir, args.tileset)
-
-
-def assert_path_within(container: pathlib.Path, path: pathlib.Path) -> None:
-	"""Checks that a given path is within another one.
-
-	This function raises a simple exception with a textual description of the issue.
-
-	:param pathlib.Path container: The path that must contain 'path'.
-	:param pathlib.Path path: The path that must be contained within container.
-	:raises: Exception
-	"""
-
-	container = container.resolve()
-	path = path.resolve()
-
-	if len(container.parts) > len(path.parts):
-		raise Exception(
-			f'"{path}" must be within "{container}"',
-		)
-	elif len(container.parts) == len(path.parts):
-		raise Exception(
-			f'"{path}" must be a sub-directory within the project "{container}"',
-		)
-	for i in range(len(container.parts)):
-		if container.parts[i] != path.parts[i]:
-			raise Exception(
-				f'Destination directory "{path}" must be within the project "{container}"',
-			)
-
-
-def remove_dir(path: pathlib.Path) -> None:
-	"""Deletes the directory and all of its contents.
-
-	:param pathlib.Path path: The path to be deleted.
-	"""
-
-	if not path.is_dir():
-		path.unlink(missing_ok=True)
-	else:
-		for child in path.iterdir():
-			remove_dir(child)
-		path.rmdir()
 
 
 def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None = None) -> None:
