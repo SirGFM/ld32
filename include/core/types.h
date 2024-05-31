@@ -81,7 +81,8 @@
 	TM(TYP_SPIKES, "spikes", = NEW_TYPE(BTYP_HAZARD, 1)) \
 	X(TYP_PLAYER, "player", = NEW_TYPE(BTYP_PLAYER, 1)) \
 	X(TYP_TITLE, "title", = NEW_TYPE(BTYP_MENU, 1)) \
-	X(TYP_OPTION, "option",)
+	X(TYP_OPTION, "option",) \
+	X(TYP_LOADER, "loader", = NEW_TYPE(BTYP_TRIGGER, 1))
 
 
 /**
@@ -89,10 +90,11 @@
  * Also defines the color used to debug the object.
  */
 enum baseType {
-	  BTYP_HAZARD = gfmType_reserved_2  /* ( 5) pink */
-	, BTYP_PLAYER = gfmType_reserved_3  /* ( 6) light blue */
-	, BTYP_FLOOR  = gfmType_reserved_5  /* ( 8) purple */
-	, BTYP_MENU   = gfmType_reserved_28 /* no color */
+	  BTYP_HAZARD  = gfmType_reserved_2  /* ( 5) pink */
+	, BTYP_PLAYER  = gfmType_reserved_3  /* ( 6) light blue */
+	, BTYP_FLOOR   = gfmType_reserved_5  /* ( 8) purple */
+	, BTYP_TRIGGER = gfmType_reserved_6  /* ( 9) yellow */
+	, BTYP_MENU    = gfmType_reserved_28 /* no color */
 };
 
 
