@@ -1,4 +1,4 @@
 attr [ count , 3 ]
 obj player 216 160 16 16
-obj loader 312 24 16 48 [ exit , 0 ] [ map , temple-entrance ]
-obj loader -8 24 16 48 [ exit , 1 ] [ map , temple-entrance ]
+obj loader 312 24 16 48 [ id , 0 ] [ map , temple-entrance ]
+obj loader -8 24 16 48 [ id , 1 ] [ map , temple-entrance ]
