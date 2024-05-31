@@ -4,6 +4,8 @@
 #include <mainloop.h>
 #include <preload_map.h>
 
+#include <string.h>
+
 
 /**
  * STR converts a static/hard-coded string
@@ -12,8 +14,22 @@
 #define STR(VALUE) VALUE, sizeof(VALUE) - 1
 
 
+enum transition {
+	TRANSITION_NONE = 0
+	, TRANSITION_SLIDING
+	, TRANSITION_DONE
+	, TRANSITION_MAX
+};
+
+
 /** The currently executing scene. */
 static struct scene _curScene = {0};
+
+/** The scene being transitioned to. */
+static struct scene _nextScene = {0};
+
+/** The transition state of the game. */
+static enum transition _state = TRANSITION_NONE;
 
 
 int mainloop_init() {
@@ -37,8 +53,22 @@ __ret:
 int mainloop_update() {
 	int rv;
 
+	if (_state == TRANSITION_DONE) {
+		ASSERT_OK(rv = scene_free(&_curScene), __ret);
+		memcpy(&_curScene, &_nextScene, sizeof(_nextScene));
+		memset(&_nextScene, 0, sizeof(_nextScene));
+
+		_state = TRANSITION_NONE;
+	}
+
 	ASSERT_OK(rv = input_update(), __ret);
-	ASSERT_OK(rv = scene_update(&_curScene), __ret);
+
+	if (_state == TRANSITION_SLIDING) {
+		/* TODO: Implement animated transition. */
+	}
+	else {
+		ASSERT_OK(rv = scene_update(&_curScene), __ret);
+	}
 
 __ret:
 	return rv;
@@ -58,9 +88,48 @@ __ret:
 int mainloop_free() {
 	int rv;
 
+	ASSERT_OK(rv = scene_free(&_nextScene), __ret);
 	ASSERT_OK(rv = scene_free(&_curScene), __ret);
 	ASSERT_OK(rv = preloadMap_free(), __ret);
 
 __ret:
 	return rv;
+}
+
+
+int mainloop_swapScene(struct map *map, int animated) {
+	struct scene tmp = {0};
+	int rv = 1;
+
+	/* Allow overwriting only animated transitions. */
+	ASSERT(_state != TRANSITION_SLIDING, __ret);
+	if (_state != TRANSITION_NONE) {
+		ASSERT_OK(scene_free(&_nextScene), __ret);
+	}
+
+	ASSERT_OK(scene_loadScene(&tmp, map), __ret);
+
+	if (animated) {
+		/* TODO: Compute relative position of doors. */
+		_state = TRANSITION_SLIDING;
+	}
+	else {
+		_state = TRANSITION_DONE;
+	}
+
+	memcpy(&_nextScene, &tmp, sizeof(tmp));
+	memset(&tmp, 0, sizeof(tmp));
+
+	rv = 0;
+__ret:
+	scene_free(&tmp);
+
+	return rv;
+}
+
+
+int mainloop_finishSwap() {
+	_state = TRANSITION_DONE;
+
+	return 0;
 }
