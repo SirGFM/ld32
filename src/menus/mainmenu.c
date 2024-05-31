@@ -1,7 +1,10 @@
 #include <core/core.h>
+#include <core/map.h>
 #include <error.h>
+#include <mainloop.h>
 #include <menus/mainmenu.h>
 #include <menus/menu_utils.h>
+#include <preload_map.h>
 
 #include <GFraMe/gframe.h>
 
@@ -112,9 +115,21 @@ int mainmenu_accept(int idx) {
 	switch (idx) {
 	case MM_FILE_1:
 	case MM_FILE_2:
-	case MM_FILE_3:
-		/* TODO */
-		break;
+	case MM_FILE_3: {
+		struct map *map;
+
+		/* TODO: Implement continue. */
+		ASSERT_OK(
+			preloadMap_getMapByName(
+				&map
+				, "maps/levels/temple-entrance"
+				, sizeof("maps/levels/temple-entrance") - 1
+			)
+			, __ret
+		);
+
+		ASSERT_OK(mainloop_swapScene(map, 0), __ret);
+	} break;
 	case MM_OPTIONS:
 		/* TODO */
 		break;
