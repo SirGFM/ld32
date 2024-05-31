@@ -114,6 +114,20 @@ int collision_handleSpikes(struct collision_node *spikes, struct collision_node 
 }
 
 
+int collision_handlePlayerLoader(struct collision_node *player, struct collision_node *loader) {
+	/* Ensure that the objects are colliding,
+	 * since the extended hitbox may graze each other
+	 * without triggering a collision. */
+	if (_collision_sweepCollision(player->object, loader->object)) {
+		return 0;
+	}
+
+	/* TODO: Configure the level to be loaded. */
+
+	return 0;
+}
+
+
 int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite) {
 	/** GFraMe return value */
 	gfmRV grv = GFMRV_OK;

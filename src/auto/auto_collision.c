@@ -69,15 +69,25 @@ int collision_handle(gfmQuadtreeRoot *qt) {
 			ASSERT_OK(rv = collision_handleSpikes(&node2, &node1), __ret);
 			break;
 
+		/* ===== collision_handlePlayerLoader ===== */
+		case MERGE_TYPES(TYP_PLAYER, TYP_LOADER):
+			ASSERT_OK(rv = collision_handlePlayerLoader(&node1, &node2), __ret);
+			break;
+		case MERGE_TYPES(TYP_LOADER, TYP_PLAYER):
+			ASSERT_OK(rv = collision_handlePlayerLoader(&node2, &node1), __ret);
+			break;
+
 		/* ===== Ignore collisions ===== */
 		case MERGE_TYPES(TYP_FLOOR, TYP_FLOOR):
 		case MERGE_TYPES(TYP_FLOOR, TYP_SPIKES):
 		case MERGE_TYPES(TYP_FLOOR, TYP_TITLE):
 		case MERGE_TYPES(TYP_FLOOR, TYP_OPTION):
+		case MERGE_TYPES(TYP_FLOOR, TYP_LOADER):
 		case MERGE_TYPES(TYP_SPIKES, TYP_FLOOR):
 		case MERGE_TYPES(TYP_SPIKES, TYP_SPIKES):
 		case MERGE_TYPES(TYP_SPIKES, TYP_TITLE):
 		case MERGE_TYPES(TYP_SPIKES, TYP_OPTION):
+		case MERGE_TYPES(TYP_SPIKES, TYP_LOADER):
 		case MERGE_TYPES(TYP_PLAYER, TYP_PLAYER):
 		case MERGE_TYPES(TYP_PLAYER, TYP_TITLE):
 		case MERGE_TYPES(TYP_PLAYER, TYP_OPTION):
@@ -86,11 +96,18 @@ int collision_handle(gfmQuadtreeRoot *qt) {
 		case MERGE_TYPES(TYP_TITLE, TYP_PLAYER):
 		case MERGE_TYPES(TYP_TITLE, TYP_TITLE):
 		case MERGE_TYPES(TYP_TITLE, TYP_OPTION):
+		case MERGE_TYPES(TYP_TITLE, TYP_LOADER):
 		case MERGE_TYPES(TYP_OPTION, TYP_FLOOR):
 		case MERGE_TYPES(TYP_OPTION, TYP_SPIKES):
 		case MERGE_TYPES(TYP_OPTION, TYP_PLAYER):
 		case MERGE_TYPES(TYP_OPTION, TYP_TITLE):
 		case MERGE_TYPES(TYP_OPTION, TYP_OPTION):
+		case MERGE_TYPES(TYP_OPTION, TYP_LOADER):
+		case MERGE_TYPES(TYP_LOADER, TYP_FLOOR):
+		case MERGE_TYPES(TYP_LOADER, TYP_SPIKES):
+		case MERGE_TYPES(TYP_LOADER, TYP_TITLE):
+		case MERGE_TYPES(TYP_LOADER, TYP_OPTION):
+		case MERGE_TYPES(TYP_LOADER, TYP_LOADER):
 			{/* Do nothing */}
 			break;
 		default: {
