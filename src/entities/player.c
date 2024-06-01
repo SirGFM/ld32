@@ -12,6 +12,21 @@
 #define PLAYER_HEIGHT 12
 
 
+/** List of animations */
+enum animation {
+	STAND = 0
+	, WALK
+};
+
+
+/** The player's animation data */
+static int animationData[] = {
+/*         len|fps|loop|data... */
+/* STAND */ 1 , 1 ,  0 , 352,
+/*  WALK */ 8 , 10,  1 , 353,354,355,356,357,358,359,360,
+};
+
+
 /**
  * player_preUpdate handles user inputs,
  * preparing the entity's new physics state.
@@ -91,11 +106,20 @@ int player_new(struct entity **entity, int x, int y) {
 		, __ret
 	);
 
+	/* Load animations */
+	ASSERT(
+		GFMRV_OK == gfmSprite_addAnimations(
+			tmp.base.sprite
+			, animationData
+			, sizeof(animationData) / sizeof(int)
+		)
+		, __ret
+	);
+	ASSERT(GFMRV_OK == gfmSprite_playAnimation(tmp.base.sprite, STAND), __ret);
+
 	tmp.base.fn.preUpdate = player_preUpdate;
 	tmp.base.fn.postUpdate = player_postUpdate;
 	tmp.base.fn.free = player_free;
-
-	/* TODO: Load animations */
 
 	ASSERT((ret = malloc(sizeof(tmp))) != 0, __ret);
 	memcpy(ret, &tmp, sizeof(tmp));
