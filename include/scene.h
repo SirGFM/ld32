@@ -69,6 +69,8 @@ struct scene {
 	int fromFile;
 	/** The time, in milliseconds, elapsed since the last frame. */
 	int elapsedMs;
+	/** Whether the collision's bounding boxes should be drawn. */
+	int drawCollisions;
 };
 
 
@@ -148,6 +150,16 @@ int scene_setRelativePosition(
  * @return 0: Success; Anything else: failure.
  */
 int scene_free(struct scene *scene);
+
+
+/**
+ * scene_flipCollisionVisibility flips collision from invisible to visible,
+ * and vice-versa.
+ *
+ * @param [in] scene: The scene.
+ * @return 0: Success; Anything else: failure.
+ */
+void scene_flipCollisionVisibility(struct scene *scene);
 
 
 #endif /* !defined(SCENE_H) && !defined(FORWARD_ONLY) */

@@ -206,6 +206,16 @@ int scene_draw(struct scene *scene) {
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
 	}
 
+#if defined(DEBUG)
+	if (scene->drawCollisions) {
+		grv = gfmQuadtree_drawBounds(scene->staticCollider, gameCtx, 0);
+		ASSERT(grv == GFMRV_OK || grv == GFMRV_QUADTREE_EMPTY, __ret);
+
+		grv = gfmQuadtree_drawBounds(scene->dynamicCollider, gameCtx, 0);
+		ASSERT(grv == GFMRV_OK || grv == GFMRV_QUADTREE_EMPTY, __ret);
+	}
+#endif /* defined(DEBUG) */
+
 __ret:
 	return rv | grv;
 }
@@ -329,4 +339,9 @@ int scene_free(struct scene *scene) {
 
 __ret:
 	return rv | grv;
+}
+
+
+void scene_flipCollisionVisibility(struct scene *scene) {
+	scene->drawCollisions = !scene->drawCollisions;
 }

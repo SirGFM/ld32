@@ -1,6 +1,8 @@
 #ifndef MAINLOOP_H
 #define MAINLOOP_H
 
+#include <core/map.h>
+
 
 /**
  * mainloop_init configures the game's initial state.
@@ -11,7 +13,16 @@ int mainloop_init();
 
 
 /**
- *  mainloop_update integrates a single frame.
+ * mainloop_handleDebug updates the debug buttons.
+ *
+ * @param [out] canUpdate: Whether the game may be updated.
+ * @return 0: Success; Anything else: failure.
+ */
+int mainloop_handleDebug(int *canUpdate);
+
+
+/**
+ * mainloop_update integrates a single frame.
  *
  * @return 0: Success; Anything else: failure.
  */

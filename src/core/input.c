@@ -43,6 +43,41 @@ __ret:
 }
 
 
+int input_updateDebug() {
+	gfmInput *input;
+	int rv = 1;
+	int i;
+
+	ASSERT(GFMRV_OK == gfm_getInput(&input, gameCtx), __ret);
+
+	for (i = DEBUG_INPUT; i < INPUT_MAX; i++) {
+		struct button *button = buttons + i;
+
+		ASSERT(
+			GFMRV_OK == gfmInput_updateVKey(
+				input
+				, button->handle
+			)
+			, __ret
+		);
+
+		ASSERT(
+			GFMRV_OK == gfm_getKeyState(
+				&button->state
+				, &button->numPressed
+				, gameCtx
+				, button->handle
+			)
+			, __ret
+		);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
 int input_update() {
 	int rv = 1;
 	int i;

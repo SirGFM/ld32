@@ -22,6 +22,13 @@ enum transition {
 };
 
 
+enum debugMode {
+	DEBUG_RUNNING = 0
+	, DEBUG_PAUSED
+	, DEBUG_STEP
+};
+
+
 /** The currently executing scene. */
 static struct scene _curScene = {0};
 
@@ -30,6 +37,9 @@ static struct scene _nextScene = {0};
 
 /** The transition state of the game. */
 static enum transition _state = TRANSITION_NONE;
+
+/** The game's debug mode. */
+static enum debugMode _mode = DEBUG_RUNNING;
 
 
 int mainloop_init() {
@@ -45,6 +55,37 @@ int mainloop_init() {
 		, __ret
 	);
 
+__ret:
+	return rv;
+}
+
+
+int mainloop_handleDebug(int *canUpdate) {
+	int rv = 1;
+
+	/* Forcefully update the debug keys. */
+	ASSERT_OK(input_updateDebug(), __ret);
+
+	if (input_isJustPressed(DEBUG_INPUT_QT)) {
+		scene_flipCollisionVisibility(&_curScene);
+	}
+
+	if (input_isJustPressed(DEBUG_INPUT_PAUSE)) {
+		if (_mode == DEBUG_PAUSED) {
+			_mode = DEBUG_RUNNING;
+		}
+		else {
+			_mode = DEBUG_PAUSED;
+		}
+	}
+
+	if (input_isJustPressed(DEBUG_INPUT_STEP)) {
+		_mode = DEBUG_STEP;
+	}
+
+	*canUpdate = (_mode != DEBUG_PAUSED);
+
+	rv = 0;
 __ret:
 	return rv;
 }
@@ -69,6 +110,12 @@ int mainloop_update() {
 	else {
 		ASSERT_OK(rv = scene_update(&_curScene), __ret);
 	}
+
+#if defined(DEBUG)
+	if (_mode == DEBUG_STEP) {
+		_mode = DEBUG_PAUSED;
+	}
+#endif /* defined(DEBUG) */
 
 __ret:
 	return rv;

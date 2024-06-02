@@ -75,9 +75,31 @@ struct button {
 		INPUT_FIRE_RIGHT, "FIRE RIGHT",/*auto*/, \
 		X_INPUT(gfmController_raxis_right), \
 	) \
+	DEBUG_INPUT_LIST \
 	X(INPUT_MAX, "MAX",/*auto*/) \
 	/* INPUT_ACCEPT is basically an alias for INPUT_JUMP. */ \
 	X(INPUT_ACCEPT, "", = INPUT_JUMP)
+
+
+/** The list of available debug inputs in the game. */
+#if defined(DEBUG)
+#  define DEBUG_INPUT_LIST \
+	X(DEBUG_INPUT, "DBG",/*auto*/) \
+	X( \
+		DEBUG_INPUT_PAUSE, "DBG PAUSE", = DEBUG_INPUT, \
+		X_INPUT(gfmKey_f9), \
+	) \
+	X( \
+		DEBUG_INPUT_STEP, "DBG STEP",/*auto*/, \
+		X_INPUT(gfmKey_f10), \
+	) \
+	X( \
+		DEBUG_INPUT_QT, "DBG QT",/*auto*/, \
+		X_INPUT(gfmKey_f12), \
+	)
+#else /* if !defined(DEBUG) */
+#  define DEBUG_INPUT_LIST
+#endif /* defined(DEBUG) */
 
 
 /** List of available inputs in the game. */
@@ -142,6 +164,15 @@ int input_isJustReleased(enum input action);
  * @return 0: Success; Anything else: failure.
  */
 int input_init();
+
+
+/**
+ * input_updateDebug retrieves the state of every button,
+ * forcefully updating the state of the keys, if the game is paused.
+ *
+ * @return 0: Success; Anything else: failure.
+ */
+int input_updateDebug();
 
 
 /**
