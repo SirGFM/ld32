@@ -70,6 +70,13 @@ int collision_handleFloor(struct collision_node *floor, struct collision_node *o
 	/* Handle bonking/stopping on the floor. */
 	if (dir & gfmCollision_ver) {
 		gfmObject_setVerticalVelocity(other->object, 0);
+
+		if (dir & gfmCollision_up) {
+			int y;
+
+			ASSERT_OK(grv = gfmObject_getVerticalPosition(&y, other->object), __ret);
+			ASSERT_OK(grv = gfmObject_setVerticalPosition(other->object, y+1), __ret);
+		}
 	}
 
 	/* Handle getting stuck in the corner of platforms
