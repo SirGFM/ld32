@@ -104,6 +104,8 @@ struct entity {
 	gfmSprite *sprite;
 	/** The entity's underlying type. */
 	enum type type;
+	/** The currently playing animation. */
+	int animation;
 };
 
 
@@ -137,6 +139,17 @@ int entity_init(
  * @param [in] self: The entity itself.
  */
 void entity_free(struct entity *entity);
+
+
+/**
+ * entity_playAnimation plays the requested animation.
+ *
+ * @param [in] self: The entity itself.
+ * @param [in] animation: The animation to be played.
+ * @param [in] force: Whether the animation should be restarted, if it's already playing.
+ * @return 0: Success; Anything else: failure.
+ */
+int entity_playAnimation(struct entity *entity, int animation, int force);
 
 
 #endif /* ENTITY_H */

@@ -128,6 +128,7 @@ int entity_init(
 	entity->fn.free = &_entity_free;
 
 	entity->type = type;
+	entity->animation = -1;
 
 	rv = 0;
 __ret:
@@ -149,4 +150,29 @@ void entity_free(struct entity *entity) {
 	if (entity->sprite) {
 		gfmSprite_free(&entity->sprite);
 	}
+}
+
+
+int entity_playAnimation(struct entity *entity, int animation, int force) {
+	int rv = 1;
+
+	if (entity->animation != animation) {
+		ASSERT(
+			GFMRV_OK == gfmSprite_playAnimation(
+				entity->sprite
+				, animation
+			)
+			, __ret
+		);
+
+		entity->animation = animation;
+		force = 1;
+	}
+	if (force) {
+		ASSERT(GFMRV_OK == gfmSprite_resetAnimation(entity->sprite), __ret);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
 }

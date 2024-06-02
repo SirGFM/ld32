@@ -136,53 +136,20 @@ static int player_postUpdate(struct entity *entity, struct scene *scene) {
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
 	if (dir & gfmCollision_down) {
-		/* Clear the fall speed after touching a floor. */
-		ASSERT(
-			GFMRV_OK == gfmSprite_setVerticalVelocity(
-				player->base.sprite
-				, 0.0
-			)
-			, __ret
-		);
-
 		/* Set walking/standing animation. */
 		if (vx != 0.0) {
-			ASSERT(
-				GFMRV_OK == gfmSprite_playAnimation(
-					player->base.sprite
-					, WALK
-				)
-				, __ret
-			);
+			ASSERT_OK(entity_playAnimation(entity, WALK, 0), __ret);
 		}
 		else {
-			ASSERT(
-				GFMRV_OK == gfmSprite_playAnimation(
-					player->base.sprite
-					, STAND
-				)
-				, __ret
-			);
+			ASSERT_OK(entity_playAnimation(entity, STAND, 0), __ret);
 		}
 	}
 	else {
 		if (vy < 0.0) {
-			ASSERT(
-				GFMRV_OK == gfmSprite_playAnimation(
-					player->base.sprite
-					, JUMP
-				)
-				, __ret
-			);
+			ASSERT_OK(entity_playAnimation(entity, JUMP, 0), __ret);
 		}
 		else if (vy > 0.0) {
-			ASSERT(
-				GFMRV_OK == gfmSprite_playAnimation(
-					player->base.sprite
-					, FALL
-				)
-				, __ret
-			);
+			ASSERT_OK(entity_playAnimation(entity, FALL, 0), __ret);
 		}
 	}
 
