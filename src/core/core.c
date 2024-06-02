@@ -115,6 +115,8 @@ __ret:
 static LOOP_RET core_runLoop() {
 	/**  The return value. */
 	int rv;
+	/** Whether the mainloop may run. */
+	int canUpdate = 1;
 	gfmRV grv = GFMRV_OK;
 
 	/* If on HTML5, manually issue a frame. */
@@ -125,7 +127,13 @@ static LOOP_RET core_runLoop() {
 	/* Wait for an event */
 	ASSERT_OK(grv = gfm_handleEvents(gameCtx), __ret);
 
-	while (gfm_isUpdating(gameCtx) == GFMRV_TRUE) {
+#if defined(DEBUG)
+	ASSERT_OK(rv = mainloop_handleDebug(&canUpdate), __ret);
+#endif /* defined(DEBUG) */
+
+	/* Since gfm_isUpdating also updates the keys,
+	 * only run if it the mainloop is running. */
+	while (canUpdate && gfm_isUpdating(gameCtx) == GFMRV_TRUE) {
 		ASSERT_OK(grv = gfm_fpsCounterUpdateBegin(gameCtx), __ret);
 		ASSERT_OK(rv = mainloop_update(), __ret);
 		ASSERT_OK(grv = gfm_fpsCounterUpdateEnd(gameCtx), __ret);
