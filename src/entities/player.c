@@ -38,6 +38,8 @@
 enum animation {
 	STAND = 0
 	, WALK
+	, JUMP
+	, FALL
 };
 
 
@@ -46,6 +48,8 @@ static int animationData[] = {
 /*         len|fps|loop|data... */
 /* STAND */ 1 , 1 ,  0 , 352,
 /*  WALK */ 8 , 10,  1 , 353,354,355,356,357,358,359,360,
+/*  JUMP */ 2 , 6 ,  1 , 361,362,
+/*  FALL */ 2 , 6 ,  1 , 363,364,
 };
 
 
@@ -123,19 +127,12 @@ __ret:
  * @return 0: Success; Anything else: failure.
  */
 static int player_postUpdate(struct entity *entity, struct scene *scene) {
-	double vx;
+	double vx, vy;
 	struct player *player = (struct player*)entity;
 	int rv = 1;
 	gfmCollision dir;
 
-	ASSERT(
-		GFMRV_OK == gfmSprite_getHorizontalVelocity(
-			&vx
-			, player->base.sprite
-		)
-		, __ret
-	);
-
+	ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
 	if (dir & gfmCollision_down) {
@@ -163,6 +160,26 @@ static int player_postUpdate(struct entity *entity, struct scene *scene) {
 				GFMRV_OK == gfmSprite_playAnimation(
 					player->base.sprite
 					, STAND
+				)
+				, __ret
+			);
+		}
+	}
+	else {
+		if (vy < 0.0) {
+			ASSERT(
+				GFMRV_OK == gfmSprite_playAnimation(
+					player->base.sprite
+					, JUMP
+				)
+				, __ret
+			);
+		}
+		else if (vy > 0.0) {
+			ASSERT(
+				GFMRV_OK == gfmSprite_playAnimation(
+					player->base.sprite
+					, FALL
 				)
 				, __ret
 			);
