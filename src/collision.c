@@ -125,7 +125,7 @@ int collision_handlePlayerLoader(struct collision_node *player, struct collision
 	/* Ensure that the objects are colliding,
 	 * since the extended hitbox may graze each other
 	 * without triggering a collision. */
-	if (_collision_sweepCollision(player->object, loader->object)) {
+	if (_collision_sweepJustOverlap(player->object, loader->object)) {
 		return 0;
 	}
 
