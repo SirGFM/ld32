@@ -100,7 +100,7 @@ int preloadMap_getMapByName(struct map **map, char *name, int len) {
 
 	rv = 0;
 __ret:
-	return 0;
+	return rv;
 }
 
 
@@ -118,5 +118,5 @@ int preloadMap_getMapByHandle(struct map **map, int id) {
 
 	rv = 0;
 __ret:
-	return 0;
+	return rv;
 }
