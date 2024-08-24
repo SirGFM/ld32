@@ -346,3 +346,13 @@ __ret:
 void scene_flipCollisionVisibility(struct scene *scene) {
 	scene->drawCollisions = !scene->drawCollisions;
 }
+
+
+int scene_hasLoader(struct scene *scene) {
+	return scene->curLoader != 0;
+}
+
+
+void scene_setLoader(struct scene *scene, struct entity *entity) {
+	scene->curLoader = entity;
+}

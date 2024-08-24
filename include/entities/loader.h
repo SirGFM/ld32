@@ -6,6 +6,13 @@
 #include <entity.h>
 
 
+enum loaderState {
+	LOADER_IDLE = 0
+	, LOADER_TRIGGERED
+	, LOADER_LOADING
+};
+
+
 struct loader {
 	/** The base entity. */
 	struct entity base;
@@ -20,6 +27,11 @@ struct loader {
 	 * so an entrance in one scene may match the exit in another.
 	 */
 	int id;
+	/**
+	 * Track whether the loader has been touched/
+	 * its stage is being loaded.
+	 */
+	enum loaderState state;
 };
 
 
@@ -31,6 +43,15 @@ struct loader {
  * @return 0: Success; Anything else: failure.
  */
 int loader_new(struct entity **entity, struct mapObject *data);
+
+
+/**
+ * loader_onTouch prepares a loader to starting loading,
+ * after it's touched by a valid entity.
+ *
+ * @param [in] entity: The touched loader.
+ */
+void loader_onTouch(struct entity *entity);
 
 
 #endif /* LOADER_H */

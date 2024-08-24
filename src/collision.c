@@ -1,4 +1,5 @@
 #include <collision.h>
+#include <entities/loader.h>
 #include <error.h>
 
 
@@ -129,7 +130,7 @@ int collision_handlePlayerLoader(struct collision_node *player, struct collision
 		return 0;
 	}
 
-	/* TODO: Configure the level to be loaded. */
+	loader_onTouch((struct entity*)loader->child);
 
 	return 0;
 }

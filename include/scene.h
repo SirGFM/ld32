@@ -29,6 +29,11 @@ enum scene_relativePosition {
 
 struct scene {
 	/**
+	 * The loader that triggered a screen transition
+	 * and is being used in the screen transition.
+	 */
+	struct entity *curLoader;
+	/**
 	 * map stores the scene's tilemaps.
 	 * This object should be managed elsewhere,
 	 * and isn't freed by the scene.
@@ -160,6 +165,24 @@ int scene_free(struct scene *scene);
  * @return 0: Success; Anything else: failure.
  */
 void scene_flipCollisionVisibility(struct scene *scene);
+
+
+/**
+ * scene_hasLoader checks if the scene has a triggered loader.
+ *
+ * @param [in] scene: The scene.
+ * @return 1: If the scene has a triggered loader; 0: Otherwise.
+ */
+int scene_hasLoader(struct scene *scene);
+
+
+/**
+ * scene_setLoader assigns a loader to be used in the screen transition.
+ *
+ * @param [in] scene: The scene.
+ * @param [in] entity: The loader for the screen transition.
+ */
+void scene_setLoader(struct scene *scene, struct entity *entity);
 
 
 #endif /* !defined(SCENE_H) && !defined(FORWARD_ONLY) */
