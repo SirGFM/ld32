@@ -108,6 +108,7 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 	for (i = 0; i < tmp.numEntities; i++) {
 		struct entity *cur = tmp.entities[i];
 
+		ASSERT_OK(rv = entity_fixSpriteReference(cur), __ret);
 		ASSERT_OK(rv = cur->fn.onLoad(cur, &tmp), __ret);
 	}
 

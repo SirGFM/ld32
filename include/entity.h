@@ -142,6 +142,16 @@ void entity_free(struct entity *entity);
 
 
 /**
+ * entity_fixSpriteReference adjust's the sprite's reference back to this entity,
+ * fixing the initialization possibly made with a local entity.
+ *
+ * @param [in] self: The entity itself.
+ * @return 0: Success; Anything else: failure.
+ */
+int entity_fixSpriteReference(struct entity *entity);
+
+
+/**
  * entity_playAnimation plays the requested animation.
  *
  * @param [in] self: The entity itself.

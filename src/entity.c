@@ -153,6 +153,25 @@ void entity_free(struct entity *entity) {
 }
 
 
+int entity_fixSpriteReference(struct entity *entity) {
+	int rv = 1;
+
+	if (entity->sprite) {
+		ASSERT(
+			GFMRV_OK == gfmSprite_setChild(
+				entity->sprite
+				, entity, entity->type
+			)
+			, __ret
+		);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
 int entity_playAnimation(struct entity *entity, int animation, int force) {
 	int rv = 1;
 
