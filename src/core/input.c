@@ -50,6 +50,7 @@ int input_updateDebug() {
 
 	ASSERT(GFMRV_OK == gfm_getInput(&input, gameCtx), __ret);
 
+#if defined(DEBUG)
 	for (i = DEBUG_INPUT; i < INPUT_MAX; i++) {
 		struct button *button = buttons + i;
 
@@ -71,6 +72,7 @@ int input_updateDebug() {
 			, __ret
 		);
 	}
+#endif /* defined(DEBUG) */
 
 	rv = 0;
 __ret:

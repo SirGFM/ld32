@@ -63,6 +63,7 @@ __ret:
 int mainloop_handleDebug(int *canUpdate) {
 	int rv = 1;
 
+#if defined(DEBUG)
 	/* Forcefully update the debug keys. */
 	ASSERT_OK(input_updateDebug(), __ret);
 
@@ -84,6 +85,7 @@ int mainloop_handleDebug(int *canUpdate) {
 	}
 
 	*canUpdate = (_mode != DEBUG_PAUSED);
+#endif /* defined(DEBUG) */
 
 	rv = 0;
 __ret:
