@@ -566,7 +566,7 @@ static int map_parseMetaEntry(
 			}
 		}
 		else if (0 == strcmp(key, "bg-color")) {
-			ASSERT_OK(str2int(&meta.bgColor, val), __ret);
+			ASSERT_OK(str2uint((unsigned int*)&meta.bgColor, val), __ret);
 			meta.flags |= META_HAS_COLOR;
 		}
 		else if (0 == strcmp(key, "layer_count")) {

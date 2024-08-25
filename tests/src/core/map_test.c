@@ -169,7 +169,7 @@ TEST_FUNC(parse_complex_map) {
 
 	TEST_CHECK_STOP(map->numObjectLists == 1);
 	TEST_CHECK_STOP(map->numTilemaps == 2);
-	TEST_CHECK(map->bgColor == 0x12345678);
+	TEST_CHECK(map->bgColor == 0xff345678);
 
 	/* obj.txt */
 	TEST_CASE("parse_complex_tilemap: obj.txt");
