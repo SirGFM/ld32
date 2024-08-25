@@ -244,7 +244,7 @@ obj/$(TGT_DIR)/%.d: %.c | obj/$(TGT_DIR)/%.mkdir
 
 obj/%.map: %.tmx | obj/%.mkdir
 	@ echo -e '\t[MAP] assets/maps/$(*F)'
-	@ python3 ./tools/map-converter.py -t $(TYPE_TILESET) --rm $< ./assets/maps/$(*F)
+	@ python3 ./tools/map-converter.py -t $(TYPE_TILESET) -m maps/$(*F) --rm $< ./assets/maps/$(*F)
 	@ date > $@
 
 obj/%.col: %.col | obj/%.mkdir

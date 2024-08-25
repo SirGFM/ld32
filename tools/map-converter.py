@@ -58,17 +58,27 @@ def main() -> None:
 		action='store',
 		type=str,
 	)
+	parser.add_argument(
+		'-m',
+		'--fix-map',
+		help='Adjust "map" attributes in objects with this base directory',
+		type=str,
+	)
 	args = parser.parse_args()
 
 	# Check that the dest_dir is within the project's directory.
 	project_dir = (pathlib.Path(__file__) / '../..')
 	dest_dir = file_manip.create_dir(args.dest_dir, project_dir, args.rm)
 
+	fix_map = None
+	if args.fix_map:
+		fix_map = pathlib.Path(args.fix_map)
+
 	# Convert the tiled file.
-	convert_world(args.tmx_file, dest_dir, args.tileset)
+	convert_world(args.tmx_file, dest_dir, args.tileset, fix_map)
 
 
-def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None = None) -> None:
+def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None = None, fix_map: pathlib.Path | None = None) -> None:
 	"""Converts a world, defined in a single Tiled file.
 
 	Each group is converted into a sub-directory,
@@ -80,6 +90,7 @@ def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None
 	:param str in_file: The name of the Tiled file to be converted.
 	:param pathlib.Path dest_dir: The directory where the converted files are created.
 	:param str|None tileset_name: Name of the tileset with type information.
+	:param pathlib.Path|None fix_map: Base directory used to adjust the "map" attribute in objects.
 	"""
 
 	tree = ET.parse(in_file)
@@ -93,14 +104,14 @@ def convert_world(in_file: str, dest_dir: pathlib.Path, tileset_name: str | None
 	for child in root:
 		if child.tag == 'group':
 			sub_dir = dest_dir / child.attrib['name']
-			convert_map(child, sub_dir, tm)
+			convert_map(child, sub_dir, tm, fix_map)
 		elif child.tag == 'layer':
 			convert_layer(child, dest_dir, tm)
 		elif child.tag == 'objectgroup':
-			convert_objects(child, dest_dir)
+			convert_objects(child, dest_dir, fix_map)
 
 
-def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> None:
+def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info, fix_map: pathlib.Path | None = None) -> None:
 	"""Converts an entire map, which may be composed of various layers.
 
 	Each layer is converted into its own file, within the supplied directory.
@@ -129,6 +140,7 @@ def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> N
 	:param ET.Element root: The map element, containing various layers.
 	:param pathlib.Path dest_dir: The directory where layers are created.
 	:param tileset_info tm: The list of tile_info that tilemaps may contain.
+	:param pathlib.Path|None fix_map: Base directory used to adjust the "map" attribute in objects.
 	"""
 
 	dest_dir.mkdir(parents=True, exist_ok=True)
@@ -143,7 +155,7 @@ def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> N
 			attrs[name] = child_attrs
 			layer_count += 1
 		elif child.tag == 'objectgroup':
-			name, child_attrs = convert_objects(child, dest_dir)
+			name, child_attrs = convert_objects(child, dest_dir, fix_map)
 			child_attrs.insert(0, ('type', 'obj'))
 			attrs[name] = child_attrs
 			obj_count += 1
@@ -217,7 +229,7 @@ def convert_layer(el: ET.Element, dest_dir: pathlib.Path, tm: tileset_info) -> t
 	return file_name, attrs
 
 
-def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> tuple[str, attributes]:
+def convert_objects(root: ET.Element, dest_dir: pathlib.Path, fix_map: pathlib.Path | None = None) -> tuple[str, attributes]:
 	"""Converts an object group into a single file.
 
 	The file is named after the root element's name attribute.
@@ -248,6 +260,7 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> tuple[str, attr
 
 	:param ET.Element root: The object group being converted.
 	:param pathlib.Path dest_dir: The destination directory for this object group.
+	:param pathlib.Path|None fix_map: Base directory used to adjust the "map" attribute in objects.
 	:return tuple[str, attributes]: The name of the layer and its list of attributes.
 	"""
 
@@ -278,7 +291,13 @@ def convert_objects(root: ET.Element, dest_dir: pathlib.Path) -> tuple[str, attr
 			out.write(f'obj {typ} {x} {y} {w} {h}'.encode('utf-8'))
 
 			for attr in get_attributes(child):
-				out.write(f' [ {attr[0]} , {attr[1]} ]'.encode('utf-8'))
+				key = attr[0]
+				value = attr[1]
+
+				if key == 'map' and fix_map is not None:
+					value = str(fix_map / value)
+
+				out.write(f' [ {key} , {value} ]'.encode('utf-8'))
 			out.write(f'\n'.encode('utf-8'))
 
 	return file_name, attrs
