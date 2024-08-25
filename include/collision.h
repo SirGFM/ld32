@@ -60,4 +60,15 @@ int collision_handleSpikes(struct collision_node *spikes, struct collision_node 
 int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite);
 
 
+/**
+ * collision_handlePlayerLoader handles colliding a player with a loader,
+ * queueing a scene transition.
+ *
+ * @param [in] player: The player node.
+ * @param [in] loader: The loader node.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_handlePlayerLoader(struct collision_node *player, struct collision_node *loader);
+
+
 #endif /* COLLISION_H */
