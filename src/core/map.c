@@ -19,7 +19,19 @@ enum metadataFlags {
 	, META_IS_COUNT = 0x0002
 	, META_IS_TILEMAP = 0x0004
 	, META_HAS_COLOR = 0x0008
+	, META_HAS_OFFX = 0x0010
+	, META_HAS_OFFY = 0x0020
 };
+
+
+/**
+ * IS_SET checks that all bits are set in the value.
+ *
+ * @param [in] VALUE: The value to have its bits checked.
+ * @param [in] BITS: The bits (OR'd together) that should be checked.
+ * @return 1: The bits are set; 0 Otherwise.
+ */
+#define IS_SET(VALUE, BITS) (((VALUE) & (BITS)) == (BITS))
 
 
 /**
@@ -579,9 +591,11 @@ static int map_parseMetaEntry(
 		}
 		else if (0 == strcmp(key, "offx")) {
 			ASSERT_OK(str2int(&meta.offsetX, val), __ret);
+			meta.flags |= META_HAS_OFFX;
 		}
 		else if (0 == strcmp(key, "offy")) {
 			ASSERT_OK(str2int(&meta.offsetY, val), __ret);
+			meta.flags |= META_HAS_OFFY;
 		}
 	}
 
@@ -595,6 +609,14 @@ static int map_parseMetaEntry(
 	/* Update the map's BG color, if set. */
 	if (meta.flags & META_HAS_COLOR) {
 		map->bgColor = meta.bgColor;
+	}
+
+	/* Update the map's position, if set. */
+	if (IS_SET(meta.flags, META_IS_COUNT | META_HAS_OFFX)) {
+		map->offsetX = meta.offsetX;
+	}
+	if (IS_SET(meta.flags, META_IS_COUNT | META_HAS_OFFY)) {
+		map->offsetY = meta.offsetY;
 	}
 
 	/* Load the tilemap. */

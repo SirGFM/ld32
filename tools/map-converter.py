@@ -164,7 +164,15 @@ def convert_map(root: ET.Element, dest_dir: pathlib.Path, tm: tileset_info, fix_
 
 	dest_file = dest_dir / 'meta.txt'
 	with dest_file.open('wb') as out:
-		out.write(f'attr [ layer_count , {layer_count} ] [ obj_count , {obj_count} ]\n'.encode('utf-8'))
+		out.write(f'attr [ layer_count , {layer_count} ] [ obj_count , {obj_count} ]'.encode('utf-8'))
+
+		if 'offsetx' in root.attrib and 'offsety' in root.attrib:
+			offx = int(root.attrib['offsetx'])
+			offy = int(root.attrib['offsety'])
+			out.write(f' [ offx , {offx} ] [ offy , {offy} ]'.encode('utf-8'))
+
+		out.write(f'\n'.encode('utf-8'))
+
 		for name, layer_attrs in attrs.items():
 			out.write(f'attr [ name , {name} ]'.encode('utf-8'))
 			for attr in layer_attrs:

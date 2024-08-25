@@ -76,6 +76,10 @@ struct map {
 	int numObjectLists;
 	/** The background color for the current map. */
 	int bgColor;
+	/** The map's horizontal position, in pixels, in world space. */
+	int offsetX;
+	/** The map's vertical position, in pixels, in world space. */
+	int offsetY;
 };
 
 

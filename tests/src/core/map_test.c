@@ -129,6 +129,8 @@ TEST_FUNC(parse_single_tilemap) {
 	TEST_CHECK_STOP(map->numTilemaps == 1);
 	TEST_CHECK_STOP(map->numObjectLists == 0);
 	TEST_CHECK(map->bgColor == 0x12345678);
+	TEST_CHECK(map->offsetX == -5);
+	TEST_CHECK(map->offsetY == 123);
 
 	TEST_CHECK_STOP(map->tilemaps[0] != NULL);
 	TEST_CHECK_STOP(0 == gfmTilemap_getDimension(&w, &h, map->tilemaps[0]));
@@ -170,6 +172,8 @@ TEST_FUNC(parse_complex_map) {
 	TEST_CHECK_STOP(map->numObjectLists == 1);
 	TEST_CHECK_STOP(map->numTilemaps == 2);
 	TEST_CHECK(map->bgColor == 0xff345678);
+	TEST_CHECK(map->offsetX == 0);
+	TEST_CHECK(map->offsetY == 0);
 
 	/* obj.txt */
 	TEST_CASE("parse_complex_tilemap: obj.txt");
