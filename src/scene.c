@@ -1,11 +1,15 @@
 #include <core/core.h>
+#include <core/types.h>
 #include <collision.h>
 #include <entity.h>
+#include <entities/loader.h>
 #include <entities/new_by_type.h>
 #include <error.h>
 #include <scene.h>
+#include <util.h>
 
 #include <GFraMe/gframe.h>
+#include <GFraMe/gfmCamera.h>
 #include <GFraMe/gfmQuadtree.h>
 #include <GFraMe/gfmSprite.h>
 #include <GFraMe/gfmTilemap.h>
@@ -280,6 +284,109 @@ int scene_setRelativePosition(
 		ASSERT_OK(grv = gfmTilemap_setPosition(cur, x, y), __ret);
 	}
 
+__ret:
+	return rv | grv;
+}
+
+
+int scene_getCameraTransitionPosition(
+	int *x
+	, int *y
+	, struct scene *self
+	, struct scene *other
+	, int doorID
+) {
+	gfmCamera *camera;
+	int i;
+	int cameraW, cameraH;
+	int doorCenterX, doorCenterY;
+	int offsetX, offsetY;
+	int otherW, otherH;
+	int selfW, selfH;
+	int rv = 1;
+	gfmRV grv = GFMRV_OK;
+
+	/* Get the camera dimensions. */
+	ASSERT_OK(grv = gfm_getCamera(&camera, gameCtx), __ret);
+	ASSERT_OK(grv = gfmCamera_getDimensions(&cameraW, &cameraH, camera), __ret);
+
+	/* Look for the target door in the new scene. */
+	for (i = 0; i < self->numEntities; i++) {
+		struct entity *entity = self->entities[i];
+
+		if (entity->type != TYP_LOADER || !loader_isID(entity, doorID)) {
+			continue;
+		}
+
+		ASSERT_OK(
+			grv = gfmSprite_getCenter(
+				&doorCenterX
+				, &doorCenterY
+				, entity->sprite
+			)
+			, __ret
+		);
+		break;
+	}
+	ASSERT(i < self->numEntities, __ret);
+
+	/* Get the map dimensions from any tilemap. */
+	ASSERT_OK(
+		grv = gfmTilemap_getDimension(
+			&selfW
+			, &selfH
+			, self->map->tilemaps[0]
+		)
+		, __ret
+	);
+	ASSERT_OK(
+		grv = gfmTilemap_getDimension(
+			&otherW
+			, &otherH
+			, self->map->tilemaps[0]
+		)
+		, __ret
+	);
+
+	/* Get the map position in world space. */
+	offsetX = self->map->offsetX - other->map->offsetX;
+	offsetY = self->map->offsetY - other->map->offsetY;
+
+	/* Calculate the target camera position. */
+	if (doorCenterX == 0 || doorCenterX == selfW) {
+		if (doorCenterX == 0) {
+			/* Loader is on the left wall of the new scene. */
+			*x = otherW;
+		}
+		else if (doorCenterX == selfW) {
+			/* Loader is on the right wall of the new scene. */
+			*x = -cameraW;
+		}
+
+		*y = offsetY + doorCenterY - cameraH / 2;
+	}
+	else if (doorCenterY == 0 || doorCenterY == selfH) {
+		if (doorCenterY == 0) {
+			/* Loader is on the top wall of the new scene. */
+			*y = otherH;
+		}
+		else if (doorCenterY == selfH) {
+			/* Loader is on the bottom wall of the new scene. */
+			*y = -cameraH;
+		}
+
+		*x = offsetX + doorCenterX - cameraW / 2;
+	}
+	else {
+		int invalid_loader_position = 0;
+		ASSERT(invalid_loader_position, __ret);
+	}
+
+	/* Adjust the camera position so it's within/bound to the new scene. */
+	*x = max(min(*x, offsetX), offsetX + selfW - cameraW);
+	*y = max(min(*y, offsetY), offsetY + selfH - cameraH);
+
+	rv = 0;
 __ret:
 	return rv | grv;
 }

@@ -149,6 +149,26 @@ int scene_setRelativePosition(
 
 
 /**
+ * scene_getCameraTransitionPosition calculates the position of the camera
+ * after a scene transition from other to self.
+ *
+ * @param [out] x: The camera's target horizontal position.
+ * @param [out] y: The camera's target vertical position.
+ * @param [in] self: The scene being moved.
+ * @param [in] other: The scene relative to which to move.
+ * @param [in] doorID: Unique value that identifies the same door in two different scenes.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_getCameraTransitionPosition(
+	int *x
+	, int *y
+	, struct scene *self
+	, struct scene *other
+	, int doorID
+);
+
+
+/**
  * scene_free releases every resource associated with the provided scene.
  *
  * @param [in] scene: The scene being unloaded.
