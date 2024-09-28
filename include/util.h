@@ -23,4 +23,31 @@ int str2int(int *num, const char *str);
  */
 int str2uint(unsigned int *num, const char *str);
 
+
+/**
+ * min returns the smaller of the two values.
+ *
+ * Since this is a macro, becareful of issues caused by type conversion.
+ *
+ * @param [in] a: One of the values.
+ * @param [in] b: The other value.
+ * @return The smallests value.
+ */
+#define min(a, b) \
+	((a) < (b) ? (a) : (b))
+
+
+/**
+ * max returns the greater of the two values.
+ *
+ * Since this is a macro, becareful of issues caused by type conversion.
+ *
+ * @param [in] a: One of the values.
+ * @param [in] b: The other value.
+ * @return The greatest value.
+ */
+#define max(a, b) \
+	((a) > (b) ? (a) : (b))
+
+
 #endif /* UTIL_H */
