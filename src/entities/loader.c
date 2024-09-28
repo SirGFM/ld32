@@ -74,7 +74,7 @@ static int loader_postUpdate(struct entity *entity, struct scene *scene) {
 		scene_setLoader(scene, entity);
 		/* TODO: Use preloadMap_getMapByHandle */
 		ASSERT_OK(preloadMap_getMapByName(&map, loader->name, loader->nameLen), __ret);
-		ASSERT_OK(mainloop_swapScene(map, 1), __ret);
+		ASSERT_OK(mainloop_transitionSwapScene(map, loader->id), __ret);
 
 		loader->state = LOADER_LOADING;
 	}

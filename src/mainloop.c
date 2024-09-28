@@ -146,7 +146,20 @@ __ret:
 }
 
 
-int mainloop_swapScene(struct map *map, int animated) {
+/**
+ * mainloop_swapScene queues a scene transition starting on the next frame.
+ *
+ * If animated is false, the transition happens immediately.
+ * Otherwise, a brief animation plays sliding from one scene to the other.
+ * In that case, doorID is used to calculate final camera position
+ * relative to the this door in the new scene.
+ *
+ * @param [in] map: The base map for this new scene.
+ * @param [in] animated: Whether the transition animation should play.
+ * @param [in] doorID: Unique value that identifies the same door in two different scenes.
+ * @return 0: Success; Anything else: failure.
+ */
+static int mainloop_swapScene(struct map *map, int animated, int doorID) {
 	struct scene tmp = {0};
 	int rv = 1;
 
@@ -174,6 +187,16 @@ __ret:
 	scene_free(&tmp);
 
 	return rv;
+}
+
+
+int mainloop_staticSwapScene(struct map *map) {
+	return mainloop_swapScene(map, 0, 0);
+}
+
+
+int mainloop_transitionSwapScene(struct map *map, int doorID) {
+	return mainloop_swapScene(map, 1, doorID);
 }
 
 

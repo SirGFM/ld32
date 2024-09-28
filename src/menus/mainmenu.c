@@ -128,7 +128,7 @@ int mainmenu_accept(int idx) {
 			, __ret
 		);
 
-		ASSERT_OK(mainloop_swapScene(map, 0), __ret);
+		ASSERT_OK(mainloop_staticSwapScene(map), __ret);
 	} break;
 	case MM_OPTIONS:
 		/* TODO */
