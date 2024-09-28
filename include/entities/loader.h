@@ -54,4 +54,14 @@ int loader_new(struct entity **entity, struct mapObject *data);
 void loader_onTouch(struct entity *entity);
 
 
+/**
+ * loader_isID checks if loader.id matches the provided identifier.
+ *
+ * @param [in] entity: The loader.
+ * @param [in] id: The desired identifier.
+ * @return 1: If they match; 0: Otherwise.
+ */
+int loader_isID(struct entity *entity, int id);
+
+
 #endif /* LOADER_H */

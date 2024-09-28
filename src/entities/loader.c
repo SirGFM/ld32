@@ -154,3 +154,10 @@ void loader_onTouch(struct entity *entity) {
 		loader->state = LOADER_TRIGGERED;
 	}
 }
+
+
+int loader_isID(struct entity *entity, int id) {
+	struct loader *loader = (struct loader*)entity;
+
+	return loader->id == id;
+}
