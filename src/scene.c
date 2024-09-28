@@ -226,51 +226,12 @@ __ret:
 }
 
 
-int scene_setRelativePosition(
-	struct scene *self
-	, struct scene *other
-	, enum scene_relativePosition pos
-	, int doorOffsetX
-	, int doorOffsetY
-) {
-	int i, offsetX, offsetY, otherW, otherH;
-	int rv = 0;
+int scene_setRelativePosition(struct scene *self, struct scene *other) {
+	int i, offsetX, offsetY;
 	gfmRV grv = GFMRV_OK;
 
-	/* Get self's position relative to other. */
-	if (pos != SCENE_RESET) {
-		ASSERT_OK(
-			grv = gfmTilemap_getDimension(
-				&otherW
-				, &otherH
-				, other->map->tilemaps[0]
-			)
-			, __ret
-		);
-	}
-
-	switch (pos) {
-	case SCENE_RESET:
-		offsetX = 0;
-		offsetY = 0;
-		break;
-	case SCENE_LEFT_OF:
-		offsetX = -otherW;
-		offsetY = 0;
-		break;
-	case SCENE_RIGHT_OF:
-		offsetX = otherW;
-		offsetY = 0;
-		break;
-	case SCENE_ABOVE:
-		offsetX = 0;
-		offsetY = -otherH;
-		break;
-	case SCENE_BELLOW:
-		offsetX = 0;
-		offsetY = otherH;
-		break;
-	}
+	offsetX = self->map->offsetX - other->map->offsetX;
+	offsetY = self->map->offsetY - other->map->offsetY;
 
 	/* Move self to its new position. */
 	for (i = 0; i < self->map->numTilemaps; i++) {
@@ -278,14 +239,14 @@ int scene_setRelativePosition(
 		int x, y;
 
 		cur = self->map->tilemaps[i];
-		x = (self->map->offsets[i].x + doorOffsetX) * TILE_WIDTH + offsetX;
-		y = (self->map->offsets[i].y + doorOffsetY) * TILE_HEIGHT + offsetY;
+		x = self->map->offsets[i].x * TILE_WIDTH + offsetX;
+		y = self->map->offsets[i].y * TILE_HEIGHT + offsetY;
 
 		ASSERT_OK(grv = gfmTilemap_setPosition(cur, x, y), __ret);
 	}
 
 __ret:
-	return rv | grv;
+	return grv;
 }
 
 

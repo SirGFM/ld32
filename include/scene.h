@@ -13,20 +13,6 @@ struct scene;
 #include <GFraMe/gfmQuadtree.h>
 
 
-/**
- * The relative position of a scene in relation to another.
- *
- * SCENE_RESET is a special value that causes the scene to reset back to the origin.
- */
-enum scene_relativePosition {
-	SCENE_RESET = 0
-	, SCENE_LEFT_OF
-	, SCENE_RIGHT_OF
-	, SCENE_ABOVE
-	, SCENE_BELLOW
-};
-
-
 struct scene {
 	/**
 	 * The loader that triggered a screen transition
@@ -134,18 +120,9 @@ int scene_draw(struct scene *scene);
  *
  * @param [in] self: The scene being moved.
  * @param [in] other: The scene relative to which to move.
- * @param [in] pos: The new relative position of self in relatio to other.
- * @param [in] doorOffsetX: The horizontal door distance, in tiles.
- * @param [in] doorOffsetY: The vertical door distance, in tiles.
  * @return 0: Success; Anything else: failure.
  */
-int scene_setRelativePosition(
-	struct scene *self
-	, struct scene *other
-	, enum scene_relativePosition pos
-	, int doorOffsetX
-	, int doorOffsetY
-);
+int scene_setRelativePosition(struct scene *self, struct scene *other);
 
 
 /**
