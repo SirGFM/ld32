@@ -1,3 +1,4 @@
+#include <camera.h>
 #include <core/input.h>
 #include <error.h>
 #include <scene.h>
@@ -14,8 +15,17 @@
 #define STR(VALUE) VALUE, sizeof(VALUE) - 1
 
 
+/**
+ * How long an animated scene transition should take,
+ * in milliseconds.
+ */
+#define TRANSITION_DELAY_MS 2500
+
+
 enum transition {
 	TRANSITION_NONE = 0
+	, TRANSITION_IMMEDIATE
+	, TRANSITION_PRE_SLIDE
 	, TRANSITION_SLIDING
 	, TRANSITION_DONE
 	, TRANSITION_MAX
@@ -93,10 +103,52 @@ __ret:
 }
 
 
+/**
+ * mainloop_finishTransition moves the new scene back to the origin
+ * and adjusts the camera to its new position in world space
+ * (but the same position in "scene-space").
+ *
+ * @return 0: Success; Anything else: failure.
+ */
+static int mainloop_finishTransition() {
+	int rv;
+	int offsetX, offsetY;
+
+	/* Calculate the distance between the current scene,
+	 * whose origin should be on (0, 0),
+	 * and the next scene. */
+	ASSERT_OK(
+		rv = scene_getOffset(
+			&offsetX
+			, &offsetY
+			, &_nextScene
+			, &_curScene
+		)
+		, __ret
+	);
+
+	/* Move the camera to match the scene's new position. */
+	ASSERT_OK(rv = camera_translate(offsetX, offsetY), __ret);
+
+	/* Move the next scene back to (0, 0). */
+	ASSERT_OK(
+		rv = scene_setRelativePosition(
+			&_nextScene
+			, &_nextScene
+		)
+		, __ret
+	);
+
+__ret:
+	return rv;
+}
+
+
 int mainloop_update() {
 	int rv;
 
-	if (_state == TRANSITION_DONE) {
+	if (_state == TRANSITION_IMMEDIATE || _state == TRANSITION_DONE) {
+		ASSERT_OK(rv = mainloop_finishTransition(), __ret);
 		ASSERT_OK(rv = scene_free(&_curScene), __ret);
 		memcpy(&_curScene, &_nextScene, sizeof(_nextScene));
 		memset(&_nextScene, 0, sizeof(_nextScene));
@@ -106,8 +158,14 @@ int mainloop_update() {
 
 	ASSERT_OK(rv = input_update(), __ret);
 
-	if (_state == TRANSITION_SLIDING) {
-		/* TODO: Implement animated transition. */
+	if (_state == TRANSITION_PRE_SLIDE || _state == TRANSITION_SLIDING) {
+		_state = TRANSITION_SLIDING;
+
+		ASSERT_OK(rv = camera_update(), __ret);
+
+		if (!camera_isMoving()) {
+			_state = TRANSITION_DONE;
+		}
 	}
 	else {
 		ASSERT_OK(rv = scene_update(&_curScene), __ret);
@@ -128,6 +186,13 @@ int mainloop_draw() {
 	int rv;
 
 	ASSERT_OK(rv = scene_draw(&_curScene), __ret);
+
+	/* For some reason, the new scene would be slightly offset
+	 * on the first frame after setting its position.
+	 * So, PRE_SLIDING is ignored here. */
+	if (_state == TRANSITION_SLIDING || _state == TRANSITION_DONE) {
+		ASSERT_OK(rv = scene_draw(&_nextScene), __ret);
+	}
 
 __ret:
 	return rv;
@@ -172,11 +237,25 @@ static int mainloop_swapScene(struct map *map, int animated, int doorID) {
 	ASSERT_OK(scene_loadScene(&tmp, map), __ret);
 
 	if (animated) {
-		/* TODO: Compute relative position of doors. */
-		_state = TRANSITION_SLIDING;
+		int x, y;
+
+		_state = TRANSITION_PRE_SLIDE;
+
+		ASSERT_OK(scene_setRelativePosition(&tmp, &_curScene), __ret);
+		ASSERT_OK(
+			scene_getCameraTransitionPosition(
+				&x
+				, &y
+				, &tmp
+				, &_curScene
+				, doorID
+			)
+			, __ret
+		);
+		ASSERT_OK(camera_moveToPosition(x, y, TRANSITION_DELAY_MS), __ret);
 	}
 	else {
-		_state = TRANSITION_DONE;
+		_state = TRANSITION_IMMEDIATE;
 	}
 
 	memcpy(&_nextScene, &tmp, sizeof(tmp));
