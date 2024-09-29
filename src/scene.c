@@ -226,12 +226,19 @@ __ret:
 }
 
 
+int scene_getOffset(int *x, int *y, struct scene *base, struct scene *other) {
+	*x = other->map->offsetX - base->map->offsetX;
+	*y = other->map->offsetY - base->map->offsetY;
+
+	return 0;
+}
+
+
 int scene_setRelativePosition(struct scene *self, struct scene *other) {
 	int i, offsetX, offsetY;
 	gfmRV grv = GFMRV_OK;
 
-	offsetX = self->map->offsetX - other->map->offsetX;
-	offsetY = self->map->offsetY - other->map->offsetY;
+	scene_getOffset(&offsetX, &offsetY, other, self);
 
 	/* Move self to its new position. */
 	for (i = 0; i < self->map->numTilemaps; i++) {
@@ -310,8 +317,7 @@ int scene_getCameraTransitionPosition(
 	);
 
 	/* Get the map position in world space. */
-	offsetX = self->map->offsetX - other->map->offsetX;
-	offsetY = self->map->offsetY - other->map->offsetY;
+	scene_getOffset(&offsetX, &offsetY, other, self);
 
 	/* Calculate the target camera position. */
 	if (doorCenterX == 0 || doorCenterX == selfW) {

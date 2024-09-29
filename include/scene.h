@@ -107,6 +107,22 @@ int scene_draw(struct scene *scene);
 
 
 /**
+ * scene_getOffset calculates the distance between the two scenes
+ * in both axis.
+ *
+ * This is calculated in reference to base, i.e.:
+ *     offset = other.position - base.position
+ *
+ * @param [out] x: The horizontal distance between the scenes.
+ * @param [out] y: The vertical distance between the scenes.
+ * @param [in] base: The reference scene.
+ * @param [in] other: The other scene.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_getOffset(int *x, int *y, struct scene *base, struct scene *other);
+
+
+/**
  * scene_setRelativePosition moves self so its on pos relative to other.
  *
  * In addition to moving self based on other's dimension,
