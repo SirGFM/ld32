@@ -24,6 +24,15 @@
 #define QUADTREE_PADDING 16
 
 
+/* Position of the loaded scene relative to the original scene. */
+enum relative_position {
+	RELPOS_LEFT = 0
+	, RELPOS_RIGHT
+	, RELPOS_UP
+	, RELPOS_DOWN
+};
+
+
 /**
  * scene_loadScene loads a scene from a pre-loaded map,
  * instantiating objects as needed.
@@ -295,6 +304,73 @@ __ret:
 }
 
 
+/**
+ * scene_getLoaderRelativePosition retrieves the relative position of this scene
+ * from something entering through the specified loader.
+ *
+ * @param [out] pos: The direction being moved into this scene.
+ * @param [in] self: The scene.
+ * @param [in] doorID: Unique value that identifies the same door in two different scenes.
+ * @return 0: Success; Anything else: failure.
+ */
+static int scene_getLoaderRelativePosition(
+	enum relative_position *pos
+	, struct scene *self
+	, int doorID
+) {
+	struct entity *loader;
+	int doorCenterX, doorCenterY;
+	int selfW, selfH;
+	int rv = 1;
+	gfmRV grv = GFMRV_OK;
+
+	ASSERT_OK(scene_getLoader(&loader, self, doorID), __ret);
+
+	ASSERT_OK(
+		grv = gfmSprite_getCenter(
+			&doorCenterX
+			, &doorCenterY
+			, loader->sprite
+		)
+		, __ret
+	);
+
+	ASSERT_OK(
+		grv = gfmTilemap_getDimension(
+			&selfW
+			, &selfH
+			, self->map->tilemaps[0]
+		)
+		, __ret
+	);
+
+	if (doorCenterX == 0 || doorCenterX == selfW) {
+		if (doorCenterX == 0) {
+			*pos = RELPOS_LEFT;
+		}
+		else if (doorCenterX == selfW) {
+			*pos = RELPOS_RIGHT;
+		}
+	}
+	else if (doorCenterY == 0 || doorCenterY == selfH) {
+		if (doorCenterY == 0) {
+			*pos = RELPOS_UP;
+		}
+		else if (doorCenterY == selfH) {
+			*pos = RELPOS_DOWN;
+		}
+	}
+	else {
+		int invalid_loader_position = 0;
+		ASSERT(invalid_loader_position, __ret);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
 int scene_getCameraTransitionPosition(
 	int *x
 	, int *y
@@ -303,6 +379,7 @@ int scene_getCameraTransitionPosition(
 	, int doorID
 ) {
 	gfmCamera *camera;
+	enum relative_position pos;
 	int i;
 	int cameraW, cameraH;
 	int doorCenterX, doorCenterY;
@@ -353,34 +430,26 @@ int scene_getCameraTransitionPosition(
 	/* Get the map position in world space. */
 	scene_getOffset(&offsetX, &offsetY, other, self);
 
-	/* Calculate the target camera position. */
-	if (doorCenterX == 0 || doorCenterX == selfW) {
-		if (doorCenterX == 0) {
-			/* Loader is on the left wall of the new scene. */
-			*x = otherW;
-		}
-		else if (doorCenterX == selfW) {
-			/* Loader is on the right wall of the new scene. */
-			*x = -cameraW;
-		}
-
+	/* Calculate the target camera position.
+	 * Note that pos is relative to the new scene. */
+	ASSERT_OK(scene_getLoaderRelativePosition(&pos, self, doorID), __ret);
+	switch (pos) {
+	case RELPOS_LEFT:
+		*x = otherW;
 		*y = offsetY + doorCenterY - cameraH / 2;
-	}
-	else if (doorCenterY == 0 || doorCenterY == selfH) {
-		if (doorCenterY == 0) {
-			/* Loader is on the top wall of the new scene. */
-			*y = otherH;
-		}
-		else if (doorCenterY == selfH) {
-			/* Loader is on the bottom wall of the new scene. */
-			*y = -cameraH;
-		}
-
+		break;
+	case RELPOS_RIGHT:
+		*x = -cameraW;
+		*y = offsetY + doorCenterY - cameraH / 2;
+		break;
+	case RELPOS_UP:
+		*y = otherH;
 		*x = offsetX + doorCenterX - cameraW / 2;
-	}
-	else {
-		int invalid_loader_position = 0;
-		ASSERT(invalid_loader_position, __ret);
+		break;
+	case RELPOS_DOWN:
+		*y = -cameraH;
+		*x = offsetX + doorCenterX - cameraW / 2;
+		break;
 	}
 
 	/* Adjust the camera position so it's within/bound to the new scene. */
