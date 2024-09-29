@@ -1,3 +1,4 @@
+#include <camera.h>
 #include <config/config.h>
 #include <core/assets.h>
 #include <core/core.h>
@@ -13,6 +14,7 @@ int setup_init() {
 	ASSERT_OK(rv = core_init(&cfg), __ret);
 	ASSERT_OK(rv = input_init(), __ret);
 	ASSERT_OK(rv = assets_loadGfx(), __ret);
+	ASSERT_OK(rv = camera_init(), __ret);
 
 __ret:
 	return rv;
