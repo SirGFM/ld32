@@ -161,6 +161,7 @@ int mainloop_update() {
 	if (_state == TRANSITION_PRE_SLIDE || _state == TRANSITION_SLIDING) {
 		_state = TRANSITION_SLIDING;
 
+		ASSERT_OK(rv = scene_updateTransition(&_curScene), __ret);
 		ASSERT_OK(rv = camera_update(), __ret);
 
 		if (!camera_isMoving()) {
@@ -253,6 +254,16 @@ static int mainloop_swapScene(struct map *map, int animated, int doorID) {
 			, __ret
 		);
 		ASSERT_OK(camera_moveToPosition(x, y, TRANSITION_DELAY_MS), __ret);
+
+		ASSERT_OK(
+			scene_setupPlayerSlide(
+				&_curScene
+				, &tmp
+				, doorID
+				, TRANSITION_DELAY_MS
+			)
+			, __ret
+		);
 	}
 	else {
 		_state = TRANSITION_IMMEDIATE;

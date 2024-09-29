@@ -64,6 +64,18 @@ struct scene {
 	int elapsedMs;
 	/** Whether the collision's bounding boxes should be drawn. */
 	int drawCollisions;
+	/** Original horizontal position of the sliding player in the current scene. */
+	int playerSrcX;
+	/** Original vertical position of the sliding player in the current scene. */
+	int playerSrcY;
+	/** Target horizontal position of the sliding player in the current scene. */
+	int playerTgtX;
+	/** Target vertical position of the sliding player in the current scene. */
+	int playerTgtY;
+	/** How much time has accumulated since the screen transition started. */
+	int playerSlideTimer;
+	/** How long screen transition shall take. */
+	int playerSlideDuration;
 };
 
 
@@ -97,6 +109,17 @@ int scene_loadSceneFromFile(struct scene *scene, char *dir, int len);
  * @return 0: Success; Anything else: failure.
  */
 int scene_update(struct scene *scene);
+
+
+/**
+ * scene_updateTransition updates the entire scene for scene transition,
+ * skipping physics simulation, collision and custom per-object update logic,
+ * but sliding the player from its original position to its new position.
+ *
+ * @param [in] scene: The scene being updated.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_updateTransition(struct scene *scene);
 
 
 /**
@@ -160,6 +183,23 @@ int scene_getCameraTransitionPosition(
 	, struct scene *self
 	, struct scene *other
 	, int doorID
+);
+
+
+/**
+ * scene_setupPlayerSlide calculate the motion of the player moving from other into self.
+ *
+ * @param [in] self: The scene with the sliding player.
+ * @param [in] other: The scene to which the player is sliding toward.
+ * @param [in] doorID: Unique value that identifies the same door in two different scenes.
+ * @param [in] durationMs: How long the transition shall take, in milliseconds.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_setupPlayerSlide(
+	struct scene *self
+	, struct scene *other
+	, int doorID
+	, int durationMs
 );
 
 

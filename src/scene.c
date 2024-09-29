@@ -207,6 +207,36 @@ __ret:
 }
 
 
+int scene_updateTransition(struct scene *scene) {
+	float alpha;
+	int x, y;
+	int elapsedMs;
+	gfmRV grv = GFMRV_OK;
+
+	/* Skip doing any work if there's no player in the current scene. */
+	if (!scene->player) {
+		return 0;
+	}
+
+	ASSERT_OK(grv = gfm_getElapsedTime(&elapsedMs, gameCtx), __ret);
+
+	scene->playerSlideTimer += elapsedMs;
+	if (scene->playerSlideTimer > scene->playerSlideDuration) {
+		scene->playerSlideTimer = scene->playerSlideDuration;
+	}
+
+	/* Alpha blend between the original and target positions. */
+	alpha = ((float)scene->playerSlideTimer) / (float)scene->playerSlideDuration;
+	x = scene->playerTgtX * alpha + scene->playerSrcX * (1.0f - alpha);
+	y = scene->playerTgtY * alpha + scene->playerSrcY * (1.0f - alpha);
+
+	ASSERT_OK(grv = gfmSprite_setPosition(scene->player->sprite, x, y), __ret);
+
+__ret:
+	return grv;
+}
+
+
 int scene_draw(struct scene *scene) {
 	int i;
 	int rv = 0;
@@ -459,6 +489,80 @@ int scene_getCameraTransitionPosition(
 	rv = 0;
 __ret:
 	return rv | grv;
+}
+
+
+int scene_setupPlayerSlide(
+	struct scene *self
+	, struct scene *other
+	, int doorID
+	, int durationMs
+) {
+	struct entity *selfLoader;
+	enum relative_position pos;
+	int offsetX, offsetY;
+	int rv = 1;
+	gfmRV grv = GFMRV_OK;
+
+	/* Skip doing any work if there's no player in the current scene. */
+	if (!self->player) {
+		return 0;
+	}
+
+	ASSERT_OK(
+		grv = gfmSprite_getPosition(
+			&self->playerSrcX
+			, &self->playerSrcY
+			, self->player->sprite
+		)
+		, __ret
+	);
+
+	ASSERT_OK(scene_getLoader(&selfLoader, self, doorID), __ret);
+
+	/* Calculate by how much the player has to slide. */
+	ASSERT_OK(scene_getLoaderRelativePosition(&pos, self, doorID), __ret);
+	switch (pos) {
+	case RELPOS_LEFT:
+	case RELPOS_RIGHT: {
+		int width;
+
+		/* Horizontal motion (vertical position is the same). */
+		self->playerTgtY = self->playerSrcY;
+
+		self->playerTgtX = 1;
+
+		ASSERT_OK(grv = gfmSprite_getWidth(&width, selfLoader->sprite), __ret);
+		self->playerTgtX += width;
+
+		if (pos == RELPOS_LEFT) {
+			self->playerTgtX *= -1;
+		}
+	} break;
+	case RELPOS_UP:
+	case RELPOS_DOWN: {
+		int height;
+
+		/* Vertical motion (horizontal position is the same). */
+		self->playerTgtX = self->playerSrcX;
+
+		self->playerTgtY = 1;
+
+		ASSERT_OK(grv = gfmSprite_getHeight(&height, selfLoader->sprite), __ret);
+		self->playerTgtY += height;
+
+		if (pos == RELPOS_UP) {
+			self->playerTgtY *= -1;
+		}
+	} break;
+	}
+
+	self->playerSlideTimer = 0;
+	self->playerSlideDuration = durationMs;
+
+	rv = 0;
+__ret:
+	return rv;
 }
 
 
