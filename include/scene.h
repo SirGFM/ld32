@@ -47,6 +47,8 @@ struct scene {
 	 * For simplicity, this value is pre-calculated and stored.
 	 */
 	struct entity **entities;
+	/** Shortcut for the last player entity in the scene, if any. */
+	struct entity *player;
 	/** How many entities were loaded into this scene. */
 	int numEntities;
 	/** The scene's width in pixels. */

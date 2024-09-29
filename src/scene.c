@@ -114,6 +114,10 @@ int scene_loadScene(struct scene *scene, struct map *map) {
 
 		ASSERT_OK(rv = entity_fixSpriteReference(cur), __ret);
 		ASSERT_OK(rv = cur->fn.onLoad(cur, &tmp), __ret);
+
+		if (cur->type == TYP_PLAYER) {
+			tmp.player = cur;
+		}
 	}
 
 	/* Set the BG color. */
