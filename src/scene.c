@@ -261,6 +261,40 @@ __ret:
 }
 
 
+/**
+ * scene_getLoader retrieves the loader identified by the provided ID.
+ *
+ * @param [out] loader: The found loader, if any.
+ * @param [in] self: The scene.
+ * @param [in] doorID: Unique value that identifies the same door in two different scenes.
+ * @return 0: Success; Anything else: failure.
+ */
+static int scene_getLoader(
+	struct entity **loader
+	, struct scene *self
+	, int doorID
+) {
+	int i;
+	int rv = 1;
+
+	for (i = 0; i < self->numEntities; i++) {
+		struct entity *entity = self->entities[i];
+
+		if (entity->type != TYP_LOADER || !loader_isID(entity, doorID)) {
+			continue;
+		}
+
+		*loader = entity;
+		break;
+	}
+	ASSERT(i < self->numEntities, __ret);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
 int scene_getCameraTransitionPosition(
 	int *x
 	, int *y
@@ -283,24 +317,20 @@ int scene_getCameraTransitionPosition(
 	ASSERT_OK(grv = gfmCamera_getDimensions(&cameraW, &cameraH, camera), __ret);
 
 	/* Look for the target door in the new scene. */
-	for (i = 0; i < self->numEntities; i++) {
-		struct entity *entity = self->entities[i];
+	do {
+		struct entity *loader;
 
-		if (entity->type != TYP_LOADER || !loader_isID(entity, doorID)) {
-			continue;
-		}
+		ASSERT_OK(scene_getLoader(&loader, self, doorID), __ret);
 
 		ASSERT_OK(
 			grv = gfmSprite_getCenter(
 				&doorCenterX
 				, &doorCenterY
-				, entity->sprite
+				, loader->sprite
 			)
 			, __ret
 		);
-		break;
-	}
-	ASSERT(i < self->numEntities, __ret);
+	} while (0);
 
 	/* Get the map dimensions from any tilemap. */
 	ASSERT_OK(
