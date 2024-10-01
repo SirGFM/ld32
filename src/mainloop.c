@@ -189,14 +189,14 @@ __ret:
 int mainloop_draw() {
 	int rv;
 
-	ASSERT_OK(rv = scene_draw(&_curScene), __ret);
-
 	/* For some reason, the new scene would be slightly offset
 	 * on the first frame after setting its position.
 	 * So, PRE_SLIDING is ignored here. */
 	if (_state == TRANSITION_SLIDING || _state == TRANSITION_DONE) {
 		ASSERT_OK(rv = scene_draw(&_nextScene), __ret);
 	}
+
+	ASSERT_OK(rv = scene_draw(&_curScene), __ret);
 
 __ret:
 	return rv;
