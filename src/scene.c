@@ -566,6 +566,40 @@ __ret:
 }
 
 
+int scene_finishPlayerSlide(struct scene *from, struct scene *to) {
+	double ax, ay;
+	double vx, vy;
+	int offsetX, offsetY;
+	int x, y;
+	int rv = 1;
+	gfmRV grv = GFMRV_OK;
+
+	/* Skip doing any work if there's no player in the current scene. */
+	if (!from->player || !to->player) {
+		return 0;
+	}
+
+	/* Copy the position, adjusting position in the new scene. */
+	ASSERT_OK(scene_getOffset(&offsetX, &offsetY, to, from), __ret);
+	ASSERT_OK(grv = gfmSprite_getPosition(&x, &y, from->player->sprite), __ret);
+	x += offsetX;
+	y += offsetY;
+
+	ASSERT_OK(grv = gfmSprite_setPosition(to->player->sprite, x, y), __ret);
+
+	/* Copy the physics state. */
+	ASSERT_OK(grv = gfmSprite_getVelocity(&vx, &vy, from->player->sprite), __ret);
+	ASSERT_OK(grv = gfmSprite_getAcceleration(&ax, &ay, from->player->sprite), __ret);
+
+	ASSERT_OK(grv = gfmSprite_setVelocity(to->player->sprite, vx, vy), __ret);
+	ASSERT_OK(grv = gfmSprite_setAcceleration(to->player->sprite, ax, ay), __ret);
+
+	rv = 0;
+__ret:
+	return grv | rv;
+}
+
+
 int scene_loadSceneFromFile(struct scene *scene, char *dir, int len) {
 	struct map *map;
 	struct scene tmp = {0};

@@ -130,6 +130,9 @@ static int mainloop_finishTransition() {
 	/* Move the camera to match the scene's new position. */
 	ASSERT_OK(rv = camera_translate(offsetX, offsetY), __ret);
 
+	/* Adjust character's position. */
+	ASSERT_OK(rv = scene_finishPlayerSlide(&_curScene, &_nextScene), __ret);
+
 	/* Move the next scene back to (0, 0). */
 	ASSERT_OK(
 		rv = scene_setRelativePosition(

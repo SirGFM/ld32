@@ -204,6 +204,17 @@ int scene_setupPlayerSlide(
 
 
 /**
+ * scene_finishPlayerSlide updates the player position in the scene
+ * the player transitioned TO, assuming the player slided in the scene it moved FROM.
+ *
+ * @param [in] from: The scene with the sliding player.
+ * @param [in] to: The new scene, where the player slided into.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_finishPlayerSlide(struct scene *from, struct scene *to);
+
+
+/**
  * scene_free releases every resource associated with the provided scene.
  *
  * @param [in] scene: The scene being unloaded.
