@@ -500,7 +500,9 @@ int scene_setupPlayerSlide(
 ) {
 	struct entity *selfLoader;
 	enum relative_position pos;
+	int loaderWidth, loaderHeight;
 	int offsetX, offsetY;
+	int selfW, selfH;
 	int rv = 1;
 	gfmRV grv = GFMRV_OK;
 
@@ -508,6 +510,8 @@ int scene_setupPlayerSlide(
 	if (!self->player) {
 		return 0;
 	}
+
+	ASSERT_OK(scene_getLoader(&selfLoader, self, doorID), __ret);
 
 	ASSERT_OK(
 		grv = gfmSprite_getPosition(
@@ -518,43 +522,45 @@ int scene_setupPlayerSlide(
 		, __ret
 	);
 
-	ASSERT_OK(scene_getLoader(&selfLoader, self, doorID), __ret);
+	ASSERT_OK(
+		grv = gfmSprite_getDimensions(
+			&loaderWidth
+			, &loaderHeight
+			, selfLoader->sprite
+		)
+		, __ret
+	);
+
+	ASSERT_OK(
+		grv = gfmTilemap_getDimension(
+			&selfW
+			, &selfH
+			, self->map->tilemaps[0]
+		)
+		, __ret
+	);
 
 	/* Calculate by how much the player has to slide. */
 	ASSERT_OK(scene_getLoaderRelativePosition(&pos, self, doorID), __ret);
 	switch (pos) {
+	/* Horizontal motion (vertical position is the same). */
 	case RELPOS_LEFT:
-	case RELPOS_RIGHT: {
-		int width;
-
-		/* Horizontal motion (vertical position is the same). */
 		self->playerTgtY = self->playerSrcY;
-
-		self->playerTgtX = 1;
-
-		ASSERT_OK(grv = gfmSprite_getWidth(&width, selfLoader->sprite), __ret);
-		self->playerTgtX += width;
-
-		if (pos == RELPOS_LEFT) {
-			self->playerTgtX *= -1;
-		}
-	} break;
+		self->playerTgtX = -loaderWidth - 1;
+	break;
+	case RELPOS_RIGHT:
+		self->playerTgtY = self->playerSrcY;
+		self->playerTgtX = selfW + loaderWidth / 2 + 1;
+	break;
+	/* Vertical motion (horizontal position is the same). */
 	case RELPOS_UP:
-	case RELPOS_DOWN: {
-		int height;
-
-		/* Vertical motion (horizontal position is the same). */
 		self->playerTgtX = self->playerSrcX;
-
-		self->playerTgtY = 1;
-
-		ASSERT_OK(grv = gfmSprite_getHeight(&height, selfLoader->sprite), __ret);
-		self->playerTgtY += height;
-
-		if (pos == RELPOS_UP) {
-			self->playerTgtY *= -1;
-		}
-	} break;
+		self->playerTgtY = -loaderHeight - 1;
+	break;
+	case RELPOS_DOWN:
+		self->playerTgtX = self->playerSrcX;
+		self->playerTgtX = selfH + loaderHeight / 2 + 1;
+	break;
 	}
 
 	self->playerSlideTimer = 0;
