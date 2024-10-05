@@ -133,6 +133,15 @@ int scene_draw(struct scene *scene, int tilemapOnly);
 
 
 /**
+ * scene_drawPlayer renders the scene's player, if any.
+ *
+ * @param [in] scene: The scene being rendered.
+ * @return 0: Success; Anything else: failure.
+ */
+int scene_drawPlayer(struct scene *scene);
+
+
+/**
  * scene_getOffset calculates the distance between the two scenes
  * in both axis.
  *

@@ -269,6 +269,20 @@ __ret:
 }
 
 
+int scene_drawPlayer(struct scene *scene) {
+	int rv = 0;
+
+	if (scene->player) {
+		struct entity *cur = scene->player;
+
+		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
+	}
+
+__ret:
+	return rv;
+}
+
+
 int scene_getOffset(int *x, int *y, struct scene *base, struct scene *other) {
 	*x = other->map->offsetX - base->map->offsetX;
 	*y = other->map->offsetY - base->map->offsetY;

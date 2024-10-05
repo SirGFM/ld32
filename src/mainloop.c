@@ -196,7 +196,15 @@ int mainloop_draw() {
 		ASSERT_OK(rv = scene_draw(&_nextScene, 0), __ret);
 	}
 
-	ASSERT_OK(rv = scene_draw(&_curScene, 1), __ret);
+	/* Also the old scene can get slightly offset if moving to a negative position,
+	 * so skip it on the last frame.
+	 * However, since the player still hasn't been updated on the new scene,
+	 * render only the player of the old scene. */
+	if (_state != TRANSITION_DONE) {
+		ASSERT_OK(rv = scene_draw(&_curScene, 1), __ret);
+	} else if (_curScene.player) {
+		ASSERT_OK(rv = scene_drawPlayer(&_curScene), __ret);
+	}
 
 __ret:
 	return rv;
