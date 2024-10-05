@@ -501,6 +501,7 @@ int scene_setupPlayerSlide(
 	struct entity *selfLoader;
 	enum relative_position pos;
 	int loaderWidth, loaderHeight;
+	int playerWidth, playerHeight;
 	int offsetX, offsetY;
 	int selfW, selfH;
 	int rv = 1;
@@ -517,6 +518,15 @@ int scene_setupPlayerSlide(
 		grv = gfmSprite_getPosition(
 			&self->playerSrcX
 			, &self->playerSrcY
+			, self->player->sprite
+		)
+		, __ret
+	);
+
+	ASSERT_OK(
+		grv = gfmSprite_getDimensions(
+			&playerWidth
+			, &playerHeight
 			, self->player->sprite
 		)
 		, __ret
@@ -546,20 +556,20 @@ int scene_setupPlayerSlide(
 	/* Horizontal motion (vertical position is the same). */
 	case RELPOS_LEFT:
 		self->playerTgtY = self->playerSrcY;
-		self->playerTgtX = -loaderWidth - 1;
+		self->playerTgtX = -1 - loaderWidth / 2 - playerWidth;
 	break;
 	case RELPOS_RIGHT:
 		self->playerTgtY = self->playerSrcY;
-		self->playerTgtX = selfW + loaderWidth / 2 + 1;
+		self->playerTgtX = 1 + selfW + loaderWidth / 2;
 	break;
 	/* Vertical motion (horizontal position is the same). */
 	case RELPOS_UP:
 		self->playerTgtX = self->playerSrcX;
-		self->playerTgtY = -loaderHeight - 1;
+		self->playerTgtY = -1 - loaderHeight / 2 - playerHeight;
 	break;
 	case RELPOS_DOWN:
 		self->playerTgtX = self->playerSrcX;
-		self->playerTgtX = selfH + loaderHeight / 2 + 1;
+		self->playerTgtX = 1 + selfH + loaderHeight / 2;
 	break;
 	}
 
