@@ -237,7 +237,7 @@ __ret:
 }
 
 
-int scene_draw(struct scene *scene) {
+int scene_draw(struct scene *scene, int tilemapOnly) {
 	int i;
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
@@ -248,7 +248,7 @@ int scene_draw(struct scene *scene) {
 		ASSERT_OK(grv = gfmTilemap_draw(cur, gameCtx), __ret);
 	}
 
-	for (i = 0; i < scene->numEntities; i++) {
+	for (i = 0; i < scene->numEntities && tilemapOnly; i++) {
 		struct entity *cur = scene->entities[i];
 
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);

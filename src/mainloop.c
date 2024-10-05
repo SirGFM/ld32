@@ -193,10 +193,10 @@ int mainloop_draw() {
 	 * on the first frame after setting its position.
 	 * So, PRE_SLIDING is ignored here. */
 	if (_state == TRANSITION_SLIDING || _state == TRANSITION_DONE) {
-		ASSERT_OK(rv = scene_draw(&_nextScene), __ret);
+		ASSERT_OK(rv = scene_draw(&_nextScene, 0), __ret);
 	}
 
-	ASSERT_OK(rv = scene_draw(&_curScene), __ret);
+	ASSERT_OK(rv = scene_draw(&_curScene, 1), __ret);
 
 __ret:
 	return rv;
