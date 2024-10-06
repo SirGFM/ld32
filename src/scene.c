@@ -583,7 +583,7 @@ int scene_setupPlayerSlide(
 	break;
 	case RELPOS_DOWN:
 		self->playerTgtX = self->playerSrcX;
-		self->playerTgtX = 1 + selfH + loaderHeight / 2;
+		self->playerTgtY = 1 + selfH + loaderHeight / 2;
 	break;
 	}
 
