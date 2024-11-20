@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#323c39" nextlayerid="29" nextobjectid="20">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#323c39" nextlayerid="32" nextobjectid="23">
  <editorsettings>
   <export target="test.json" format="json"/>
  </editorsettings>
@@ -163,6 +163,12 @@
  <group id="19" name="now-with-timming" offsetx="-480" offsety="384">
   <objectgroup id="26" name="obj.txt">
    <object id="12" name="player" type="player" gid="4449" x="216" y="176" width="16" height="16"/>
+   <object id="22" name="exit_2" type="loader" x="24" y="-8" width="88" height="16">
+    <properties>
+     <property name="id" type="int" value="2"/>
+     <property name="map" value="a-perfectly-plausible-jump"/>
+    </properties>
+   </object>
   </objectgroup>
   <layer id="21" name="bg.txt" width="40" height="30">
    <data encoding="csv">
@@ -202,6 +208,18 @@
  <group id="15" name="a-perfectly-plausible-jump" offsetx="-640" offsety="144">
   <objectgroup id="17" name="obj.txt">
    <object id="11" name="player" type="player" gid="4449" x="216" y="176" width="16" height="16"/>
+   <object id="20" name="exit_1" type="loader" x="312" y="24" width="16" height="48">
+    <properties>
+     <property name="id" type="int" value="1"/>
+     <property name="map" value="no-way-back?"/>
+    </properties>
+   </object>
+   <object id="21" name="exit_2" type="loader" x="184" y="232" width="88" height="16">
+    <properties>
+     <property name="id" type="int" value="2"/>
+     <property name="map" value="now-with-timming"/>
+    </properties>
+   </object>
   </objectgroup>
   <layer id="16" name="bg.txt" width="40" height="30">
    <data encoding="csv">
@@ -250,7 +268,7 @@
    <object id="19" name="exit_1" type="loader" x="-8" y="24" width="16" height="48">
     <properties>
      <property name="id" type="int" value="1"/>
-     <property name="map" value="temple-entrance"/>
+     <property name="map" value="a-perfectly-plausible-jump"/>
     </properties>
    </object>
   </objectgroup>
@@ -289,7 +307,7 @@
 </data>
   </layer>
  </group>
- <group id="9" name="temple-entrance">
+ <group id="9" name="temple-entrance" visible="0">
   <objectgroup id="10" name="obj.txt">
    <object id="9" name="player" type="player" gid="4449" x="152" y="168" width="16" height="16"/>
    <object id="15" name="exit_0" type="loader" x="-8" y="168" width="16" height="48">
