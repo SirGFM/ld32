@@ -118,6 +118,20 @@ int mainmenu_accept(int idx) {
 	case MM_FILE_3: {
 		struct map *map;
 
+#if defined(DEBUG)
+		if (idx == MM_FILE_3) {
+			ASSERT_OK(
+				preloadMap_getMapByName(
+					&map
+					, "maps/levels/training-room"
+					, sizeof("maps/levels/training-room") - 1
+				)
+				, __ret
+			);
+		}
+		else {
+#endif /* defined(DEBUG) */
+
 		/* TODO: Implement continue. */
 		ASSERT_OK(
 			preloadMap_getMapByName(
@@ -127,6 +141,10 @@ int mainmenu_accept(int idx) {
 			)
 			, __ret
 		);
+
+#if defined(DEBUG)
+		}
+#endif /* defined(DEBUG) */
 
 		ASSERT_OK(mainloop_staticSwapScene(map), __ret);
 	} break;
