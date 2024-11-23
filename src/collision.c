@@ -70,7 +70,13 @@ int collision_handleFloor(struct collision_node *floor, struct collision_node *o
 
 	/* Handle bonking/stopping on the floor. */
 	if (dir & gfmCollision_ver) {
-		gfmObject_setVerticalVelocity(other->object, 0);
+		double vy;
+
+		gfmObject_getVerticalVelocity(&vy, other->object);
+
+		if ((vy < 0 && (dir & gfmCollision_up)) || (vy > 0 && (dir &gfmCollision_down))) {
+			gfmObject_setVerticalVelocity(other->object, 0);
+		}
 
 		if (dir & gfmCollision_up) {
 			int y;
