@@ -64,7 +64,7 @@
  *
  * @param n - The number of frames to be converted.
  */
-#define FRAMES_TO_MS(n) (n * 16)
+#define FRAMES_TO_MS(n) (n * 17)
 
 
 #endif /* GAME_MATH_H */

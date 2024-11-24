@@ -87,6 +87,7 @@ int core_init(struct config *cfg) {
 	);
 	ASSERT_OK(grv = gfm_initAudio(pCtx, cfg->audioMode), __ret);
 	ASSERT_OK(grv = gfm_initFPSCounter(pCtx, 0, 0), __ret);
+	ASSERT_OK(grv = gfm_setStableElapsed(pCtx), __ret);
 
 	gameCtx = pCtx;
 	pCtx = 0;
