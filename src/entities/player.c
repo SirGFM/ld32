@@ -20,18 +20,24 @@
 #define PLAYER_HEIGHT 12
 
 /** The player's jump height, in 8x8 tiles. */
-#define PLAYER_JUMP_HEIGHT 3.5
+#define PLAYER_JUMP_HEIGHT 2.75
 
 /** Time to reach the appeax of the jump, in frames. */
-#define PLAYER_JUMP_TIME 60
+#define PLAYER_JUMP_TIME 25
+
+/** Time to reach the initial jumping height from the appeax of the jump, in frames. */
+#define PLAYER_FALL_TIME 20
 
 #define PLAYER_VX SPEED(360, 30)
 
 /** The initial vertical speed for jumps. */
 #define PLAYER_JUMP_VY JUMP_SPEED(PLAYER_JUMP_TIME, PLAYER_JUMP_HEIGHT)
 
-/** The gravity acting on the player. */
+/** The gravity acting on the player on the way up. */
 #define PLAYER_JUMP_ACC JUMP_ACCELERATION(PLAYER_JUMP_TIME, PLAYER_JUMP_HEIGHT)
+
+/** The gravity acting on the player on the way down. */
+#define PLAYER_FALL_ACC JUMP_ACCELERATION(PLAYER_FALL_TIME, PLAYER_JUMP_HEIGHT)
 
 
 /** List of animations */
@@ -63,6 +69,7 @@ static int animationData[] = {
  */
 static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	struct player *player = (struct player*)entity;
+	double vy, ay;
 	int rv = 1;
 	gfmCollision dir;
 
@@ -102,10 +109,17 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	}
 
 	/* Set gravity. */
+	ASSERT(GFMRV_OK == gfmSprite_getVerticalVelocity(&vy, player->base.sprite), __ret);
+	if (vy >= 0) {
+		ay = PLAYER_FALL_ACC;
+	}
+	else {
+		ay = PLAYER_JUMP_ACC;
+	}
 	ASSERT(
 		GFMRV_OK == gfmSprite_setVerticalAcceleration(
 			player->base.sprite
-			, PLAYER_JUMP_ACC
+			, ay
 		)
 		, __ret
 	);

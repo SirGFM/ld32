@@ -1,2 +1,2 @@
 attr [ count , 1 ]
-obj player 48 192 16 16
+obj player 24 168 16 16
