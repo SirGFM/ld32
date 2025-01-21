@@ -72,7 +72,7 @@ endif
 # =========================================================================
 # Configure the flags for debug mode.
 MODE := release
-ifneq ($(filter %-debug,$(MAKECMDGOALS)),)
+ifneq ($(findstring debug,$(MAKECMDGOALS)),)
   MODE := debug
 endif
 ifeq ($(OUTPUT_BIN), unit-tests)
