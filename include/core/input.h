@@ -59,25 +59,19 @@ struct button {
 	) \
 	X( \
 		INPUT_FIRE, "FIRE",/*auto*/, \
+		X_INPUT(gfmKey_backspace), \
+		X_INPUT(gfmKey_lctrl), \
 		X_INPUT(gfmController_b), \
 		X_INPUT(gfmController_x), \
 		X_INPUT(gfmController_r2), \
 	) \
 	X( \
-		INPUT_FIRE_UP, "FIRE UP",/*auto*/, \
-		X_INPUT(gfmController_raxis_up), \
+		INPUT_JUMP_MOUSE, "JUMP MOUSE",/*auto*/, \
+		X_INPUT(gfmPointer_leftButton), \
 	) \
 	X( \
-		INPUT_FIRE_DOWN, "FIRE DOWN",/*auto*/, \
-		X_INPUT(gfmController_raxis_down), \
-	) \
-	X( \
-		INPUT_FIRE_LEFT, "FIRE LEFT",/*auto*/, \
-		X_INPUT(gfmController_raxis_left), \
-	) \
-	X( \
-		INPUT_FIRE_RIGHT, "FIRE RIGHT",/*auto*/, \
-		X_INPUT(gfmController_raxis_right), \
+		INPUT_FIRE_MOUSE, "FIRE MOUSE",/*auto*/, \
+		X_INPUT(gfmPointer_rightButton), \
 	) \
 	DEBUG_INPUT_LIST \
 	X(INPUT_MAX, "MAX",/*auto*/) \
@@ -195,6 +189,38 @@ int input_update();
  * @return 0: Success; Anything else: failure.
  */
 int input_rebindAll(struct buttonMapping *mappings, int count);
+
+
+/**
+ * input_getFireDirection retrieves the direction at which the rainbow is being shot,
+ * in the [-1.0, 1.0] range.
+ *
+ * The action that triggered this (either a jump or the fire button)
+ * determines whether this is shot forward or backward.
+ * The movement direction should always point opposite to the returned value.
+ *
+ * If neither action is active, this returns an error.
+ *
+ * Lastly, depending on which inputs are enabled,
+ * the direction is calculated based on.
+ * Note that if one of the conditions isn't met,
+ * the next one is attempted.
+ *
+ *     - Mouse position (if triggered from a mouse event);
+ *     - Right analog (if triggered from a fire action);
+ *     - Left analog;
+ *     - Directional keys (if both analogs are within their deadzone);
+ *     - Straight forward (if triggered from a jump action);
+ *     - Straight down (if triggered from a jump action).
+ *
+ * @param [out] x: The horizontal direction.
+ * @param [out] y: The vertical direction.
+ * @param [in] playerX: The player's horizontal position, in screen space.
+ * @param [in] playerY: The player's vertical position, in screen space.
+ * @param [in] playerRight: Whether the player is facing right.
+ * @return 0: Success; Anything else: failure.
+ */
+int input_getFireDirection(double *x, double *y, int playerX, int playerY, int playerRight);
 
 
 #endif /* INPUT_H */
