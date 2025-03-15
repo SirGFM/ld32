@@ -6,6 +6,9 @@
 #include <GFraMe/gfmInput.h>
 
 
+gfmInput *inputCtx;
+
+
 /** List of every virtual button in the game. */
 static struct button buttons[INPUT_MAX] = {0};
 
@@ -35,6 +38,11 @@ int input_init() {
 	int rv = 1;
 	int i;
 
+	ASSERT(
+		GFMRV_OK == gfm_getInput(&inputCtx, gameCtx)
+		, __ret
+	);
+
 	ASSERT_OK(input_rebindAll(defaultMapping, numDefaultMapping), __ret);
 
 	rv = 0;
@@ -44,11 +52,8 @@ __ret:
 
 
 int input_updateDebug() {
-	gfmInput *input;
 	int rv = 1;
 	int i;
-
-	ASSERT(GFMRV_OK == gfm_getInput(&input, gameCtx), __ret);
 
 #if defined(DEBUG)
 	for (i = DEBUG_INPUT; i < INPUT_MAX; i++) {
@@ -56,7 +61,7 @@ int input_updateDebug() {
 
 		ASSERT(
 			GFMRV_OK == gfmInput_updateVKey(
-				input
+				inputCtx
 				, button->handle
 			)
 			, __ret

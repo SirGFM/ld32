@@ -7,6 +7,10 @@
 #include <stdint.h>
 
 
+/** The game's input context. */
+extern gfmInput *inputCtx;
+
+
 /** Define a single button */
 struct button {
 	/** Button handle, internal to the framework */
