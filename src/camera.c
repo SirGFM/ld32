@@ -39,7 +39,7 @@ static struct camera camera;
 int camera_init() {
 	gfmRV grv = GFMRV_OK;
 
-	memset(&camera, sizeof(struct camera), 0x0);
+	memset(&camera, 0x0, sizeof(struct camera));
 	ASSERT_OK(grv = gfm_getCamera(&camera.self, gameCtx), __ret);
 
 __ret:
