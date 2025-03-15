@@ -2,6 +2,7 @@
 #include <util.h>
 
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 
 
@@ -61,4 +62,34 @@ int str2uint(unsigned int *num, const char *str) {
 	rv = 0;
 __ret:
 	return rv;
+}
+
+
+void normalize(double *x, double *y) {
+	double delta = 1.0 / sqrt((*x) * (*x) + (*y) * (*y));
+
+	*x *= delta;
+	*y *= delta;
+}
+
+
+void flinear_map(float *value, float zero, float one) {
+	one -= zero;
+
+	if (fabs(*value) <= zero) {
+		*value = 0.0f;
+	}
+	else if (*value >= one) {
+		*value = one;
+	}
+	else if (*value <= -one) {
+		*value = -one;
+	}
+	else if (zero != 0.0f) {
+		*value -= zero;
+	}
+
+	if (one != 1.0f) {
+		*value /= one;
+	}
 }
