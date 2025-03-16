@@ -46,6 +46,16 @@ void flinear_map(float *value, float zero, float one);
 
 
 /**
+ * clampAbs limits value so its absolute is max,
+ * but maintaining its sign.
+ *
+ * @param [out] value: The value being converted.
+ * @param [in] max: The maximum absolute value.
+ */
+void clampAbs(double *value, double max);
+
+
+/**
  * min returns the smaller of the two values.
  *
  * Since this is a macro, becareful of issues caused by type conversion.

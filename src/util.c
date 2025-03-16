@@ -95,3 +95,14 @@ void flinear_map(float *value, float zero, float one) {
 		*value /= one;
 	}
 }
+
+void clampAbs(double *value, double max) {
+	if (llabs(*value) > max) {
+		if (*value > 0) {
+			*value = max;
+		}
+		else {
+			*value = -max;
+		}
+	}
+}
