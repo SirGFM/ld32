@@ -66,10 +66,12 @@ __ret:
 
 
 void normalize(double *x, double *y) {
-	double delta = 1.0 / sqrt((*x) * (*x) + (*y) * (*y));
+	if (*x != 0.0 && *y != 0.0) {
+		double delta = 1.0 / sqrt((*x) * (*x) + (*y) * (*y));
 
-	*x *= delta;
-	*y *= delta;
+		*x *= delta;
+		*y *= delta;
+	}
 }
 
 
