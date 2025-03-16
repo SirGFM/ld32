@@ -58,4 +58,14 @@ int camera_moveToPosition(int x, int y, int durationMs);
 int camera_isMoving();
 
 
+/**
+ * camera_worldToScreen converts a point in world-space to screen-space.
+ *
+ * @param [out] x: The converted point's horizontal component.
+ * @param [out] y: The converted point's vertical component.
+ * @return 0: Success; Anything else: failure.
+ */
+int camera_worldToScreen(int *x, int *y);
+
+
 #endif /* CAMERA_H */

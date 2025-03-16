@@ -151,3 +151,17 @@ __ret:
 int camera_isMoving() {
 	return camera.motion.vx != 0.0f || camera.motion.vy != 0.0f;
 }
+
+
+int camera_worldToScreen(int *x, int *y) {
+	int cx, cy;
+	int rv = 1;
+
+	ASSERT(GFMRV_OK == gfmCamera_getPosition(&cx, &cx, camera.self), __ret);
+	*x -= cx;
+	*y -= cy;
+
+	rv = 0;
+__ret:
+	return rv;
+}
