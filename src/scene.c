@@ -5,6 +5,7 @@
 #include <entities/loader.h>
 #include <entities/new_by_type.h>
 #include <error.h>
+#include <particles.h>
 #include <scene.h>
 #include <util.h>
 
@@ -194,6 +195,8 @@ int scene_update(struct scene *scene) {
 			, __ret
 		);
 	}
+
+	ASSERT_OK(rv = particles_update(scene), __ret);
 
 	/* Execute any custom post-update. */
 	for (i = 0; i < scene->numEntities; i++) {
