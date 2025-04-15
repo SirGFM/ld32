@@ -162,3 +162,24 @@ int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite) {
 __ret:
 	return grv || rv;
 }
+
+
+int collision_collideGroup(gfmQuadtreeRoot *qt, gfmGroup *group) {
+	int rv = 1;
+	gfmRV grv;
+
+	grv = gfmQuadtree_collideGroup(qt, group);
+	ASSERT(grv == GFMRV_QUADTREE_OVERLAPED || grv == GFMRV_QUADTREE_DONE, __ret);
+
+	/* Continue colliding until the quadtree finishes. */
+	while (grv != GFMRV_QUADTREE_DONE) {
+		ASSERT_OK(collision_handle(qt), __ret);
+
+		grv = gfmQuadtree_continue(qt);
+		ASSERT(grv == GFMRV_QUADTREE_OVERLAPED || grv == GFMRV_QUADTREE_DONE, __ret);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}

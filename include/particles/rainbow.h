@@ -36,4 +36,12 @@ int rainbow_reset();
 int rainbow_update(struct scene *scene);
 
 
+/**
+ * rainbow_draw draws every rainbow particle.
+ *
+ * @return 0: Success; Anything else: failure.
+ */
+int rainbow_draw(struct scene *scene);
+
+
 #endif /* RAINBOW_H */

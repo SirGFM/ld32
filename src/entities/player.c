@@ -4,6 +4,7 @@
 #include <core/input.h>
 #include <core/types.h>
 #include <game_math.h>
+#include <particles/rainbow.h>
 #include <scene.h>
 #include <entities/player.h>
 
@@ -181,6 +182,26 @@ __ret:
 
 
 /**
+ * player_draw draws the player and the rainbow particle behind them.
+ *
+ * @param [in] entity: The player's embedded entity.
+ * @param [in] scene: The scene that called this function.
+ * @return 0: Success; Anything else: failure.
+ */
+static int player_draw(struct entity *entity, struct scene *scene) {
+	struct player *player = (struct player*)entity;
+	int rv = 1;
+
+	ASSERT_OK(rainbow_draw(scene), __ret);
+	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+/**
  * player_static_free releases every resource allocated into a player,
  * except by the player's memory itself.
  *
@@ -242,6 +263,7 @@ int player_new(struct entity **entity, int x, int y) {
 
 	tmp.base.fn.preUpdate = player_preUpdate;
 	tmp.base.fn.postUpdate = player_postUpdate;
+	tmp.base.fn.draw = player_draw;
 	tmp.base.fn.free = player_free;
 
 	ASSERT((ret = malloc(sizeof(tmp))) != 0, __ret);

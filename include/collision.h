@@ -61,6 +61,16 @@ int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite);
 
 
 /**
+ * collision_collideGroup collides the given group with the provided quadtree.
+ *
+ * @param [in] qt: The quadtree.
+ * @param [in] group: The colliding group.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_collideGroup(gfmQuadtreeRoot *qt, gfmGroup *group);
+
+
+/**
  * collision_handlePlayerLoader handles colliding a player with a loader,
  * queueing a scene transition.
  *
