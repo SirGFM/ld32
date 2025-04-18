@@ -1,8 +1,10 @@
 #include <error.h>
 #include <config/config.h>
 #include <core/assets.h>
+#include <core/core.h>
 #include <core/input.h>
 #include <core/types.h>
+#include <camera.h>
 #include <game_math.h>
 #include <particles/rainbow.h>
 #include <scene.h>
@@ -30,6 +32,9 @@
 #define PLAYER_FALL_TIME 20
 
 #define PLAYER_VX SPEED(360, 30)
+
+/** How far away from the player are the rainbow particles spawned. */
+#define PLAYER_SHOOT_DIST 8
 
 /** The initial vertical speed for jumps. */
 #define PLAYER_JUMP_VY JUMP_SPEED(PLAYER_JUMP_TIME, PLAYER_JUMP_HEIGHT)
@@ -60,6 +65,45 @@ static int animationData[] = {
 };
 
 
+static int player_shoot(struct player *player, struct scene *scene) {
+	int rv = 1;
+
+	double shootDirX, shootDirY;
+	int camCenterX, centerX, camCenterY, centerY, isLeft;
+
+	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
+
+	/* Get the player's position in screen space. */
+	ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
+
+	camCenterX = centerX;
+	camCenterY = centerY;
+	ASSERT_OK(camera_worldToScreen(&camCenterX, &camCenterY), __ret);
+
+	/* Get the shooting direction. */
+	ASSERT_OK(input_getFireDirection(&shootDirX, &shootDirY, camCenterX, camCenterY, !isLeft), __ret);
+
+	/* TODO: Apply the velocity in the opposite direction. */
+
+	/* Spawn the particles. */
+	ASSERT_OK(
+		rainbow_spawn(
+			RED_BULLET | ORANGE_BULLET | YELLOW_BULLET | GREEN_BULLET | CYAN_BULLET | BLUE_BULLET | PURPLE_BULLET
+			, shootDirX
+			, shootDirY
+			, centerX
+			, centerY
+			, PLAYER_SHOOT_DIST
+		)
+		, __ret
+	);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
 /**
  * player_preUpdate handles user inputs,
  * preparing the entity's new physics state.
@@ -71,12 +115,14 @@ static int animationData[] = {
 static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	struct player *player = (struct player*)entity;
 	double vy, ay;
+	int isDown;
 	int rv = 1;
 	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
-	if (dir & gfmCollision_down) {
+	isDown = (dir & gfmCollision_down);
+	if (isDown) {
 		double vx;
 
 		/* Horizontal movement. */
@@ -107,6 +153,37 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 				, __ret
 			);
 		}
+	}
+
+	/* Start shooting if the player
+	 *   - pressed jump while in the air
+	 *   - pressed a fire action regardless of their state
+	 */
+	if (!player->isShooting) {
+		player->isShooting = (
+			(
+				!isDown
+				&& (
+					input_isJustPressed(INPUT_JUMP)
+					|| input_isJustPressed(INPUT_JUMP_MOUSE)
+				)
+			)
+			|| input_isPressed(INPUT_FIRE)
+			|| input_isPressed(INPUT_FIRE_MOUSE)
+		);
+	} else {
+		player->isShooting = (
+			input_isPressed(INPUT_JUMP)
+			|| input_isPressed(INPUT_JUMP_MOUSE)
+			|| input_isPressed(INPUT_FIRE)
+			|| input_isPressed(INPUT_FIRE_MOUSE)
+		);
+	}
+
+	if (player->isShooting) {
+		/* TODO: fuel */
+
+		ASSERT_OK(player_shoot(player, scene), __ret);
 	}
 
 	/* Set gravity. */

@@ -1,6 +1,13 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+
+#include <stdint.h>
+
+
+#define PI 3.1415926
+
+
 /**
  * str2int converts the given string to an integer.
  *
@@ -11,6 +18,7 @@
  * @return 0: Success; Anything else: failure.
  */
 int str2int(int *num, const char *str);
+
 
 /**
  * str2uint converts the given string to a unsigned integer.
@@ -79,6 +87,31 @@ void clampAbs(double *value, double max);
  */
 #define max(a, b) \
 	((a) > (b) ? (a) : (b))
+
+
+/**
+ * countBits counts the number of bits set in the value.
+ *
+ * @param [in] value: The value.
+ * @return The number of bits set in value.
+ */
+int countBits(uint32_t value);
+
+
+/**
+ * util_setPRNGSeed sets the game's PRNG's seed
+ *
+ * @param  [in] newSeed:  The new seed.
+ */
+void util_setPRNGSeed(int newSeed);
+
+
+/**
+ * util_prng updates the game's seed and returns a pseudo-random number.
+ *
+ * @return The pseudo-random number.
+ */
+int util_prng();
 
 
 #endif /* UTIL_H */

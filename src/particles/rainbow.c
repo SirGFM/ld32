@@ -5,8 +5,13 @@
 #include <error.h>
 #include <particles/rainbow.h>
 #include <scene.h>
+#include <util.h>
 
 #include <GFraMe/gfmGroup.h>
+#include <GFraMe/gfmSprite.h>
+
+#include <stdint.h>
+#include <math.h>
 
 
 /** Absolute speed for each rainbow particle. */
@@ -17,6 +22,10 @@
 #define RAINBOW_TTL_MS 2500
 
 
+/** Angle of the arc made by the particles, in degrees. */
+#define RAINBOW_ANGLE 24.0
+
+
 /**
  * Maximum number of rainbow particles on screen at once.
  * TODO: Make this configurable.
@@ -24,8 +33,31 @@
 #define MAX_RAINBOW 4000
 
 
+enum rainbowAnimation {
+	  ANIM_RED_BULLET = 0
+	, ANIM_ORANGE_BULLET
+	, ANIM_YELLOW_BULLET
+	, ANIM_GREEN_BULLET
+	, ANIM_CYAN_BULLET
+	, ANIM_BLUE_BULLET
+	, ANIM_PURPLE_BULLET
+	, ANIM_RED_EXPLOSION
+	, ANIM_ORANGE_EXPLOSION
+	, ANIM_YELLOW_EXPLOSION
+	, ANIM_GREEN_EXPLOSION
+	, ANIM_CYAN_EXPLOSION
+	, ANIM_BLUE_EXPLOSION
+	, ANIM_PURPLE_EXPLOSION
+	, ANIM_MAX_PART_ANIM
+};
+
+
 /** Rainbow particles, mainly used by the player. */
 static gfmGroup *rainbow = 0;
+
+
+/** Tracks when the particle was last spawned. */
+static int lastSpawnedMs = 0;
 
 
 /** Animation data for each rainbow particle. */
@@ -118,6 +150,10 @@ int rainbow_update(struct scene *scene) {
 	ASSERT_OK(collision_collideGroup(scene->staticCollider, rainbow), __ret);
 	ASSERT_OK(collision_collideGroup(scene->dynamicCollider, rainbow), __ret);
 
+	if (lastSpawnedMs > 0) {
+		lastSpawnedMs -= scene->elapsedMs;
+	}
+
 	rv = 0;
 __ret:
 	return rv;
@@ -128,6 +164,115 @@ int rainbow_draw(struct scene *scene) {
 	int rv = 1;
 
 	ASSERT(GFMRV_OK == gfmGroup_draw(rainbow, gameCtx), __ret);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+/**
+ * rainbow_spawnBullet spawns a single rainbow bullet of the provided color.
+ *
+ * @param [in] color: The color of the particle.
+ * @param [in] angle: The angle at which the particle is being shot.
+ * @param [in] cx: The horizontal position of the particle's center.
+ * @param [in] cy: The veritcal position of the particle's center.
+ * @return 0: Success; Anything else: failure.
+ */
+static int rainbow_spawnBullet(enum rainbow color, double angle, int cx, int cy) {
+	gfmSprite *tmp;
+	double da, va, vx, vy;
+	int anim;
+	int rv = 1;
+
+	/* Convert the color to an animation. */
+	switch (color) {
+	#define SET_ANIM(color) \
+		case color ## _BULLET: \
+			anim = ANIM_ ## color ## _BULLET; \
+			break
+
+	SET_ANIM(RED);
+	SET_ANIM(ORANGE);
+	SET_ANIM(YELLOW);
+	SET_ANIM(GREEN);
+	SET_ANIM(CYAN);
+	SET_ANIM(BLUE);
+	SET_ANIM(PURPLE);
+
+	#undef SET_ANIM
+	default:
+		ASSERT(0 /* Invalid color */, __ret);
+	}
+
+	/* Slightly move the angle around. */
+	da = (util_prng() % 100 - 50) / 250.0;
+	da = da * PI / 180.0;
+
+	/* Also slight change the velocity by at most 5%. */
+	va = 1.0 + (util_prng() % 100 - 50) / 1000.0;
+
+	vx = va * RAINBOW_SPEED * cos(angle + da);
+	vy = va * RAINBOW_SPEED * sin(angle + da);
+
+	/* TODO: Handle empty group? */
+	ASSERT(GFMRV_OK == gfmGroup_recycle(&tmp, rainbow), __ret);
+
+	ASSERT(GFMRV_OK == gfmGroup_setPosition(rainbow, cx, cy), __ret);
+	ASSERT(GFMRV_OK == gfmGroup_setAnimation(rainbow, anim), __ret);
+	ASSERT(GFMRV_OK == gfmGroup_setVelocity(rainbow, vx, vy), __ret);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int rainbow_spawn(enum rainbow colors, double dx, double dy, int cx, int cy, int dist) {
+	double angle, delta;
+	int num;
+	enum rainbow curColor;
+	int rv = 1;
+
+	num = countBits((uint32_t)colors);
+	if (num == 0 || lastSpawnedMs > 0) {
+		rv = 0;
+		goto __ret;
+	}
+
+	/* Calculate the angle difference between particles, in radians. */
+	if (num > 1) {
+		double rad = RAINBOW_ANGLE * PI / 180.0;
+		delta = rad / (double)num;
+	}
+	else {
+		delta = 0.0;
+	}
+
+	/* Calculate the shooting position
+	 * (in a circle around the center point). */
+	cx += (int)(dx * dist);
+	cy += (int)(dy * dist);
+
+	/* Calculate the initial shooting angle, in radians,
+	 * ensuring that 90 degrees is up. */
+	angle = atan2(dx, -dy);
+	angle -= delta * num / 2.0;
+	angle -= PI / 2.0;
+
+	/* Iterate over every possible color,
+	 * spawning particles when the current color matches a provided color. */
+	curColor = 1;
+	while (colors != 0) {
+		if (colors & 1) {
+			ASSERT_OK(rainbow_spawnBullet(curColor, angle, cx, cy), __ret);
+			angle += delta;
+		}
+
+		colors >>= 1;
+		curColor <<= 1;
+	}
 
 	rv = 0;
 __ret:

@@ -4,10 +4,14 @@
 
 #include <entity.h>
 
+#include <stdint.h>
+
 
 struct player {
 	/** The base entity. */
 	struct entity base;
+	/** Whether the player is currently shooting. */
+	uint8_t isShooting;
 };
 
 

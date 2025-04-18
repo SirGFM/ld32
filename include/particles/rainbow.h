@@ -7,6 +7,17 @@
 #include <GFraMe/gfmGroup.h>
 
 
+enum rainbow {
+	  RED_BULLET    = 0x01
+	, ORANGE_BULLET = 0x02
+	, YELLOW_BULLET = 0x04
+	, GREEN_BULLET  = 0x08
+	, CYAN_BULLET   = 0x10
+	, BLUE_BULLET   = 0x20
+	, PURPLE_BULLET = 0x40
+};
+
+
 /**
  * rainbow_init initializes the global rainbow group.
  *
@@ -42,6 +53,21 @@ int rainbow_update(struct scene *scene);
  * @return 0: Success; Anything else: failure.
  */
 int rainbow_draw(struct scene *scene);
+
+
+/**
+ * rainbow_spawn tries to spawn rainbow particles,
+ * respecting the spawner's built-in timer.
+ *
+ * @param [in] colors: Which colors of the rainbow should be shot.
+ * @param [in] dx: The cosine of the particle's shooting direction.
+ * @param [in] dy: The sine of the particle's shooting direction.
+ * @param [in] cx: The horizontal position of the spawner's center.
+ * @param [in] cy: The vertical position of the spawner's center.
+ * @param [in] dist: Distance from the spawner's center, at which the particles are spawned.
+ * @return 0: Success; Anything else: failure.
+ */
+int rainbow_spawn(enum rainbow colors, double dx, double dy, int cx, int cy, int dist);
 
 
 #endif /* RAINBOW_H */
