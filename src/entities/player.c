@@ -144,7 +144,7 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 		);
 
 		/* Jump. */
-		if (input_isJustPressed(INPUT_JUMP)) {
+		if (input_isJustPressed(INPUT_JUMP) || input_isJustPressed(INPUT_JUMP_MOUSE)) {
 			ASSERT(
 				GFMRV_OK == gfmSprite_setVerticalVelocity(
 					player->base.sprite
