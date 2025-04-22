@@ -8,6 +8,7 @@
 #include <game_math.h>
 #include <particles/rainbow.h>
 #include <scene.h>
+#include <util.h>
 #include <entities/player.h>
 
 #include <GFraMe/gfmSprite.h>
@@ -15,12 +16,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(DEBUG)
+#include <GFraMe/gfmDebug.h>
+
+#include <math.h>
+#endif /* defined(DEBUG) */
+
 
 /** The player's width, in pixels. */
 #define PLAYER_WIDTH 8
 
 /** The player's height, in pixels. */
 #define PLAYER_HEIGHT 12
+
+/** Value used to calculate the player's fly acceleration and max speed.
+ * It's calculated as if the player were to jump to that height from the floor. */
+#define PLAYER_FLY_HEIGHT 3.0
 
 /** The player's jump height, in 8x8 tiles. */
 #define PLAYER_JUMP_HEIGHT 2.75
@@ -44,6 +55,16 @@
 
 /** The gravity acting on the player on the way down. */
 #define PLAYER_FALL_ACC JUMP_ACCELERATION(PLAYER_FALL_TIME, PLAYER_JUMP_HEIGHT)
+
+/** The (absolute) maximum speed that the player may reach while flying). */
+// (PLAYER_JUMP_TIME, 3.5) -> ~3*vx, slightly above fall vy
+// (PLAYER_JUMP_TIME, 3.0) -> ~3*vx, slightly bellow fall vy
+// (PLAYER_FALL_TIME, 3.5) -> ~4*vx, marginally above fall vy
+// (PLAYER_FALL_TIME, 3.0) -> ~3.5*vx, slightly more above fall vy
+#define PLAYER_FLY_MAX_SPEED (-JUMP_SPEED(PLAYER_JUMP_TIME, PLAYER_FLY_HEIGHT))
+
+/** The force applied to the player when flying. */
+#define PLAYER_FLY_ACC (2 * PLAYER_FALL_ACC)
 
 
 /** List of animations */
@@ -69,6 +90,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	int rv = 1;
 
 	double shootDirX, shootDirY;
+	double vx, vy;
 	int camCenterX, centerX, camCenterY, centerY, isLeft;
 
 	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
@@ -83,7 +105,15 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	/* Get the shooting direction. */
 	ASSERT_OK(input_getFireDirection(&shootDirX, &shootDirY, camCenterX, camCenterY, !isLeft), __ret);
 
-	/* TODO: Apply the velocity in the opposite direction. */
+	/* Apply the velocity in the opposite direction. */
+	ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
+
+	vx -= shootDirX * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+	clampAbs(&vx, PLAYER_FLY_MAX_SPEED);
+	vy -= shootDirY * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+	clampAbs(&vy, PLAYER_FLY_MAX_SPEED);
+
+	ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
 
 	/* Spawn the particles. */
 	ASSERT_OK(
@@ -271,6 +301,34 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 
 	ASSERT_OK(rainbow_draw(scene), __ret);
 	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
+
+#if defined(DEBUG)
+	do {
+		double ax, ay;
+		double vx, vy;
+
+		ASSERT(GFMRV_OK == gfmSprite_getAcceleration(&ax, &ay, player->base.sprite), __ret);
+		ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
+
+		gfmDebug_printf(
+			gameCtx
+			, 0
+			, 64
+			, "AX: %01d.%01d\n"
+			  "VX: %01d.%01d\n"
+			  "AY: %01d.%01d\n"
+			  "VY: %01d.%01d\n"
+			, (int)ax
+			, abs((int)(100 * (ax - (int)ax)))
+			, (int)vx
+			, abs((int)(100 * (vx - (int)vx)))
+			, (int)ay
+			, abs((int)(100 * (ay - (int)ay)))
+			, (int)vy
+			, abs((int)(100 * (vy - (int)vy)))
+		);
+	} while (0);
+#endif /* defined(DEBUG) */
 
 	rv = 0;
 __ret:
