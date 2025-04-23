@@ -90,8 +90,8 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	int rv = 1;
 
 	double shootDirX, shootDirY;
-	double vx, vy;
-	int camCenterX, centerX, camCenterY, centerY, isLeft;
+	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
+	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
 
@@ -105,15 +105,24 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	/* Get the shooting direction. */
 	ASSERT_OK(input_getFireDirection(&shootDirX, &shootDirY, camCenterX, camCenterY, !isLeft), __ret);
 
-	/* Apply the velocity in the opposite direction. */
-	ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
 
-	vx -= shootDirX * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
-	clampAbs(&vx, PLAYER_FLY_MAX_SPEED);
-	vy -= shootDirY * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
-	clampAbs(&vy, PLAYER_FLY_MAX_SPEED);
+	/* Apply the velocity in the opposite direction,
+	 * but only if from a jump press or if flying. */
+	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
+	isDown = (dir & gfmCollision_down);
 
-	ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
+	if (input_isPressed(INPUT_JUMP) || input_isPressed(INPUT_JUMP_MOUSE) || !isDown) {
+		double vx, vy;
+
+		ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
+
+		vx -= shootDirX * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+		clampAbs(&vx, PLAYER_FLY_MAX_SPEED);
+		vy -= shootDirY * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+		clampAbs(&vy, PLAYER_FLY_MAX_SPEED);
+
+		ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
+	}
 
 	/* Spawn the particles. */
 	ASSERT_OK(
