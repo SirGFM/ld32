@@ -66,12 +66,21 @@ struct button {
 		X_INPUT(gfmController_r2), \
 	) \
 	X( \
+		INPUT_SELECTOR, "SELECTOR",/*auto*/, \
+		X_INPUT(gfmKey_lshift), \
+		X_INPUT(gfmKey_rshift), \
+	) \
+	X( \
 		INPUT_JUMP_MOUSE, "JUMP MOUSE",/*auto*/, \
 		X_INPUT(gfmPointer_leftButton), \
 	) \
 	X( \
 		INPUT_FIRE_MOUSE, "FIRE MOUSE",/*auto*/, \
 		X_INPUT(gfmPointer_rightButton), \
+	) \
+	X( \
+		INPUT_SELECTOR_MOUSE, "SELECTOR MOUSE",/*auto*/, \
+		X_INPUT(gfmPointer_middleButton), \
 	) \
 	DEBUG_INPUT_LIST \
 	X(INPUT_MAX, "MAX",/*auto*/) \
