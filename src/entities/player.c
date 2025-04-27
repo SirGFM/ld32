@@ -6,6 +6,7 @@
 #include <core/types.h>
 #include <camera.h>
 #include <game_math.h>
+#include <global.h>
 #include <particles/rainbow.h>
 #include <scene.h>
 #include <util.h>
@@ -66,6 +67,12 @@
 /** The force applied to the player when flying. */
 #define PLAYER_FLY_ACC (2 * PLAYER_FALL_ACC)
 
+/** For how long each stone lets the player fly. */
+#define PLAYER_STONE_FLY_TIME 1250
+
+/** How much faster thus the fuel recharge if it wasn't fully spent. */
+#define PLAYER_FLY_RECHARGE_MODIFIER 3
+
 
 /** List of animations */
 enum animation {
@@ -86,11 +93,19 @@ static int animationData[] = {
 };
 
 
+static void player_setMaxFlight(struct player *player) {
+	player->numStones = countBits((uint32_t)global_getPermanent().stones);
+	player->maxFlight = player->numStones * PLAYER_STONE_FLY_TIME;
+}
+
+
 static int player_shoot(struct player *player, struct scene *scene) {
 	int rv = 1;
 
 	double shootDirX, shootDirY;
 	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
+	enum stone stones, curStoneBit;
+	enum rainbow bullets;
 	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
@@ -124,10 +139,44 @@ static int player_shoot(struct player *player, struct scene *scene) {
 		ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
 	}
 
+	/* Check which bullets should be spawned. */
+	stones = global_getPermanent().stones;
+	curStoneBit = 1;
+	bullets = 0;
+	while (curStoneBit <= stones) {
+		if (curStoneBit & stones) {
+			switch (curStoneBit) {
+			case RED_STONE:
+				bullets |= RED_BULLET;
+				break;
+			case ORANGE_STONE:
+				bullets |= ORANGE_BULLET;
+				break;
+			case YELLOW_STONE:
+				bullets |= YELLOW_BULLET;
+				break;
+			case GREEN_STONE:
+				bullets |= GREEN_BULLET;
+				break;
+			case CYAN_STONE:
+				bullets |= CYAN_BULLET;
+				break;
+			case BLUE_STONE:
+				bullets |= BLUE_BULLET;
+				break;
+			case PURPLE_STONE:
+				bullets |= PURPLE_BULLET;
+				break;
+			}
+		}
+
+		curStoneBit <<= 1;
+	}
+
 	/* Spawn the particles. */
 	ASSERT_OK(
 		rainbow_spawn(
-			RED_BULLET | ORANGE_BULLET | YELLOW_BULLET | GREEN_BULLET | CYAN_BULLET | BLUE_BULLET | PURPLE_BULLET
+			  bullets
 			, shootDirX
 			, shootDirY
 			, centerX
@@ -140,6 +189,25 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	rv = 0;
 __ret:
 	return rv;
+}
+
+
+static void player_recoverFuel(struct player *player, int elapsedMs) {
+	if (player->curFlight < player->maxFlight) {
+		/* The fuel wasn't fully spent, do the fast recharge. */
+		player->curFlight -= elapsedMs * PLAYER_FLY_RECHARGE_MODIFIER;
+	}
+	else if (player->flightRecharge < PLAYER_STONE_FLY_TIME * player->numStones / PLAYER_FLY_RECHARGE_MODIFIER) {
+		/* The fuel was fully spent, wait for the cooldown. */
+		player->flightRecharge += elapsedMs;
+	}
+	else {
+		/* The fuel was fully spent, AND the cooldown has elapsed. */
+		player->curFlight = 0;
+		player->flightRecharge = 0;
+	}
+
+	player->curFlight = max(player->curFlight, 0);
 }
 
 
@@ -219,10 +287,15 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 		);
 	}
 
-	if (player->isShooting) {
-		/* TODO: fuel */
+	if (player->isShooting && player->curFlight < player->maxFlight) {
+		player->curFlight += scene->elapsedMs;
+		player->curFlight = min(player->curFlight, player->maxFlight);
 
 		ASSERT_OK(player_shoot(player, scene), __ret);
+	}
+
+	if (isDown && player->curFlight > 0) {
+		player_recoverFuel(player, scene->elapsedMs);
 	}
 
 	/* Set gravity. */
@@ -327,6 +400,9 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 			  "VX: %01d.%01d\n"
 			  "AY: %01d.%01d\n"
 			  "VY: %01d.%01d\n"
+			  "MAX FUEL: %06d\n"
+			  "CUR FUEL: %06d\n"
+			  "RECHARGE: %06d\n"
 			, (int)ax
 			, abs((int)(100 * (ax - (int)ax)))
 			, (int)vx
@@ -335,6 +411,9 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 			, abs((int)(100 * (ay - (int)ay)))
 			, (int)vy
 			, abs((int)(100 * (vy - (int)vy)))
+			, player->maxFlight
+			, player->curFlight
+			, player->flightRecharge
 		);
 	} while (0);
 #endif /* defined(DEBUG) */
@@ -380,6 +459,9 @@ int player_new(struct entity **entity, int x, int y) {
 	struct entity *ret = 0;
 	struct player tmp = {0};
 	int rv = 1;
+
+	/* Adjust the player's flight time. */
+	player_setMaxFlight(&tmp);
 
 	ASSERT_OK(
 		entity_init(
