@@ -7,6 +7,7 @@
 #include <camera.h>
 #include <game_math.h>
 #include <global.h>
+#include <particles/rainbow.h>
 #include <scene.h>
 #include <util.h>
 #include <entities/player.h>
@@ -43,6 +44,9 @@
 #define PLAYER_FALL_TIME 20
 
 #define PLAYER_VX SPEED(360, 30)
+
+/** How far away from the player are the rainbow particles spawned. */
+#define PLAYER_SHOOT_DIST 8
 
 /** The initial vertical speed for jumps. */
 #define PLAYER_JUMP_VY JUMP_SPEED(PLAYER_JUMP_TIME, PLAYER_JUMP_HEIGHT)
@@ -116,6 +120,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 
 	double shootDirX, shootDirY;
 	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
+	enum rainbowColor bullets, stones, curStoneBit;
 	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
@@ -149,7 +154,30 @@ static int player_shoot(struct player *player, struct scene *scene) {
 		ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
 	}
 
-	/* TODO: Spawn the particles. */
+	/* Check which bullets should be spawned. */
+	stones = global_getPermanent().stones;
+	curStoneBit = 1;
+	bullets = 0;
+	while (curStoneBit <= stones) {
+		if (curStoneBit & stones) {
+			bullets |= curStoneBit;
+		}
+
+		curStoneBit <<= 1;
+	}
+
+	/* Spawn the particles. */
+	ASSERT_OK(
+		rainbow_spawn(
+			  bullets
+			, shootDirX
+			, shootDirY
+			, centerX
+			, centerY
+			, PLAYER_SHOOT_DIST
+		)
+		, __ret
+	);
 
 	rv = 0;
 __ret:
@@ -354,7 +382,7 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 	struct player *player = (struct player*)entity;
 	int rv = 1;
 
-	/* TODO: Draw rainbow. */
+	ASSERT_OK(rainbow_draw(scene), __ret);
 	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
 
 #if defined(DEBUG)

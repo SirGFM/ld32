@@ -5,6 +5,9 @@
 #include <stdint.h>
 
 
+#define PI 3.1415926
+
+
 /**
  * str2int converts the given string to an integer.
  *
