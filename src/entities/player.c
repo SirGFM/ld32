@@ -1,6 +1,7 @@
 #include <error.h>
 #include <config/config.h>
 #include <core/assets.h>
+#include <core/core.h>
 #include <core/input.h>
 #include <core/types.h>
 #include <camera.h>
@@ -14,6 +15,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(DEBUG)
+#include <GFraMe/gfmDebug.h>
+
+#include <math.h>
+#endif /* defined(DEBUG) */
 
 
 /** The player's width, in pixels. */
@@ -337,6 +344,60 @@ __ret:
 
 
 /**
+ * player_draw draws the player and the rainbow particle behind them.
+ *
+ * @param [in] entity: The player's embedded entity.
+ * @param [in] scene: The scene that called this function.
+ * @return 0: Success; Anything else: failure.
+ */
+static int player_draw(struct entity *entity, struct scene *scene) {
+	struct player *player = (struct player*)entity;
+	int rv = 1;
+
+	/* TODO: Draw rainbow. */
+	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
+
+#if defined(DEBUG)
+	do {
+		double ax, ay;
+		double vx, vy;
+
+		ASSERT(GFMRV_OK == gfmSprite_getAcceleration(&ax, &ay, player->base.sprite), __ret);
+		ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
+
+		gfmDebug_printf(
+			gameCtx
+			, 0
+			, 64
+			, "AX: %01d.%01d\n"
+			  "VX: %01d.%01d\n"
+			  "AY: %01d.%01d\n"
+			  "VY: %01d.%01d\n"
+			  "MAX FUEL: %06d\n"
+			  "CUR FUEL: %06d\n"
+			  "RECHARGE: %06d\n"
+			, (int)ax
+			, abs((int)(100 * (ax - (int)ax)))
+			, (int)vx
+			, abs((int)(100 * (vx - (int)vx)))
+			, (int)ay
+			, abs((int)(100 * (ay - (int)ay)))
+			, (int)vy
+			, abs((int)(100 * (vy - (int)vy)))
+			, player->maxFlight
+			, player->curFlight
+			, player->flightRecharge
+		);
+	} while (0);
+#endif /* defined(DEBUG) */
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+/**
  * player_static_free releases every resource allocated into a player,
  * except by the player's memory itself.
  *
@@ -401,6 +462,7 @@ int player_new(struct entity **entity, int x, int y) {
 
 	tmp.base.fn.preUpdate = player_preUpdate;
 	tmp.base.fn.postUpdate = player_postUpdate;
+	tmp.base.fn.draw = player_draw;
 	tmp.base.fn.free = player_free;
 
 	ASSERT((ret = malloc(sizeof(tmp))) != 0, __ret);
