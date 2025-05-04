@@ -1,6 +1,7 @@
 #include <core/assets.h>
 #include <core/core.h>
 #include <core/types.h>
+#include <collision.h>
 #include <error.h>
 #include <particles/rainbow.h>
 #include <scene.h>
@@ -161,7 +162,8 @@ int rainbow_update(struct scene *scene) {
 	int rv = 1;
 
 	ASSERT(GFMRV_OK == gfmGroup_update(rainbow, gameCtx), __ret);
-	/* TODO: Collision */
+	ASSERT_OK(collision_collideGroup(scene->staticCollider, rainbow), __ret);
+	ASSERT_OK(collision_collideGroup(scene->dynamicCollider, rainbow), __ret);
 
 	if (lastSpawnedMs > 0) {
 		lastSpawnedMs -= scene->elapsedMs;

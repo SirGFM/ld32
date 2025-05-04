@@ -1,6 +1,7 @@
 #include <collision.h>
 #include <entities/loader.h>
 #include <error.h>
+#include <particles/rainbow.h>
 
 
 /**
@@ -161,4 +162,43 @@ int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite) {
 	rv = GFMRV_OK;
 __ret:
 	return grv || rv;
+}
+
+
+int collision_collideGroup(gfmQuadtreeRoot *qt, gfmGroup *group) {
+	int rv = 1;
+	gfmRV grv;
+
+	grv = gfmQuadtree_collideGroup(qt, group);
+	ASSERT(grv == GFMRV_QUADTREE_OVERLAPED || grv == GFMRV_QUADTREE_DONE, __ret);
+
+	/* Continue colliding until the quadtree finishes. */
+	while (grv != GFMRV_QUADTREE_DONE) {
+		ASSERT_OK(collision_handle(qt), __ret);
+
+		grv = gfmQuadtree_continue(qt);
+		ASSERT(grv == GFMRV_QUADTREE_OVERLAPED || grv == GFMRV_QUADTREE_DONE, __ret);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int collision_explodeRainbow(struct collision_node *solid, struct collision_node *bullet) {
+	int rv = 1;
+
+	/* Ensure that the objects are colliding,
+	 * since the extended hitbox may graze each other
+	 * without triggering a collision. */
+	if (_collision_sweepJustOverlap(solid->object, bullet->object)) {
+		return 0;
+	}
+
+	ASSERT_OK(rainbow_explodeBullet(bullet->sprite), __ret);
+
+	rv = 0;
+__ret:
+	return rv;
 }

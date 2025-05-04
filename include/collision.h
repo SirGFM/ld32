@@ -61,6 +61,16 @@ int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite);
 
 
 /**
+ * collision_collideGroup collides the given group with the provided quadtree.
+ *
+ * @param [in] qt: The quadtree.
+ * @param [in] group: The colliding group.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_collideGroup(gfmQuadtreeRoot *qt, gfmGroup *group);
+
+
+/**
  * collision_handlePlayerLoader handles colliding a player with a loader,
  * queueing a scene transition.
  *
@@ -69,6 +79,17 @@ int collision_collideSprite(gfmQuadtreeRoot *qt, gfmSprite *sprite);
  * @return 0: Success; Anything else: failure.
  */
 int collision_handlePlayerLoader(struct collision_node *player, struct collision_node *loader);
+
+
+/**
+ * collision_explodeRainbow handles colliding a solid (e.g., the floor)
+ * with a rainbow bullet.
+ *
+ * @param [in] solid: The solid (e.g., floor) node.
+ * @param [in] bullet: The rainbow particle node.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_explodeRainbow(struct collision_node *solid, struct collision_node *bullet);
 
 
 #endif /* COLLISION_H */
