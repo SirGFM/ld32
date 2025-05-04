@@ -8,6 +8,20 @@
 
 
 /**
+ * Rainbow colors present in particles.
+ */
+enum rainbowColor {
+	  RED_COLOR    = 0x01
+	, ORANGE_COLOR = 0x02
+	, YELLOW_COLOR = 0x04
+	, GREEN_COLOR  = 0x08
+	, CYAN_COLOR   = 0x10
+	, BLUE_COLOR   = 0x20
+	, PURPLE_COLOR = 0x40
+};
+
+
+/**
  * List of types.
  *
  * Types marked as TM shall be used exclusively in tilemaps,
