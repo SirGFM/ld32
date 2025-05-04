@@ -81,4 +81,15 @@ int collision_collideGroup(gfmQuadtreeRoot *qt, gfmGroup *group);
 int collision_handlePlayerLoader(struct collision_node *player, struct collision_node *loader);
 
 
+/**
+ * collision_explodeRainbow handles colliding a solid (e.g., the floor)
+ * with a rainbow bullet.
+ *
+ * @param [in] solid: The solid (e.g., floor) node.
+ * @param [in] bullet: The rainbow particle node.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_explodeRainbow(struct collision_node *solid, struct collision_node *bullet);
+
+
 #endif /* COLLISION_H */

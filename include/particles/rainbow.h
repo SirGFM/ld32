@@ -5,7 +5,7 @@
 #include <core/types.h>
 #include <scene.h>
 
-#include <GFraMe/gfmGroup.h>
+#include <GFraMe/gfmSprite.h>
 
 
 /**
@@ -58,6 +58,15 @@ int rainbow_draw(struct scene *scene);
  * @return 0: Success; Anything else: failure.
  */
 int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy, int dist);
+
+
+/**
+ * rainbow_explodeBullet changes the animation frame to the bullet's explosion.
+ *
+ * @param [in] bullet: The bullet particle.
+ * @return 0: Success; Anything else: failure.
+ */
+int rainbow_explodeBullet(gfmSprite *bullet);
 
 
 #endif /* RAINBOW_H */

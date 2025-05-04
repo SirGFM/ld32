@@ -17,14 +17,17 @@
 /** Absolute speed for each rainbow particle. */
 #define RAINBOW_SPEED 150
 
-
 /** For how long each rainbow particle should live. */
-#define RAINBOW_TTL_MS 2000
+#define RAINBOW_TTL_MS (1000 / rainbowAnim[1] * (rainbowAnim[0] + 1))
 
+/** For how a explosing rainbow particle should live. */
+#define RAINBOW_EXPLOSION_TTL_MS 400
+
+/** The first animation frame with an exploding particle. */
+#define RAINBOW_EXPLODE_FRAME 4
 
 /** Angle of the arc made by the particles, in degrees. */
 #define RAINBOW_ANGLE 24.0
-
 
 /**
  * Maximum number of rainbow particles on screen at once.
@@ -68,9 +71,14 @@ static int rainbowAnim[];
 static const int rainbowAnimLen;
 
 
+/** Data for each animation. */
+static int *rainbowAnimationData[ANIM_MAX_PART_ANIM] = {};
+
+
 int rainbow_init() {
 	static gfmGroup *tmpRainbow = 0;
 	int rv = 1;
+	int i;
 
 	/* Alloc the particles and set its default attributes. */
 	ASSERT(GFMRV_OK == gfmGroup_getNew(&tmpRainbow), __ret);
@@ -113,6 +121,13 @@ int rainbow_init() {
 
 	rainbow = tmpRainbow;
 	tmpRainbow = 0;
+
+	/* Initialize the animation data helper. */
+	rainbowAnimationData[0] = rainbowAnim;
+	for (i = 1; i < ANIM_MAX_PART_ANIM; i++) {
+		int len = rainbowAnimationData[i - 1][0];
+		rainbowAnimationData[i] = rainbowAnimationData[i - 1] + len + 3;
+	}
 
 	rv = 0;
 __ret:
@@ -272,6 +287,40 @@ int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy
 
 		colors >>= 1;
 		curColor <<= 1;
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int rainbow_explodeBullet(gfmSprite *bullet) {
+	void *ptr;
+	gfmGroupNode *node;
+	int rv = 1;
+	int frame, index, tmp;
+
+	ASSERT(GFMRV_OK == gfmSprite_getAnimationIndex(&index, bullet), __ret);
+
+	/* Check if the animation has already been updated. */
+	if (index >= ANIM_RED_EXPLOSION) {
+		return 0;
+	}
+
+	/* Update the animation, unless it's already exploding. */
+	ASSERT(GFMRV_OK == gfmSprite_getFrame(&frame, bullet), __ret);
+	frame = frame - rainbowAnimationData[index][3];
+
+	if (frame < RAINBOW_EXPLODE_FRAME) {
+		index += ANIM_RED_EXPLOSION - ANIM_RED_BULLET;
+		ASSERT(GFMRV_OK == gfmSprite_playAnimation(bullet, index), __ret);
+
+		/* Lower the particle's TTL to match the animation. */
+		ASSERT(GFMRV_OK == gfmSprite_getChild(&ptr, &tmp, bullet), __ret);
+		node = (gfmGroupNode*)ptr;
+
+		ASSERT(GFMRV_OK == gfmGroup_setTimeToLive(node, RAINBOW_EXPLOSION_TTL_MS), __ret);
 	}
 
 	rv = 0;
