@@ -95,4 +95,20 @@ void clampAbs(double *value, double max);
 int countBits(uint32_t value);
 
 
+/**
+ * util_setPRNGSeed sets the game's PRNG's seed
+ *
+ * @param  [in] newSeed:  The new seed.
+ */
+void util_setPRNGSeed(int newSeed);
+
+
+/**
+ * util_prng updates the game's seed and returns a pseudo-random number.
+ *
+ * @return The pseudo-random number.
+ */
+int util_prng();
+
+
 #endif /* UTIL_H */

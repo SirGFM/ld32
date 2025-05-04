@@ -129,3 +129,23 @@ int countBits(uint32_t value) {
 		+ bitCountLookupTable[(value >> 16) & 0xff]
 		+ bitCountLookupTable[value >> 24];
 }
+
+
+static int seed = 0;
+
+
+void util_setPRNGSeed(int newSeed) {
+	seed = newSeed;
+}
+
+
+int util_prng() {
+	long int tmp = seed;
+
+	/* TODO */
+	tmp *= 0x19660d;
+	tmp += 0x3c6ef35f;
+	seed = tmp;
+
+	return seed;
+}
