@@ -3,6 +3,7 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 
@@ -96,6 +97,7 @@ void flinear_map(float *value, float zero, float one) {
 	}
 }
 
+
 void clampAbs(double *value, double max) {
 	if (llabs(*value) > max) {
 		if (*value > 0) {
@@ -105,4 +107,25 @@ void clampAbs(double *value, double max) {
 			*value = -max;
 		}
 	}
+}
+
+
+/* Source: https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetTable */
+static const uint8_t bitCountLookupTable[256] =
+{
+#	define B2(n) n,     n+1,     n+1,     n+2
+#	define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+#	define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+	B6(0), B6(1), B6(1), B6(2)
+#	undef B2
+#	undef B4
+#	undef B6
+};
+
+
+int countBits(uint32_t value) {
+	return bitCountLookupTable[value & 0xff]
+		+ bitCountLookupTable[(value >> 8) & 0xff]
+		+ bitCountLookupTable[(value >> 16) & 0xff]
+		+ bitCountLookupTable[value >> 24];
 }

@@ -1,6 +1,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+
+#include <stdint.h>
+
+
 /**
  * str2int converts the given string to an integer.
  *
@@ -11,6 +15,7 @@
  * @return 0: Success; Anything else: failure.
  */
 int str2int(int *num, const char *str);
+
 
 /**
  * str2uint converts the given string to a unsigned integer.
@@ -79,6 +84,15 @@ void clampAbs(double *value, double max);
  */
 #define max(a, b) \
 	((a) > (b) ? (a) : (b))
+
+
+/**
+ * countBits counts the number of bits set in the value.
+ *
+ * @param [in] value: The value.
+ * @return The number of bits set in value.
+ */
+int countBits(uint32_t value);
 
 
 #endif /* UTIL_H */
