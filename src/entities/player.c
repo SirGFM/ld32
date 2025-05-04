@@ -3,8 +3,11 @@
 #include <core/assets.h>
 #include <core/input.h>
 #include <core/types.h>
+#include <camera.h>
 #include <game_math.h>
+#include <global.h>
 #include <scene.h>
+#include <util.h>
 #include <entities/player.h>
 
 #include <GFraMe/gfmSprite.h>
@@ -18,6 +21,10 @@
 
 /** The player's height, in pixels. */
 #define PLAYER_HEIGHT 12
+
+/** Value used to calculate the player's fly acceleration and max speed.
+ * It's calculated as if the player were to jump to that height from the floor. */
+#define PLAYER_FLY_HEIGHT 3.0
 
 /** The player's jump height, in 8x8 tiles. */
 #define PLAYER_JUMP_HEIGHT 2.75
@@ -38,6 +45,22 @@
 
 /** The gravity acting on the player on the way down. */
 #define PLAYER_FALL_ACC JUMP_ACCELERATION(PLAYER_FALL_TIME, PLAYER_JUMP_HEIGHT)
+
+/** The (absolute) maximum speed that the player may reach while flying). */
+// (PLAYER_JUMP_TIME, 3.5) -> ~3*vx, slightly above fall vy
+// (PLAYER_JUMP_TIME, 3.0) -> ~3*vx, slightly bellow fall vy
+// (PLAYER_FALL_TIME, 3.5) -> ~4*vx, marginally above fall vy
+// (PLAYER_FALL_TIME, 3.0) -> ~3.5*vx, slightly more above fall vy
+#define PLAYER_FLY_MAX_SPEED (-JUMP_SPEED(PLAYER_JUMP_TIME, PLAYER_FLY_HEIGHT))
+
+/** The force applied to the player when flying. */
+#define PLAYER_FLY_ACC (2 * PLAYER_FALL_ACC)
+
+/** For how long each stone lets the player fly. */
+#define PLAYER_STONE_FLY_TIME 1250
+
+/** How much faster thus the fuel recharge if it wasn't fully spent. */
+#define PLAYER_FLY_RECHARGE_MODIFIER 3
 
 
 /** List of animations */
@@ -60,6 +83,101 @@ static int animationData[] = {
 
 
 /**
+ * player_setMaxFlight calculates and sets for how long the player may fly,
+ * given the currently collected stones.
+ *
+ * @param [in] player: The player.
+ */
+static void player_setMaxFlight(struct player *player) {
+	player->numStones = countBits((uint32_t)global_getPermanent().stones);
+	player->maxFlight = player->numStones * PLAYER_STONE_FLY_TIME;
+}
+
+
+/**
+ * player_shoot shoots rainbow particles.
+ *
+ * This handles calculating the shooting direction,
+ * as well as applying a force on the player based on the input type.
+ *
+ * @param [in] player: The player.
+ * @param [in] scene: The scene that called this function.
+ * @return 0: Success; Anything else: failure.
+ */
+static int player_shoot(struct player *player, struct scene *scene) {
+	int rv = 1;
+
+	double shootDirX, shootDirY;
+	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
+	gfmCollision dir;
+
+	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
+
+	/* Get the player's position in screen space. */
+	ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
+
+	camCenterX = centerX;
+	camCenterY = centerY;
+	ASSERT_OK(camera_worldToScreen(&camCenterX, &camCenterY), __ret);
+
+	/* Get the shooting direction. */
+	ASSERT_OK(input_getFireDirection(&shootDirX, &shootDirY, camCenterX, camCenterY, !isLeft), __ret);
+
+
+	/* Apply the velocity in the opposite direction,
+	 * but only if from a jump press or if flying. */
+	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
+	isDown = (dir & gfmCollision_down);
+
+	if (input_isPressed(INPUT_JUMP) || input_isPressed(INPUT_JUMP_MOUSE) || !isDown) {
+		double vx, vy;
+
+		ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
+
+		vx -= shootDirX * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+		clampAbs(&vx, PLAYER_FLY_MAX_SPEED);
+		vy -= shootDirY * PLAYER_FLY_ACC * ((double)scene->elapsedMs) * 0.001;
+		clampAbs(&vy, PLAYER_FLY_MAX_SPEED);
+
+		ASSERT(GFMRV_OK == gfmSprite_setVelocity(player->base.sprite, vx, vy), __ret);
+	}
+
+	/* TODO: Spawn the particles. */
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+/**
+ * player_recoverFuel recovers fuel, assuming the player is on the floor.
+ *
+ * This checks whether the fuel was fully spent and either
+ * recover it over time or recover it all at once after a delay.
+ *
+ * @param [in] player: The player.
+ */
+static void player_recoverFuel(struct player *player, int elapsedMs) {
+	if (player->curFlight < player->maxFlight) {
+		/* The fuel wasn't fully spent, do the fast recharge. */
+		player->curFlight -= elapsedMs * PLAYER_FLY_RECHARGE_MODIFIER;
+	}
+	else if (player->flightRecharge < PLAYER_STONE_FLY_TIME * player->numStones / PLAYER_FLY_RECHARGE_MODIFIER) {
+		/* The fuel was fully spent, wait for the cooldown. */
+		player->flightRecharge += elapsedMs;
+	}
+	else {
+		/* The fuel was fully spent, AND the cooldown has elapsed. */
+		player->curFlight = 0;
+		player->flightRecharge = 0;
+	}
+
+	player->curFlight = max(player->curFlight, 0);
+}
+
+
+/**
  * player_preUpdate handles user inputs,
  * preparing the entity's new physics state.
  *
@@ -70,12 +188,14 @@ static int animationData[] = {
 static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	struct player *player = (struct player*)entity;
 	double vy, ay;
+	int isDown;
 	int rv = 1;
 	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
-	if (dir & gfmCollision_down) {
+	isDown = (dir & gfmCollision_down);
+	if (isDown) {
 		double vx;
 
 		/* Horizontal movement. */
@@ -106,6 +226,42 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 				, __ret
 			);
 		}
+	}
+
+	/* Start shooting if the player
+	 *   - pressed jump while in the air
+	 *   - pressed a fire action regardless of their state
+	 */
+	if (!player->isShooting) {
+		player->isShooting = (
+			(
+				!isDown
+				&& (
+					input_isJustPressed(INPUT_JUMP)
+					|| input_isJustPressed(INPUT_JUMP_MOUSE)
+				)
+			)
+			|| input_isPressed(INPUT_FIRE)
+			|| input_isPressed(INPUT_FIRE_MOUSE)
+		);
+	} else {
+		player->isShooting = (
+			input_isPressed(INPUT_JUMP)
+			|| input_isPressed(INPUT_JUMP_MOUSE)
+			|| input_isPressed(INPUT_FIRE)
+			|| input_isPressed(INPUT_FIRE_MOUSE)
+		);
+	}
+
+	if (player->isShooting && player->curFlight < player->maxFlight) {
+		player->curFlight += scene->elapsedMs;
+		player->curFlight = min(player->curFlight, player->maxFlight);
+
+		ASSERT_OK(player_shoot(player, scene), __ret);
+	}
+
+	if (isDown && player->curFlight > 0) {
+		player_recoverFuel(player, scene->elapsedMs);
 	}
 
 	/* Set gravity. */
@@ -215,6 +371,9 @@ int player_new(struct entity **entity, int x, int y) {
 	struct entity *ret = 0;
 	struct player tmp = {0};
 	int rv = 1;
+
+	/* Adjust the player's flight time. */
+	player_setMaxFlight(&tmp);
 
 	ASSERT_OK(
 		entity_init(
