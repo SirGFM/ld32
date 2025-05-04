@@ -198,6 +198,7 @@ __ret:
 static int rainbow_spawnBullet(enum rainbowColor color, double angle, int cx, int cy) {
 	gfmSprite *tmp;
 	double da, va, vx, vy;
+	enum type type;
 	int anim;
 	int rv = 1;
 
@@ -206,6 +207,7 @@ static int rainbow_spawnBullet(enum rainbowColor color, double angle, int cx, in
 	#define SET_ANIM(color) \
 		case color ## _COLOR: \
 			anim = ANIM_ ## color ## _BULLET; \
+			type = TYP_PARTICLE_ ## color; \
 			break
 
 	SET_ANIM(RED);
@@ -234,6 +236,7 @@ static int rainbow_spawnBullet(enum rainbowColor color, double angle, int cx, in
 	/* TODO: Handle empty group? */
 	ASSERT(GFMRV_OK == gfmGroup_recycle(&tmp, rainbow), __ret);
 
+	ASSERT(GFMRV_OK == gfmGroup_setType(rainbow, type), __ret);
 	ASSERT(GFMRV_OK == gfmGroup_setPosition(rainbow, cx, cy), __ret);
 	ASSERT(GFMRV_OK == gfmGroup_setAnimation(rainbow, anim), __ret);
 	ASSERT(GFMRV_OK == gfmGroup_setVelocity(rainbow, vx, vy), __ret);
