@@ -104,8 +104,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 
 	double shootDirX, shootDirY;
 	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
-	enum stone stones, curStoneBit;
-	enum rainbow bullets;
+	enum rainbowColor bullets, stones, curStoneBit;
 	gfmCollision dir;
 
 	ASSERT(GFMRV_OK == gfmSprite_getDirection(&isLeft, player->base.sprite), __ret);
@@ -145,29 +144,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	bullets = 0;
 	while (curStoneBit <= stones) {
 		if (curStoneBit & stones) {
-			switch (curStoneBit) {
-			case RED_STONE:
-				bullets |= RED_BULLET;
-				break;
-			case ORANGE_STONE:
-				bullets |= ORANGE_BULLET;
-				break;
-			case YELLOW_STONE:
-				bullets |= YELLOW_BULLET;
-				break;
-			case GREEN_STONE:
-				bullets |= GREEN_BULLET;
-				break;
-			case CYAN_STONE:
-				bullets |= CYAN_BULLET;
-				break;
-			case BLUE_STONE:
-				bullets |= BLUE_BULLET;
-				break;
-			case PURPLE_STONE:
-				bullets |= PURPLE_BULLET;
-				break;
-			}
+			bullets |= curStoneBit;
 		}
 
 		curStoneBit <<= 1;

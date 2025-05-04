@@ -2,20 +2,10 @@
 #define RAINBOW_H
 
 
+#include <core/types.h>
 #include <scene.h>
 
 #include <GFraMe/gfmGroup.h>
-
-
-enum rainbow {
-	  RED_BULLET    = 0x01
-	, ORANGE_BULLET = 0x02
-	, YELLOW_BULLET = 0x04
-	, GREEN_BULLET  = 0x08
-	, CYAN_BULLET   = 0x10
-	, BLUE_BULLET   = 0x20
-	, PURPLE_BULLET = 0x40
-};
 
 
 /**
@@ -67,7 +57,7 @@ int rainbow_draw(struct scene *scene);
  * @param [in] dist: Distance from the spawner's center, at which the particles are spawned.
  * @return 0: Success; Anything else: failure.
  */
-int rainbow_spawn(enum rainbow colors, double dx, double dy, int cx, int cy, int dist);
+int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy, int dist);
 
 
 #endif /* RAINBOW_H */

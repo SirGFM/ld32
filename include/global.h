@@ -2,21 +2,13 @@
 #define GLOBAL_H
 
 
-enum stone {
-	  RED_STONE    = 0x01
-	, ORANGE_STONE = 0x02
-	, YELLOW_STONE = 0x04
-	, GREEN_STONE  = 0x08
-	, CYAN_STONE   = 0x10
-	, BLUE_STONE   = 0x20
-	, PURPLE_STONE = 0x40
-};
+#include <core/types.h>
 
 
 /** Values saved/restored between sessions. */
 struct permanentData {
 	/** Bitmask of the collected stones. */
-	enum stone stones;
+	enum rainbowColor stones;
 };
 
 

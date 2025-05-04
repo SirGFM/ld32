@@ -8,6 +8,20 @@
 
 
 /**
+ * Rainbow colors present in particles.
+ */
+enum rainbowColor {
+	  RED_COLOR    = 0x01
+	, ORANGE_COLOR = 0x02
+	, YELLOW_COLOR = 0x04
+	, GREEN_COLOR  = 0x08
+	, CYAN_COLOR   = 0x10
+	, BLUE_COLOR   = 0x20
+	, PURPLE_COLOR = 0x40
+};
+
+
+/**
  * List of types.
  *
  * Types marked as TM shall be used exclusively in tilemaps,
@@ -30,7 +44,14 @@
 	X(TYP_PLAYER, "player", = NEW_TYPE(BTYP_PLAYER, 1)) \
 	X(TYP_TITLE, "title", = NEW_TYPE(BTYP_MENU, 1)) \
 	X(TYP_OPTION, "option",) \
-	X(TYP_LOADER, "loader", = NEW_TYPE(BTYP_TRIGGER, 1))
+	X(TYP_LOADER, "loader", = NEW_TYPE(BTYP_TRIGGER, 1)) \
+	X(TYP_PARTICLE_RED, "red bullet", = MERGE_TYPES(BTYP_PARTICLE, RED_COLOR)) \
+	X(TYP_PARTICLE_ORANGE, "orange bullet", = MERGE_TYPES(BTYP_PARTICLE, ORANGE_COLOR)) \
+	X(TYP_PARTICLE_YELLOW, "yellow bullet", = MERGE_TYPES(BTYP_PARTICLE, YELLOW_COLOR)) \
+	X(TYP_PARTICLE_GREEN, "green bullet", = MERGE_TYPES(BTYP_PARTICLE, GREEN_COLOR)) \
+	X(TYP_PARTICLE_CYAN, "cyan bullet", = MERGE_TYPES(BTYP_PARTICLE, CYAN_COLOR)) \
+	X(TYP_PARTICLE_BLUE, "blue bullet", = MERGE_TYPES(BTYP_PARTICLE, BLUE_COLOR)) \
+	X(TYP_PARTICLE_PURPLE, "purple bullet", = MERGE_TYPES(BTYP_PARTICLE, PURPLE_COLOR))
 
 
 /**

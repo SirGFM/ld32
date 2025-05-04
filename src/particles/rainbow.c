@@ -180,7 +180,7 @@ __ret:
  * @param [in] cy: The veritcal position of the particle's center.
  * @return 0: Success; Anything else: failure.
  */
-static int rainbow_spawnBullet(enum rainbow color, double angle, int cx, int cy) {
+static int rainbow_spawnBullet(enum rainbowColor color, double angle, int cx, int cy) {
 	gfmSprite *tmp;
 	double da, va, vx, vy;
 	int anim;
@@ -189,7 +189,7 @@ static int rainbow_spawnBullet(enum rainbow color, double angle, int cx, int cy)
 	/* Convert the color to an animation. */
 	switch (color) {
 	#define SET_ANIM(color) \
-		case color ## _BULLET: \
+		case color ## _COLOR: \
 			anim = ANIM_ ## color ## _BULLET; \
 			break
 
@@ -229,10 +229,10 @@ __ret:
 }
 
 
-int rainbow_spawn(enum rainbow colors, double dx, double dy, int cx, int cy, int dist) {
+int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy, int dist) {
 	double angle, delta;
 	int num;
-	enum rainbow curColor;
+	enum rainbowColor curColor;
 	int rv = 1;
 
 	num = countBits((uint32_t)colors);
