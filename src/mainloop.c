@@ -4,6 +4,7 @@
 #include <scene.h>
 #include <mainloop.h>
 #include <preload_map.h>
+#include <particles.h>
 
 #include <string.h>
 
@@ -155,6 +156,8 @@ int mainloop_update() {
 		ASSERT_OK(rv = scene_free(&_curScene), __ret);
 		memcpy(&_curScene, &_nextScene, sizeof(_nextScene));
 		memset(&_nextScene, 0, sizeof(_nextScene));
+
+		particles_reset();
 
 		_state = TRANSITION_NONE;
 	}
