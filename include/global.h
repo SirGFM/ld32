@@ -28,4 +28,53 @@ struct permanentData global_getPermanent();
 void global_setPermanent(struct permanentData data);
 
 
+/**
+ * global_addRedStone update the global permanents
+ * with the red stone flag.
+ */
+void global_addRedStone();
+
+
+/**
+ * global_addOrangeStone update the global permanents
+ * with the orange stone flag.
+ */
+void global_addOrangeStone();
+
+
+/**
+ * global_addYellowStone update the global permanents
+ * with the yellow stone flag.
+ */
+void global_addYellowStone();
+
+
+/**
+ * global_addGreenStone update the global permanents
+ * with the green stone flag.
+ */
+void global_addGreenStone();
+
+
+/**
+ * global_addCyanStone update the global permanents
+ * with the cyan stone flag.
+ */
+void global_addCyanStone();
+
+
+/**
+ * global_addBlueStone update the global permanents
+ * with the blue stone flag.
+ */
+void global_addBlueStone();
+
+
+/**
+ * global_addPurpleStone update the global permanents
+ * with the purple stone flag.
+ */
+void global_addPurpleStone();
+
+
 #endif /* GLOBAL_H */

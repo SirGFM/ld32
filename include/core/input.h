@@ -105,6 +105,34 @@ struct button {
 	X( \
 		DEBUG_INPUT_QT, "DBG QT",/*auto*/, \
 		X_INPUT(gfmKey_f12), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_RED, "STONE RED",/*auto*/, \
+		X_INPUT(gfmKey_1), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_ORANGE, "STONE ORANGE",/*auto*/, \
+		X_INPUT(gfmKey_2), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_YELLOW, "STONE YELLOW",/*auto*/, \
+		X_INPUT(gfmKey_3), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_GREEN, "STONE GREEN",/*auto*/, \
+		X_INPUT(gfmKey_4), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_CYAN, "STONE CYAN",/*auto*/, \
+		X_INPUT(gfmKey_5), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_BLUE, "STONE BLUE",/*auto*/, \
+		X_INPUT(gfmKey_6), \
+	) \
+	X( \
+		DEBUG_INPUT_STONE_PURPLE, "STONE PURPLE",/*auto*/, \
+		X_INPUT(gfmKey_7), \
 	)
 #else /* if !defined(DEBUG) */
 #  define DEBUG_INPUT_LIST

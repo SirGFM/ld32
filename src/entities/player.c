@@ -106,6 +106,45 @@ static void player_setMaxFlight(struct player *player) {
 
 
 /**
+ * player_debugPreUpdate handles debug inputs for the player.
+ *
+ * @param [in] entity: The player's embedded entity.
+ * @param [in] scene: The scene that called this function.
+ */
+static void player_debugPreUpdate(struct player *player, struct scene *scene) {
+#if defined(DEBUG)
+	enum rainbowColor oldStones = global_getPermanent().stones;
+
+	if (input_isPressed(DEBUG_INPUT_STONE_RED)) {
+		global_addRedStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_ORANGE)) {
+		global_addOrangeStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_YELLOW)) {
+		global_addYellowStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_GREEN)) {
+		global_addGreenStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_CYAN)) {
+		global_addCyanStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_BLUE)) {
+		global_addBlueStone();
+	}
+	if (input_isPressed(DEBUG_INPUT_STONE_PURPLE)) {
+		global_addPurpleStone();
+	}
+
+	if (oldStones != global_getPermanent().stones) {
+		player_setMaxFlight(player);
+	}
+#endif
+}
+
+
+/**
  * player_shoot shoots rainbow particles.
  *
  * This handles calculating the shooting direction,
@@ -226,6 +265,8 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	int isDown;
 	int rv = 1;
 	gfmCollision dir;
+
+	player_debugPreUpdate(player, scene);
 
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
