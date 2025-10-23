@@ -68,7 +68,7 @@
 #define PLAYER_FLY_ACC (2 * PLAYER_FALL_ACC)
 
 /** For how long each stone lets the player fly. */
-#define PLAYER_STONE_FLY_TIME 1250
+#define PLAYER_STONE_FLY_TIME 750
 
 /** How much faster thus the fuel recharge if it wasn't fully spent. */
 #define PLAYER_FLY_RECHARGE_MODIFIER 3
