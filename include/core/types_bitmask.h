@@ -36,6 +36,14 @@
 
 
 /**
+ * GET_EXTRA_TYPE_DATA retrieves any extra data encoded into the object's type.
+ *
+ * type - The object's type.
+ */
+#define GET_EXTRA_TYPE_DATA(type) ((type) >> T_BITS)
+
+
+/**
  * NEW_TYPE generates a new type from a base type and a counter.
  *
  * base - An enum baseType.

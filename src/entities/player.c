@@ -551,3 +551,12 @@ __ret:
 	player_static_free(&tmp);
 	return rv;
 }
+
+
+int player_gemGet(struct entity *entity) {
+	struct player *player = (struct player*)entity;
+
+	player_setMaxFlight(player);
+
+	return 0;
+}

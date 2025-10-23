@@ -1,6 +1,7 @@
 #include <entities/menus/option.h>
 #include <entities/menus/title.h>
 #include <entities/new_by_type.h>
+#include <entities/gem.h>
 #include <entities/loader.h>
 #include <entities/player.h>
 #include <entities/yoku_block.h>
@@ -14,6 +15,14 @@ int entity_newByType(struct entity **entity, struct mapObject *data) {
 	case TYP_LOADER: return loader_new(entity, data);
 	case TYP_YOKU_BLOCK: return yokuBlock_new(entity, data);
 	case TYP_YOKU_CONTROLLER: return yokuController_new(entity, data);
+	case TYP_GEM_RED:
+	case TYP_GEM_ORANGE:
+	case TYP_GEM_YELLOW:
+	case TYP_GEM_GREEN:
+	case TYP_GEM_CYAN:
+	case TYP_GEM_BLUE:
+	case TYP_GEM_PURPLE:
+		return gem_new(entity, data);
 	// XXX: Add other entities.
 	default: return 1;
 	}

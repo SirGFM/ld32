@@ -102,4 +102,14 @@ int collision_explodeRainbow(struct collision_node *solid, struct collision_node
 int collision_yokuBlock(struct collision_node *obj, struct collision_node *block);
 
 
+/**
+ * collision_getGem handles colliding a player with a gem.
+ *
+ * @param [in] obj: The obj node.
+ * @param [in] loader: The yoku block node.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_getGem(struct collision_node *player, struct collision_node *gem);
+
+
 #endif /* COLLISION_H */

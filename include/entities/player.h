@@ -37,4 +37,13 @@ struct player {
 int player_new(struct entity **entity, int x, int y);
 
 
+/**
+ * player_gemGet adjusts the player after obtaining a gem.
+ *
+ * @param [in] entity: The player.
+ * @return 0: Success; Anything else: failure.
+ */
+int player_gemGet(struct entity *entity);
+
+
 #endif /* PLAYER_H */

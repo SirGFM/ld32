@@ -1,7 +1,9 @@
 #include <collision.h>
 #include <core/types.h>
 #include <core/types_bitmask.h>
+#include <entities/gem.h>
 #include <entities/loader.h>
+#include <entities/player.h>
 #include <entities/yoku_block.h>
 #include <error.h>
 #include <particles/rainbow.h>
@@ -218,4 +220,27 @@ int collision_yokuBlock(struct collision_node *obj, struct collision_node *block
 	else {
 		return collision_handleFloor(block, obj);
 	}
+}
+
+
+int collision_getGem(struct collision_node *player, struct collision_node *gem) {
+	int rv = 1;
+
+	if (!gem_isActive((struct entity*)gem->child)) {
+		return 0;
+	}
+
+	/* Ensure that the objects are colliding,
+	 * since the extended hitbox may graze each other
+	 * without triggering a collision. */
+	if (_collision_sweepJustOverlap(player->object, gem->object)) {
+		return 0;
+	}
+
+	ASSERT_OK(gem_get((struct entity*)gem->child), __ret);
+	ASSERT_OK(player_gemGet((struct entity*)player->child), __ret);
+
+	rv = 0;
+__ret:
+	return rv;
 }
