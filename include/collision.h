@@ -92,4 +92,14 @@ int collision_handlePlayerLoader(struct collision_node *player, struct collision
 int collision_explodeRainbow(struct collision_node *solid, struct collision_node *bullet);
 
 
+/**
+ * collision_yokuBlock handles colliding an object with a yoku block.
+ *
+ * @param [in] obj: The obj node.
+ * @param [in] loader: The yoku block node.
+ * @return 0: Success; Anything else: failure.
+ */
+int collision_yokuBlock(struct collision_node *obj, struct collision_node *block);
+
+
 #endif /* COLLISION_H */

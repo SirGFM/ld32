@@ -1,5 +1,8 @@
 #include <collision.h>
+#include <core/types.h>
+#include <core/types_bitmask.h>
 #include <entities/loader.h>
+#include <entities/yoku_block.h>
 #include <error.h>
 #include <particles/rainbow.h>
 
@@ -201,4 +204,18 @@ int collision_explodeRainbow(struct collision_node *solid, struct collision_node
 	rv = 0;
 __ret:
 	return rv;
+}
+
+
+int collision_yokuBlock(struct collision_node *obj, struct collision_node *block) {
+	if (!yokuBlock_isActive((struct entity*)block->child)) {
+		return 0;
+	}
+
+	if (GET_BASE_TYPE(obj->type) == BTYP_PARTICLE) {
+		return collision_explodeRainbow(block, obj);
+	}
+	else {
+		return collision_handleFloor(block, obj);
+	}
 }

@@ -15,7 +15,9 @@ enum attrType {
 	X(ATTR_MAINMENU_LETTER, "mm_letter", ATTR_TYPE_STR) \
 	X(ATTR_MAINMENU_RAINBOW, "mm_rainbow", ATTR_TYPE_STR) \
 	X(ATTR_MAINMENU_OPTION, "mm_option", ATTR_TYPE_STR) \
-	X(ATTR_MAP, "map", ATTR_TYPE_STR)
+	X(ATTR_MAP, "map", ATTR_TYPE_STR) \
+	X(ATTR_PARENT_ID, "parent_id", ATTR_TYPE_INT) \
+	X(ATTR_DURATION, "duration", ATTR_TYPE_INT)
 
 
 /**
