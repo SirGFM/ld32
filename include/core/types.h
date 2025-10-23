@@ -43,7 +43,7 @@ enum rainbowColor {
 	TM(TYP_SPIKES, "spikes", = NEW_TYPE(BTYP_HAZARD, 1)) \
 	X(TYP_PLAYER, "player", = NEW_TYPE(BTYP_PLAYER, 1)) \
 	X(TYP_TITLE, "title", = NEW_TYPE(BTYP_MENU, 1)) \
-	X(TYP_OPTION, "option",) \
+	X(TYP_OPTION, "option", = NEW_TYPE(BTYP_MENU, 2)) \
 	X(TYP_LOADER, "loader", = NEW_TYPE(BTYP_TRIGGER, 1)) \
 	X(TYP_PARTICLE_RED, "red bullet", = MERGE_TYPES(BTYP_PARTICLE, RED_COLOR)) \
 	X(TYP_PARTICLE_ORANGE, "orange bullet", = MERGE_TYPES(BTYP_PARTICLE, ORANGE_COLOR)) \
