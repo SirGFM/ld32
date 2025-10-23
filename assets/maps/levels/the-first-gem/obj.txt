@@ -1,2 +1,4 @@
-attr [ count , 1 ]
+attr [ count , 3 ]
 obj player 216 160 16 16
+obj loader 312 96 16 48 [ id , 2 ] [ map , maps/levels/deja-vu? ]
+obj loader 312 48 16 32 [ id , 3 ] [ map , maps/levels/deja-vu? ]
