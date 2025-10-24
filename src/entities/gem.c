@@ -6,6 +6,7 @@
 #include <core/types.h>
 #include <core/types_bitmask.h>
 #include <global.h>
+#include <particles/effects.h>
 #include <scene.h>
 #include <entities/gem.h>
 #include <util.h>
@@ -199,6 +200,9 @@ int gem_get(struct entity *entity) {
 	int rv = 1;
 
 	if (gem->active) {
+		int w, h, ox, oy, x, y;
+		enum rainbowColor color;
+
 		switch (gem->base.type) {
 		case TYP_GEM_RED:
 			global_addRedStone();
@@ -223,7 +227,17 @@ int gem_get(struct entity *entity) {
 			break;
 		}
 
-		/* TODO: Spawn particles. */
+		/* Spawn particles. */
+		color = GET_EXTRA_TYPE_DATA(gem->base.type);
+
+		ASSERT(GFMRV_OK == gfmSprite_getPosition(&x, &y, gem->base.sprite), __ret);
+		ASSERT(GFMRV_OK == gfmSprite_getOffset(&ox, &oy, gem->base.sprite), __ret);
+		ASSERT(GFMRV_OK == gfmSprite_getDimensions(&w, &h, gem->base.sprite), __ret);
+
+		x += w / 2 + ox;
+		y += h / 2 + oy;
+
+		ASSERT_OK(effects_spawnGemDust(color, x, y), __ret);
 	}
 	gem->active = 0;
 
