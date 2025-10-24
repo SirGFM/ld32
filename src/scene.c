@@ -6,6 +6,7 @@
 #include <entities/new_by_type.h>
 #include <error.h>
 #include <particles.h>
+#include <particles/effects.h>
 #include <scene.h>
 #include <util.h>
 
@@ -250,6 +251,8 @@ int scene_draw(struct scene *scene, int tilemapOnly) {
 
 		ASSERT_OK(grv = gfmTilemap_draw(cur, gameCtx), __ret);
 	}
+
+	ASSERT_OK(effects_draw(scene), __ret);
 
 	for (i = 0; i < scene->numEntities && tilemapOnly; i++) {
 		struct entity *cur = scene->entities[i];
