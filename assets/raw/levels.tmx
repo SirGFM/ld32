@@ -574,7 +574,7 @@
 </data>
   </layer>
  </group>
- <group id="29" name="training-room" visible="0">
+ <group id="29" name="training-room" offsetx="8" offsety="248">
   <objectgroup id="31" name="obj.txt">
    <object id="23" name="player" type="player" gid="4449" x="24" y="184" width="16" height="16"/>
   </objectgroup>

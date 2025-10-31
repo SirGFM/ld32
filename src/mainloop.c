@@ -281,6 +281,7 @@ static int mainloop_swapScene(struct map *map, int animated, int doorID) {
 	}
 	else {
 		_state = TRANSITION_IMMEDIATE;
+		ASSERT_OK(camera_setPosition(tmp.map->offsetX, tmp.map->offsetY), __ret);
 	}
 
 	memcpy(&_nextScene, &tmp, sizeof(tmp));
