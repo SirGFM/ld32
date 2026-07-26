@@ -76,6 +76,12 @@
 /** Recharge rate for the fuel if it was fully spent. */
 #define PLAYER_FLY_REFILL_RECHARGE_MODIFIER 2
 
+/** How long it takes for the selector menu to fully open, in ms. */
+#define PLAYER_SELECTOR_OPEN_TIME 250
+
+/** Selector menu distance from the player, in pixels. */
+#define PLAYER_SELECTOR_RADIUS 24
+
 
 /** List of animations */
 enum animation {
@@ -161,7 +167,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	int rv = 1;
 
 	double shootDirX, shootDirY;
-	int camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
+	int count, camCenterX, centerX, camCenterY, centerY, isLeft, isDown;
 	enum rainbowColor bullets, stones, curStoneBit;
 	gfmCollision dir;
 
@@ -200,26 +206,44 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	stones = global_getPermanent().stones;
 	curStoneBit = 1;
 	bullets = 0;
+	count = 0;
 	while (curStoneBit <= stones) {
 		if (curStoneBit & stones) {
 			bullets |= curStoneBit;
+			count++;
 		}
 
 		curStoneBit <<= 1;
 	}
 
 	/* Spawn the particles. */
-	ASSERT_OK(
-		rainbow_spawn(
-			  bullets
-			, shootDirX
-			, shootDirY
-			, centerX
-			, centerY
-			, PLAYER_SHOOT_DIST
-		)
-		, __ret
-	);
+	if (player->selectedColor == 0) {
+		ASSERT_OK(
+			rainbow_spawn(
+				  bullets
+				, shootDirX
+				, shootDirY
+				, centerX
+				, centerY
+				, PLAYER_SHOOT_DIST
+			)
+			, __ret
+		);
+	}
+	else {
+		ASSERT_OK(
+			rainbow_spawnSingleColor(
+				  player->selectedColor
+				, count
+				, shootDirX
+				, shootDirY
+				, centerX
+				, centerY
+				, PLAYER_SHOOT_DIST
+			)
+			, __ret
+		);
+	}
 
 	rv = 0;
 __ret:
@@ -234,6 +258,7 @@ __ret:
  * recover it over time or recover it all at once after a delay.
  *
  * @param [in] player: The player.
+ * @param [in] elapsedMs: How long has elapsed since the previous frame.
  */
 static void player_recoverFuel(struct player *player, int elapsedMs) {
 	if (player->curFlight < player->maxFlight) {
@@ -253,6 +278,117 @@ static void player_recoverFuel(struct player *player, int elapsedMs) {
 	player->curFlight = max(player->curFlight, 0);
 }
 
+/**
+ * player_runSelectorKey updates the selector menu with the keyboard/gamepad.
+ *
+ * This functions exclusively sets the cursorColor,
+ * leaving the decision of whether or not this color may be selected for the caller.
+ *
+ * @param [in] player: The player.
+ */
+static void player_runSelectorKey(struct player *player) {
+	int direction;
+
+	#define LEFT 1
+	#define RIGHT 2
+	#define UP 3
+	#define DOWN 4
+	#define DIR(x) (1 << x)
+
+	direction = (
+		(input_isPressed(INPUT_LEFT) << LEFT)
+		| (input_isPressed(INPUT_RIGHT) << RIGHT)
+		| (input_isPressed(INPUT_UP) << UP)
+		| (input_isPressed(INPUT_DOWN) << DOWN)
+	);
+
+	switch (direction) {
+	case DIR(UP):
+		player->cursorColor = 0;
+		break;
+	case DIR(RIGHT) | DIR(UP):
+		player->cursorColor = RED_COLOR;
+		break;
+	case DIR(RIGHT):
+		player->cursorColor = ORANGE_COLOR;
+		break;
+	case DIR(DOWN) | DIR(RIGHT):
+		player->cursorColor = YELLOW_COLOR;
+		break;
+	case DIR(DOWN):
+		player->cursorColor = GREEN_COLOR;
+		break;
+	case DIR(LEFT) | DIR(DOWN):
+		player->cursorColor = CYAN_COLOR;
+		break;
+	case DIR(LEFT):
+		player->cursorColor = BLUE_COLOR;
+		break;
+	case DIR(UP) | DIR(LEFT):
+		player->cursorColor = PURPLE_COLOR;
+		break;
+	default:
+		player->cursorColor = 0;
+	}
+
+	#undef LEFT
+	#undef RIGHT
+	#undef UP
+	#undef DOWN
+	#undef DIR
+}
+
+
+/**
+ * player_runSelectorMouse updates the selector menu with the mouse.
+ *
+ * This functions exclusively sets the cursorColor,
+ * leaving the decision of whether or not this color may be selected for the caller.
+ *
+ * @param [in] player: The player.
+ */
+static void player_runSelectorMouse(struct player *player) {
+	// TODO
+}
+
+
+/**
+ * player_runSelector implements the logic for the color selector menu.
+ *
+ * @param [in] player: The player.
+ * @param [in] elapsedMs: How long has elapsed since the previous frame.
+ * @return 0: Success; Anything else: failure.
+ */
+static int player_runSelector(struct player *player, int elapsedMs) {
+	int rv = 1;
+
+	if (player->selectorTimer == 0) {
+		ASSERT(
+			GFMRV_OK == gfmSprite_setHorizontalVelocity(
+				player->base.sprite
+				, 0.0
+			)
+			, __ret
+		);
+	}
+
+	if (input_isPressed(INPUT_SELECTOR)) {
+		player_runSelectorKey(player);
+	}
+	else {
+		player_runSelectorMouse(player);
+	}
+
+	player->selectedColor = (global_getPermanent().stones & player->cursorColor);
+
+	player->selectorTimer += elapsedMs;
+	player->selectorTimer = min(player->selectorTimer, PLAYER_SELECTOR_OPEN_TIME);
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
 
 /**
  * player_preUpdate handles user inputs,
@@ -265,7 +401,7 @@ static void player_recoverFuel(struct player *player, int elapsedMs) {
 static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	struct player *player = (struct player*)entity;
 	double vy, ay;
-	int isDown;
+	int isDown, isSelector;
 	int rv = 1;
 	gfmCollision dir;
 
@@ -273,8 +409,16 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
+	isSelector = (input_isPressed(INPUT_SELECTOR) || input_isPressed(INPUT_SELECTOR_MOUSE));
 	isDown = (dir & gfmCollision_down);
-	if (isDown) {
+	if (isDown && isSelector) {
+		player_runSelector(player, scene->elapsedMs);
+	}
+	else if (player->selectorTimer > 0) {
+		player->selectorTimer -= scene->elapsedMs;
+		player->selectorTimer = max(player->selectorTimer, 0);
+	}
+	else if (isDown) {
 		double vx;
 
 		/* Horizontal movement. */
@@ -416,6 +560,101 @@ __ret:
 
 
 /**
+ * player_drawSelector displays the color selector.
+ *
+ * @param [in] player: The player.
+ * @return 0: Success; Anything else: failure.
+ */
+static int player_drawSelector(struct player *player) {
+	int rv = 0;
+
+	int centerX, centerY, dist;
+
+	/* TODO: Improve this:
+	 *
+	 *    - Fade out invalid colors
+	 *    - Add sprite for all colors
+	 *    - Animate sprites?
+	 *    - Make this function less hack-y
+	 */
+
+	/* Calculate the sprite's center position,
+	 * offsetting by the sprite itself. */
+	ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
+	centerX -= 8;
+	centerY -= 10;
+
+	dist = PLAYER_SELECTOR_RADIUS * player->selectorTimer / PLAYER_SELECTOR_OPEN_TIME;
+
+	for (int i = 0; i < 8; i++) {
+		double x, y;
+		int frame;
+
+		switch (i) {
+		case 7:
+			y = -1.0;
+			x = 0.0;
+			frame = 0;
+			break;
+		case 0:
+			y = -0.7;
+			x = 0.7;
+			frame = 65;
+			break;
+		case 1:
+			y = 0.0;
+			x = 1.0;
+			frame = 97;
+			break;
+		case 2:
+			y = 0.7;
+			x = 0.7;
+			frame = 129;
+			break;
+		case 3:
+			y = 1.0;
+			x = 0.0;
+			frame = 161;
+			break;
+		case 4:
+			y = 0.7;
+			x = -0.7;
+			frame = 193;
+			break;
+		case 5:
+			y = 0.0;
+			x = -1.0;
+			frame = 225;
+			break;
+		case 6:
+			y = -0.7;
+			x = -0.7;
+			frame = 257;
+			break;
+		}
+
+		if (
+			(i == 7 && player->cursorColor == 0)
+			|| ((1 << i) & player->cursorColor)
+		) {
+			x *= 0.5;
+			y *= 0.5;
+		}
+
+		x *= dist;
+		x += centerX;
+		y *= dist;
+		y += centerY;
+		ASSERT(GFMRV_OK == gfm_drawTile(gameCtx, gfx16x16, (int)x, (int)y, frame, 0), __ret);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+/**
  * player_draw draws the player and the rainbow particle behind them.
  *
  * @param [in] entity: The player's embedded entity.
@@ -427,6 +666,9 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 	int rv = 1;
 
 	ASSERT_OK(rainbow_draw(scene), __ret);
+	if (player->selectorTimer > 0) {
+		ASSERT_OK(player_drawSelector(player), __ret);
+	}
 	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
 
 #if defined(DEBUG)

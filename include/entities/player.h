@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 
+#include <core/types.h>
 #include <entity.h>
 
 #include <stdint.h>
@@ -21,6 +22,13 @@ struct player {
 	/** How long has the player been on the ground after maxing out the flying time,
 	 * so their energy may be recharged. */
 	int flightRecharge;
+	/** For how long the selector menu has been open, if at all,
+	 * controlling its opening/closing animation. */
+	int selectorTimer;
+	/** Selected color, if any. */
+	enum rainbowColor selectedColor;
+	/** Currently highlighted color in the select menu. */
+	enum rainbowColor cursorColor;
 	/** Whether the player is currently shooting. */
 	uint8_t isShooting;
 };

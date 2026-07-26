@@ -247,6 +247,56 @@ __ret:
 }
 
 
+/**
+ * rainbow_prepareSpawn calculates the parameters required to shot rainbow particles.
+ *
+ * It calculates:
+ *
+ *   - The initial angle
+ *   - The angle difference between particles shot at once
+ *   - The particles initial position
+ *
+ * @param [out] angle: The particle's initial angle.
+ * @param [out] delta: The angle difference between particles.
+ * @param [in/out] cx: The horizontal position of the spawner's center.
+ * @param [in/out] cy: The vertical position of the spawner's center.
+ * @param [in] dx: The cosine of the particle's shooting direction.
+ * @param [in] dy: The sine of the particle's shooting direction.
+ * @param [in] dist: Distance from the spawner's center, at which the particles are spawned.
+ * @param [in] num: The number of particles that will be spawned.
+ */
+static void rainbow_prepareSpawn(
+	double *angle
+	, double *delta
+	, int *cx
+	, int *cy
+	, double dx
+	, double dy
+	, int dist
+	, int num
+) {
+	/* Calculate the angle difference between particles, in radians. */
+	if (num > 1) {
+		double rad = RAINBOW_ANGLE * PI / 180.0;
+		*delta = rad / (double)num;
+	}
+	else {
+		*delta = 0.0;
+	}
+
+	/* Calculate the shooting position
+	 * (in a circle around the center point). */
+	*cx += (int)(dx * dist);
+	*cy += (int)(dy * dist);
+
+	/* Calculate the initial shooting angle, in radians,
+	 * ensuring that 90 degrees is up. */
+	*angle = atan2(dx, -dy);
+	*angle -= *delta * num / 2.0;
+	*angle -= PI / 2.0;
+}
+
+
 int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy, int dist) {
 	double angle, delta;
 	int num;
@@ -259,25 +309,7 @@ int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy
 		goto __ret;
 	}
 
-	/* Calculate the angle difference between particles, in radians. */
-	if (num > 1) {
-		double rad = RAINBOW_ANGLE * PI / 180.0;
-		delta = rad / (double)num;
-	}
-	else {
-		delta = 0.0;
-	}
-
-	/* Calculate the shooting position
-	 * (in a circle around the center point). */
-	cx += (int)(dx * dist);
-	cy += (int)(dy * dist);
-
-	/* Calculate the initial shooting angle, in radians,
-	 * ensuring that 90 degrees is up. */
-	angle = atan2(dx, -dy);
-	angle -= delta * num / 2.0;
-	angle -= PI / 2.0;
+	rainbow_prepareSpawn(&angle, &delta, &cx, &cy, dx, dy, dist, num);
 
 	/* Iterate over every possible color,
 	 * spawning particles when the current color matches a provided color. */
@@ -290,6 +322,39 @@ int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy
 
 		colors >>= 1;
 		curColor <<= 1;
+	}
+
+	rv = 0;
+__ret:
+	return rv;
+}
+
+
+int rainbow_spawnSingleColor(
+	enum rainbowColor color
+	, int count
+	, double dx
+	, double dy
+	, int cx
+	, int cy
+	, int dist
+) {
+	double angle, delta;
+	int rv = 1;
+
+	if (count == 0 || lastSpawnedMs > 0) {
+		rv = 0;
+		goto __ret;
+	}
+
+	rainbow_prepareSpawn(&angle, &delta, &cx, &cy, dx, dy, dist, count);
+
+	/* Iterate over every possible color,
+	 * spawning particles when the current color matches a provided color. */
+	while (count > 0) {
+		ASSERT_OK(rainbow_spawnBullet(color, angle, cx, cy), __ret);
+		angle += delta;
+		count--;
 	}
 
 	rv = 0;

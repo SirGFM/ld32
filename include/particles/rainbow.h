@@ -61,6 +61,30 @@ int rainbow_spawn(enum rainbowColor colors, double dx, double dy, int cx, int cy
 
 
 /**
+ * rainbow_spawnSingleColor tries to spawn rainbow particles,
+ * respecting the spawner's built-in timer.
+ *
+ * @param [in] color: Which color of the rainbow should be shot.
+ * @param [in] count: How many particles should be shot.
+ * @param [in] dx: The cosine of the particle's shooting direction.
+ * @param [in] dy: The sine of the particle's shooting direction.
+ * @param [in] cx: The horizontal position of the spawner's center.
+ * @param [in] cy: The vertical position of the spawner's center.
+ * @param [in] dist: Distance from the spawner's center, at which the particles are spawned.
+ * @return 0: Success; Anything else: failure.
+ */
+int rainbow_spawnSingleColor(
+	enum rainbowColor color
+	, int count
+	, double dx
+	, double dy
+	, int cx
+	, int cy
+	, int dist
+);
+
+
+/**
  * rainbow_explodeBullet changes the animation frame to the bullet's explosion.
  *
  * @param [in] bullet: The bullet particle.
