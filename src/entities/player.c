@@ -70,8 +70,11 @@
 /** For how long each stone lets the player fly. */
 #define PLAYER_STONE_FLY_TIME 750
 
-/** How much faster thus the fuel recharge if it wasn't fully spent. */
+/** How much faster the fuel recharge if it wasn't fully spent. */
 #define PLAYER_FLY_RECHARGE_MODIFIER 3
+
+/** Recharge rate for the fuel if it was fully spent. */
+#define PLAYER_FLY_REFILL_RECHARGE_MODIFIER 2
 
 
 /** List of animations */
@@ -237,7 +240,7 @@ static void player_recoverFuel(struct player *player, int elapsedMs) {
 		/* The fuel wasn't fully spent, do the fast recharge. */
 		player->curFlight -= elapsedMs * PLAYER_FLY_RECHARGE_MODIFIER;
 	}
-	else if (player->flightRecharge < PLAYER_STONE_FLY_TIME * player->numStones / PLAYER_FLY_RECHARGE_MODIFIER) {
+	else if (player->flightRecharge < player->maxFlight / PLAYER_FLY_REFILL_RECHARGE_MODIFIER) {
 		/* The fuel was fully spent, wait for the cooldown. */
 		player->flightRecharge += elapsedMs;
 	}
