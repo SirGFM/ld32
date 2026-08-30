@@ -5,12 +5,16 @@
 #include <core/types.h>
 #include <entity.h>
 
+#include <GFraMe/gfmAnimation.h>
+
 #include <stdint.h>
 
 
 struct player {
 	/** The base entity. */
 	struct entity base;
+	/** Offset-based gem animation. */
+	gfmAnimation *gemAnimation;
 	/** How many rainbow stones the player has collected. */
 	int numStones;
 	/** For how long the player may fly without touching the floor,

@@ -10,6 +10,7 @@
 #include <particles/rainbow.h>
 #include <scene.h>
 #include <util.h>
+#include <entities/gem.h>
 #include <entities/player.h>
 
 #include <GFraMe/gfmSprite.h>
@@ -532,6 +533,8 @@ static int player_postUpdate(struct entity *entity, struct scene *scene) {
 	int rv = 1;
 	gfmCollision dir;
 
+	ASSERT(GFMRV_OK == gfmAnimation_update(player->gemAnimation, gameCtx), __ret);
+
 	ASSERT(GFMRV_OK == gfmSprite_getVelocity(&vx, &vy, player->base.sprite), __ret);
 	ASSERT(GFMRV_OK == gfmSprite_getCollision(&dir, player->base.sprite), __ret);
 
@@ -599,9 +602,7 @@ static int player_drawSelector(struct player *player) {
 
 	/* TODO: Improve this:
 	 *
-	 *    - Fade out invalid colors
-	 *    - Add sprite for all colors
-	 *    - Animate sprites?
+	 *    - Animate sprites (wave)
 	 */
 
 	/* Calculate the sprite's center position,
@@ -624,6 +625,16 @@ static int player_drawSelector(struct player *player) {
 			entry.x *= 0.66;
 			entry.y *= 0.66;
 		}
+
+		/* Gray-out uncollected gems. */
+		if (!(global_getPermanent().stones & entry.color)) {
+			entry.color = 0;
+		}
+
+		/* Fetch the animation frame. */
+		gem_getFirstFrame(&sprite, entry.color);
+		ASSERT(GFMRV_OK == gfmAnimation_getFrame(&frame, player->gemAnimation), __ret);
+		sprite += frame;
 
 		x = centerX + (int)(entry.x * dist);
 		y = centerY + (int)(entry.y * dist);
@@ -704,6 +715,7 @@ __ret:
  */
 static int player_static_free(struct player *player) {
 	entity_free(&player->base);
+	gfmAnimation_free(&player->gemAnimation);
 	return 0;
 }
 
@@ -725,9 +737,11 @@ static int player_free(struct entity *entity, struct scene *scene) {
 
 
 int player_new(struct entity **entity, int x, int y) {
+	int *gemData = 0;
 	struct entity *ret = 0;
 	struct player tmp = {0};
 	int rv = 1;
+	int gemDataLen = 0;
 
 	/* Adjust the player's flight time. */
 	player_setMaxFlight(&tmp);
@@ -755,6 +769,20 @@ int player_new(struct entity **entity, int x, int y) {
 		, __ret
 	);
 	ASSERT(GFMRV_OK == gfmSprite_playAnimation(tmp.base.sprite, STAND), __ret);
+
+	gem_getBaseAnimation(&gemData, &gemDataLen);
+	ASSERT(GFMRV_OK == gfmAnimation_getNew(&tmp.gemAnimation), __ret);
+
+	ASSERT(
+		GFMRV_OK == gfmAnimation_init(
+			tmp.gemAnimation
+			, gemData + 3
+			, gemData[0]
+			, gemData[1]
+			, gemData[2]
+		)
+		, __ret
+	);
 
 	tmp.base.fn.preUpdate = player_preUpdate;
 	tmp.base.fn.postUpdate = player_postUpdate;

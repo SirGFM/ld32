@@ -283,6 +283,8 @@ __ret:
 #define PUR_3 258
 #define PUR_4 259
 #define PUR_5 260
+#define GRAY_1 288
+#define RAINBOW_1 320
 
 
 /** Animation data for each gem color. */
@@ -300,3 +302,51 @@ static int animationData[] = {
 
 /** Number entries in the gem animation data. */
 static const int animationDataLen = sizeof(animationData) / sizeof(int);
+
+/** Base gem animation, using offsets from the first sprite. */
+static int baseAnimationData[] = {
+/*len|fps|loop|frames...*/
+   40, 12,  1 , 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,
+};
+
+/** Number entries in the base gem animation data. */
+static const int baseAnimationDataLen = sizeof(baseAnimationData) / sizeof(int);
+
+
+void gem_getBaseAnimation(int **data, int *len) {
+	*data = baseAnimationData;
+	*len = baseAnimationDataLen;
+}
+
+
+void gem_getFirstFrame(int *sprite, enum rainbowColor color) {
+	switch (color) {
+	case RED_COLOR:
+		*sprite = RED_1;
+		break;
+	case ORANGE_COLOR:
+		*sprite = ORA_1;
+		break;
+	case YELLOW_COLOR:
+		*sprite = YEL_1;
+		break;
+	case GREEN_COLOR:
+		*sprite = GRE_1;
+		break;
+	case CYAN_COLOR:
+		*sprite = CYA_1;
+		break;
+	case BLUE_COLOR:
+		*sprite = BLU_1;
+		break;
+	case PURPLE_COLOR:
+		*sprite = PUR_1;
+		break;
+	case RAINBOW_COLOR:
+		*sprite = RAINBOW_1;
+		break;
+	default:
+		*sprite = GRAY_1;
+		break;
+	}
+}

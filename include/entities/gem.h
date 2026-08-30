@@ -3,6 +3,7 @@
 
 
 #include <core/map.h>
+#include <core/types.h>
 #include <entity.h>
 
 
@@ -42,6 +43,27 @@ int gem_isActive(struct entity *entity);
  * @return 0: Success; Anything else: failure.
  */
 int gem_get(struct entity *entity);
+
+
+/**
+ * gem_getBaseAnimation retrieves a gem-agnostic animation data,
+ * using the offset from the gem's first sprite.
+ *
+ * @param [out] data: The animation data.
+ * @param [out] len: The number of entries in the data.
+ */
+void gem_getBaseAnimation(int **data, int *len);
+
+
+/**
+ * gem_getFirstFrame retrieves the sprite for a gem's first animation frame.
+ *
+ * If an invalid color is provided, gray is returned.
+ *
+ * @param [out] sprite: The sprite's index.
+ * @param [in] color: A combination of colors.
+ */
+void gem_getFirstFrame(int *sprite, enum rainbowColor color);
 
 
 #endif /* GEM_H */
