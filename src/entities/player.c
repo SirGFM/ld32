@@ -80,6 +80,9 @@
 /** How long it takes for the selector menu to fully open, in ms. */
 #define PLAYER_SELECTOR_OPEN_TIME 250
 
+/** Period of the animation within the selector menu. */
+#define PLAYER_SELECTOR_WAVE_ANIMATION_MS 2000
+
 /** Selector menu distance from the player, in pixels. */
 #define PLAYER_SELECTOR_RADIUS 24
 
@@ -392,6 +395,11 @@ static int player_runSelector(struct player *player, int elapsedMs) {
 	player->selectorTimer += elapsedMs;
 	player->selectorTimer = min(player->selectorTimer, PLAYER_SELECTOR_OPEN_TIME);
 
+	player->selectorAnimation += elapsedMs;
+	if (player->selectorAnimation >= PLAYER_SELECTOR_WAVE_ANIMATION_MS) {
+		player->selectorAnimation -= PLAYER_SELECTOR_WAVE_ANIMATION_MS;
+	}
+
 	rv = 0;
 __ret:
 	return rv;
@@ -596,14 +604,9 @@ static int indexToSelectorLen = sizeof(indexToSelector) / sizeof(struct selector
  * @return 0: Success; Anything else: failure.
  */
 static int player_drawSelector(struct player *player) {
-	int rv = 0;
-
+	float perc;
 	int centerX, centerY, dist;
-
-	/* TODO: Improve this:
-	 *
-	 *    - Animate sprites (wave)
-	 */
+	int rv = 0;
 
 	/* Calculate the sprite's center position,
 	 * offsetting by the sprite itself. */
@@ -612,6 +615,10 @@ static int player_drawSelector(struct player *player) {
 	centerY -= 10;
 
 	dist = PLAYER_SELECTOR_RADIUS * player->selectorTimer / PLAYER_SELECTOR_OPEN_TIME;
+
+	/* Slightly wave the gems. */
+	perc = player->selectorAnimation / (float)PLAYER_SELECTOR_WAVE_ANIMATION_MS;
+	dist *= 1.0 - (0.1 * sin(perc * M_PI * 2.0f));
 
 	for (int i = 0; i < indexToSelectorLen; i++) {
 		struct selectorData entry;

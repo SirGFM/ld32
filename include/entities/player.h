@@ -29,6 +29,8 @@ struct player {
 	/** For how long the selector menu has been open, if at all,
 	 * controlling its opening/closing animation. */
 	int selectorTimer;
+	/** Looping timer for controlling the fully open selector animation. */
+	int selectorAnimation;
 	/** Selected color, if any. */
 	enum rainbowColor selectedColor;
 	/** Currently highlighted color in the select menu. */
