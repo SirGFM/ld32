@@ -83,6 +83,9 @@
 /** Period of the animation within the selector menu. */
 #define PLAYER_SELECTOR_WAVE_ANIMATION_MS 2000
 
+/** Hack-y value used to indicate that the selector is centered at the player. */
+#define PLAYER_SELECTOR_FROM_PLAYER -1000
+
 /** Selector menu distance from the player, in pixels. */
 #define PLAYER_SELECTOR_RADIUS 24
 
@@ -350,9 +353,38 @@ static void player_runSelectorKey(struct player *player) {
  * leaving the decision of whether or not this color may be selected for the caller.
  *
  * @param [in] player: The player.
+ * @return 0: Success; Anything else: failure.
  */
-static void player_runSelectorMouse(struct player *player) {
-	// TODO
+static int player_runSelectorMouse(struct player *player) {
+	double ang;
+	int iang, index, x, y;
+	int rv = 1;
+
+	#define FULL_ROTATION ((int)(1000 * 2 * M_PI))
+	#define GEM_ANGLE (FULL_ROTATION / 8)
+
+	ASSERT(GFMRV_OK == gfmInput_getPointerPosition(&x, &y, inputCtx), __ret);
+
+	if (input_isJustPressed(INPUT_SELECTOR_MOUSE)) {
+		player->selectorMouseX = x;
+		player->selectorMouseY = y;
+	}
+
+	ang = atan2(y - player->selectorMouseY, x - player->selectorMouseX);
+	iang = (int)(1000 * (ang + M_PI));
+	iang = (iang + 13 * FULL_ROTATION / 16) % FULL_ROTATION;
+
+	index = iang / GEM_ANGLE;
+	if (index == 0) {
+		player->cursorColor = RAINBOW_COLOR;
+	}
+	else {
+		player->cursorColor = 1 << (index - 1);
+	}
+
+	rv = 0;
+__ret:
+	return rv;
 }
 
 
@@ -378,10 +410,11 @@ static int player_runSelector(struct player *player, int elapsedMs) {
 	}
 
 	if (input_isPressed(INPUT_SELECTOR)) {
+		player->selectorMouseX = PLAYER_SELECTOR_FROM_PLAYER;
 		player_runSelectorKey(player);
 	}
 	else {
-		player_runSelectorMouse(player);
+		ASSERT_OK(player_runSelectorMouse(player), __ret);
 	}
 
 	color = global_getPermanent().stones & player->cursorColor;
@@ -608,9 +641,15 @@ static int player_drawSelector(struct player *player) {
 	int centerX, centerY, dist;
 	int rv = 0;
 
-	/* Calculate the sprite's center position,
+	/* Calculate the sprite's (or mouse) center position,
 	 * offsetting by the sprite itself. */
-	ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
+	if (player->selectorMouseX == PLAYER_SELECTOR_FROM_PLAYER) {
+		ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
+	}
+	else {
+		centerX = player->selectorMouseX;
+		centerY = player->selectorMouseY;
+	}
 	centerX -= 8;
 	centerY -= 10;
 

@@ -35,6 +35,10 @@ struct player {
 	enum rainbowColor selectedColor;
 	/** Currently highlighted color in the select menu. */
 	enum rainbowColor cursorColor;
+	/** Selector's horizontal origin when using the mouse. */
+	int selectorMouseX;
+	/** Selector's vertical origin when using the mouse. */
+	int selectorMouseY;
 	/** Whether the player is currently shooting. */
 	uint8_t isShooting;
 };
