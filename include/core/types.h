@@ -18,6 +18,16 @@ enum rainbowColor {
 	, CYAN_COLOR   = 0x10
 	, BLUE_COLOR   = 0x20
 	, PURPLE_COLOR = 0x40
+
+	, RAINBOW_COLOR = (
+		RED_COLOR
+		| ORANGE_COLOR
+		| YELLOW_COLOR
+		| GREEN_COLOR
+		| CYAN_COLOR
+		| BLUE_COLOR
+		| PURPLE_COLOR
+	)
 };
 
 

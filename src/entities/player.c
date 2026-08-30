@@ -217,7 +217,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	}
 
 	/* Spawn the particles. */
-	if (player->selectedColor == 0) {
+	if (player->selectedColor == RAINBOW_COLOR) {
 		ASSERT_OK(
 			rainbow_spawn(
 				  bullets
@@ -304,7 +304,7 @@ static void player_runSelectorKey(struct player *player) {
 
 	switch (direction) {
 	case DIR(UP):
-		player->cursorColor = 0;
+		player->cursorColor = RAINBOW_COLOR;
 		break;
 	case DIR(RIGHT) | DIR(UP):
 		player->cursorColor = RED_COLOR;
@@ -360,6 +360,7 @@ static void player_runSelectorMouse(struct player *player) {
  * @return 0: Success; Anything else: failure.
  */
 static int player_runSelector(struct player *player, int elapsedMs) {
+	enum rainbowColor color;
 	int rv = 1;
 
 	if (player->selectorTimer == 0) {
@@ -379,7 +380,13 @@ static int player_runSelector(struct player *player, int elapsedMs) {
 		player_runSelectorMouse(player);
 	}
 
-	player->selectedColor = (global_getPermanent().stones & player->cursorColor);
+	color = global_getPermanent().stones & player->cursorColor;
+	if (color == 0 || color != player->cursorColor) {
+		player->selectedColor = RAINBOW_COLOR;
+	}
+	else {
+		player->selectedColor = player->cursorColor;
+	}
 
 	player->selectorTimer += elapsedMs;
 	player->selectorTimer = min(player->selectorTimer, PLAYER_SELECTOR_OPEN_TIME);
@@ -559,6 +566,26 @@ __ret:
 }
 
 
+struct selectorData {
+	enum rainbowColor color;
+	double y;
+	double x;
+};
+
+static struct selectorData indexToSelector[] = {
+	{color: RED_COLOR    , y: -0.7, x: 0.7},
+	{color: ORANGE_COLOR , y: 0.0, x: 1.0},
+	{color: YELLOW_COLOR , y: 0.7, x: 0.7},
+	{color: GREEN_COLOR  , y: 1.0, x: 0.0},
+	{color: CYAN_COLOR   , y: 0.7, x: -0.7},
+	{color: BLUE_COLOR   , y: 0.0, x: -1.0},
+	{color: PURPLE_COLOR , y: -0.7, x: -0.7},
+	{color: RAINBOW_COLOR, y: -1.0, x: 0.0},
+};
+
+static int indexToSelectorLen = sizeof(indexToSelector) / sizeof(struct selectorData);
+
+
 /**
  * player_drawSelector displays the color selector.
  *
@@ -575,7 +602,6 @@ static int player_drawSelector(struct player *player) {
 	 *    - Fade out invalid colors
 	 *    - Add sprite for all colors
 	 *    - Animate sprites?
-	 *    - Make this function less hack-y
 	 */
 
 	/* Calculate the sprite's center position,
@@ -586,66 +612,22 @@ static int player_drawSelector(struct player *player) {
 
 	dist = PLAYER_SELECTOR_RADIUS * player->selectorTimer / PLAYER_SELECTOR_OPEN_TIME;
 
-	for (int i = 0; i < 8; i++) {
-		double x, y;
-		int frame;
+	for (int i = 0; i < indexToSelectorLen; i++) {
+		struct selectorData entry;
+		int x, y;
+		int sprite, frame;
 
-		switch (i) {
-		case 7:
-			y = -1.0;
-			x = 0.0;
-			frame = 0;
-			break;
-		case 0:
-			y = -0.7;
-			x = 0.7;
-			frame = 65;
-			break;
-		case 1:
-			y = 0.0;
-			x = 1.0;
-			frame = 97;
-			break;
-		case 2:
-			y = 0.7;
-			x = 0.7;
-			frame = 129;
-			break;
-		case 3:
-			y = 1.0;
-			x = 0.0;
-			frame = 161;
-			break;
-		case 4:
-			y = 0.7;
-			x = -0.7;
-			frame = 193;
-			break;
-		case 5:
-			y = 0.0;
-			x = -1.0;
-			frame = 225;
-			break;
-		case 6:
-			y = -0.7;
-			x = -0.7;
-			frame = 257;
-			break;
+		entry = indexToSelector[i];
+
+		/* Move the selected gem closer to the center. */
+		if (entry.color == player->cursorColor) {
+			entry.x *= 0.66;
+			entry.y *= 0.66;
 		}
 
-		if (
-			(i == 7 && player->cursorColor == 0)
-			|| ((1 << i) & player->cursorColor)
-		) {
-			x *= 0.5;
-			y *= 0.5;
-		}
-
-		x *= dist;
-		x += centerX;
-		y *= dist;
-		y += centerY;
-		ASSERT(GFMRV_OK == gfm_drawTile(gameCtx, gfx16x16, (int)x, (int)y, frame, 0), __ret);
+		x = centerX + (int)(entry.x * dist);
+		y = centerY + (int)(entry.y * dist);
+		ASSERT(GFMRV_OK == gfm_drawTile(gameCtx, gfx16x16, x, y, sprite, 0), __ret);
 	}
 
 	rv = 0;
