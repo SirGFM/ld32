@@ -116,8 +116,8 @@ static int animationData[] = {
  * @param [in] player: The player.
  */
 static void player_setMaxFlight(struct player *player) {
-	player->numStones = countBits((uint32_t)global_getPermanent().stones);
-	player->maxFlight = player->numStones * PLAYER_STONE_FLY_TIME;
+	player->data.numStones = countBits((uint32_t)global_getPermanent().stones);
+	player->data.maxFlight = player->data.numStones * PLAYER_STONE_FLY_TIME;
 }
 
 
@@ -224,7 +224,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	}
 
 	/* Spawn the particles. */
-	if (player->selectedColor == RAINBOW_COLOR) {
+	if (player->data.selectedColor == RAINBOW_COLOR) {
 		ASSERT_OK(
 			rainbow_spawn(
 				  bullets
@@ -240,7 +240,7 @@ static int player_shoot(struct player *player, struct scene *scene) {
 	else {
 		ASSERT_OK(
 			rainbow_spawnSingleColor(
-				  player->selectedColor
+				  player->data.selectedColor
 				, count
 				, shootDirX
 				, shootDirY
@@ -268,21 +268,23 @@ __ret:
  * @param [in] elapsedMs: How long has elapsed since the previous frame.
  */
 static void player_recoverFuel(struct player *player, int elapsedMs) {
-	if (player->curFlight < player->maxFlight) {
+	const int fullRefillCooldown = player->data.maxFlight / PLAYER_FLY_REFILL_RECHARGE_MODIFIER;
+
+	if (player->data.curFlight < player->data.maxFlight) {
 		/* The fuel wasn't fully spent, do the fast recharge. */
-		player->curFlight -= elapsedMs * PLAYER_FLY_RECHARGE_MODIFIER;
+		player->data.curFlight -= elapsedMs * PLAYER_FLY_RECHARGE_MODIFIER;
 	}
-	else if (player->flightRecharge < player->maxFlight / PLAYER_FLY_REFILL_RECHARGE_MODIFIER) {
+	else if (player->data.flightRecharge < fullRefillCooldown) {
 		/* The fuel was fully spent, wait for the cooldown. */
-		player->flightRecharge += elapsedMs;
+		player->data.flightRecharge += elapsedMs;
 	}
 	else {
 		/* The fuel was fully spent, AND the cooldown has elapsed. */
-		player->curFlight = 0;
-		player->flightRecharge = 0;
+		player->data.curFlight = 0;
+		player->data.flightRecharge = 0;
 	}
 
-	player->curFlight = max(player->curFlight, 0);
+	player->data.curFlight = max(player->data.curFlight, 0);
 }
 
 /**
@@ -311,31 +313,31 @@ static void player_runSelectorKey(struct player *player) {
 
 	switch (direction) {
 	case DIR(UP):
-		player->cursorColor = RAINBOW_COLOR;
+		player->data.cursorColor = RAINBOW_COLOR;
 		break;
 	case DIR(RIGHT) | DIR(UP):
-		player->cursorColor = RED_COLOR;
+		player->data.cursorColor = RED_COLOR;
 		break;
 	case DIR(RIGHT):
-		player->cursorColor = ORANGE_COLOR;
+		player->data.cursorColor = ORANGE_COLOR;
 		break;
 	case DIR(DOWN) | DIR(RIGHT):
-		player->cursorColor = YELLOW_COLOR;
+		player->data.cursorColor = YELLOW_COLOR;
 		break;
 	case DIR(DOWN):
-		player->cursorColor = GREEN_COLOR;
+		player->data.cursorColor = GREEN_COLOR;
 		break;
 	case DIR(LEFT) | DIR(DOWN):
-		player->cursorColor = CYAN_COLOR;
+		player->data.cursorColor = CYAN_COLOR;
 		break;
 	case DIR(LEFT):
-		player->cursorColor = BLUE_COLOR;
+		player->data.cursorColor = BLUE_COLOR;
 		break;
 	case DIR(UP) | DIR(LEFT):
-		player->cursorColor = PURPLE_COLOR;
+		player->data.cursorColor = PURPLE_COLOR;
 		break;
 	default:
-		player->cursorColor = 0;
+		player->data.cursorColor = 0;
 	}
 
 	#undef LEFT
@@ -366,20 +368,20 @@ static int player_runSelectorMouse(struct player *player) {
 	ASSERT(GFMRV_OK == gfmInput_getPointerPosition(&x, &y, inputCtx), __ret);
 
 	if (input_isJustPressed(INPUT_SELECTOR_MOUSE)) {
-		player->selectorMouseX = x;
-		player->selectorMouseY = y;
+		player->data.selectorMouseX = x;
+		player->data.selectorMouseY = y;
 	}
 
-	ang = atan2(y - player->selectorMouseY, x - player->selectorMouseX);
+	ang = atan2(y - player->data.selectorMouseY, x - player->data.selectorMouseX);
 	iang = (int)(1000 * (ang + M_PI));
 	iang = (iang + 13 * FULL_ROTATION / 16) % FULL_ROTATION;
 
 	index = iang / GEM_ANGLE;
 	if (index == 0) {
-		player->cursorColor = RAINBOW_COLOR;
+		player->data.cursorColor = RAINBOW_COLOR;
 	}
 	else {
-		player->cursorColor = 1 << (index - 1);
+		player->data.cursorColor = 1 << (index - 1);
 	}
 
 	rv = 0;
@@ -399,7 +401,7 @@ static int player_runSelector(struct player *player, int elapsedMs) {
 	enum rainbowColor color;
 	int rv = 1;
 
-	if (player->selectorTimer == 0) {
+	if (player->data.selectorTimer == 0) {
 		ASSERT(
 			GFMRV_OK == gfmSprite_setHorizontalVelocity(
 				player->base.sprite
@@ -410,27 +412,30 @@ static int player_runSelector(struct player *player, int elapsedMs) {
 	}
 
 	if (input_isPressed(INPUT_SELECTOR)) {
-		player->selectorMouseX = PLAYER_SELECTOR_FROM_PLAYER;
+		player->data.selectorMouseX = PLAYER_SELECTOR_FROM_PLAYER;
 		player_runSelectorKey(player);
 	}
 	else {
 		ASSERT_OK(player_runSelectorMouse(player), __ret);
 	}
 
-	color = global_getPermanent().stones & player->cursorColor;
-	if (color == 0 || color != player->cursorColor) {
-		player->selectedColor = RAINBOW_COLOR;
+	color = global_getPermanent().stones & player->data.cursorColor;
+	if (color == 0 || color != player->data.cursorColor) {
+		player->data.selectedColor = RAINBOW_COLOR;
 	}
 	else {
-		player->selectedColor = player->cursorColor;
+		player->data.selectedColor = player->data.cursorColor;
 	}
 
-	player->selectorTimer += elapsedMs;
-	player->selectorTimer = min(player->selectorTimer, PLAYER_SELECTOR_OPEN_TIME);
+	player->data.selectorTimer += elapsedMs;
+	player->data.selectorTimer = min(
+		player->data.selectorTimer
+		, PLAYER_SELECTOR_OPEN_TIME
+	);
 
-	player->selectorAnimation += elapsedMs;
-	if (player->selectorAnimation >= PLAYER_SELECTOR_WAVE_ANIMATION_MS) {
-		player->selectorAnimation -= PLAYER_SELECTOR_WAVE_ANIMATION_MS;
+	player->data.selectorAnimation += elapsedMs;
+	if (player->data.selectorAnimation >= PLAYER_SELECTOR_WAVE_ANIMATION_MS) {
+		player->data.selectorAnimation -= PLAYER_SELECTOR_WAVE_ANIMATION_MS;
 	}
 
 	rv = 0;
@@ -463,9 +468,9 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	if (isDown && isSelector) {
 		player_runSelector(player, scene->elapsedMs);
 	}
-	else if (player->selectorTimer > 0) {
-		player->selectorTimer -= scene->elapsedMs;
-		player->selectorTimer = max(player->selectorTimer, 0);
+	else if (player->data.selectorTimer > 0) {
+		player->data.selectorTimer -= scene->elapsedMs;
+		player->data.selectorTimer = max(player->data.selectorTimer, 0);
 	}
 	else if (isDown) {
 		double vx;
@@ -504,8 +509,8 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 	 *   - pressed jump while in the air
 	 *   - pressed a fire action regardless of their state
 	 */
-	if (!player->isShooting) {
-		player->isShooting = (
+	if (!player->data.isShooting) {
+		player->data.isShooting = (
 			(
 				!isDown
 				&& (
@@ -517,7 +522,7 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 			|| input_isPressed(INPUT_FIRE_MOUSE)
 		);
 	} else {
-		player->isShooting = (
+		player->data.isShooting = (
 			input_isPressed(INPUT_JUMP)
 			|| input_isPressed(INPUT_JUMP_MOUSE)
 			|| input_isPressed(INPUT_FIRE)
@@ -525,14 +530,17 @@ static int player_preUpdate(struct entity *entity, struct scene *scene) {
 		);
 	}
 
-	if (player->isShooting && player->curFlight < player->maxFlight) {
-		player->curFlight += scene->elapsedMs;
-		player->curFlight = min(player->curFlight, player->maxFlight);
+	if (
+		player->data.isShooting
+		&& player->data.curFlight < player->data.maxFlight
+	) {
+		player->data.curFlight += scene->elapsedMs;
+		player->data.curFlight = min(player->data.curFlight, player->data.maxFlight);
 
 		ASSERT_OK(player_shoot(player, scene), __ret);
 	}
 
-	if (isDown && player->curFlight > 0) {
+	if (isDown && player->data.curFlight > 0) {
 		player_recoverFuel(player, scene->elapsedMs);
 	}
 
@@ -643,20 +651,20 @@ static int player_drawSelector(struct player *player) {
 
 	/* Calculate the sprite's (or mouse) center position,
 	 * offsetting by the sprite itself. */
-	if (player->selectorMouseX == PLAYER_SELECTOR_FROM_PLAYER) {
+	if (player->data.selectorMouseX == PLAYER_SELECTOR_FROM_PLAYER) {
 		ASSERT(GFMRV_OK == gfmSprite_getCenter(&centerX, &centerY, player->base.sprite), __ret);
 	}
 	else {
-		centerX = player->selectorMouseX;
-		centerY = player->selectorMouseY;
+		centerX = player->data.selectorMouseX;
+		centerY = player->data.selectorMouseY;
 	}
 	centerX -= 8;
 	centerY -= 10;
 
-	dist = PLAYER_SELECTOR_RADIUS * player->selectorTimer / PLAYER_SELECTOR_OPEN_TIME;
+	dist = PLAYER_SELECTOR_RADIUS * player->data.selectorTimer / PLAYER_SELECTOR_OPEN_TIME;
 
 	/* Slightly wave the gems. */
-	perc = player->selectorAnimation / (float)PLAYER_SELECTOR_WAVE_ANIMATION_MS;
+	perc = player->data.selectorAnimation / (float)PLAYER_SELECTOR_WAVE_ANIMATION_MS;
 	dist *= 1.0 - (0.1 * sin(perc * M_PI * 2.0f));
 
 	for (int i = 0; i < indexToSelectorLen; i++) {
@@ -667,7 +675,7 @@ static int player_drawSelector(struct player *player) {
 		entry = indexToSelector[i];
 
 		/* Move the selected gem closer to the center. */
-		if (entry.color == player->cursorColor) {
+		if (entry.color == player->data.cursorColor) {
 			entry.x *= 0.66;
 			entry.y *= 0.66;
 		}
@@ -705,7 +713,7 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 	int rv = 1;
 
 	ASSERT_OK(rainbow_draw(scene), __ret);
-	if (player->selectorTimer > 0) {
+	if (player->data.selectorTimer > 0) {
 		ASSERT_OK(player_drawSelector(player), __ret);
 	}
 	ASSERT(GFMRV_OK == gfmSprite_draw(player->base.sprite, gameCtx), __ret);
@@ -737,9 +745,9 @@ static int player_draw(struct entity *entity, struct scene *scene) {
 			, abs((int)(100 * (ay - (int)ay)))
 			, (int)vy
 			, abs((int)(100 * (vy - (int)vy)))
-			, player->maxFlight
-			, player->curFlight
-			, player->flightRecharge
+			, player->data.maxFlight
+			, player->data.curFlight
+			, player->data.flightRecharge
 		);
 	} while (0);
 #endif /* defined(DEBUG) */
@@ -860,4 +868,36 @@ int player_gemGet(struct entity *entity) {
 	player_setMaxFlight(player);
 
 	return 0;
+}
+
+
+int player_clone(struct entity *from, struct entity *to, int offsetX, int offsetY) {
+	struct player *fromP = (struct player*)from;
+	struct player *toP = (struct player*)to;
+	double ax, ay;
+	double vx, vy;
+	int x, y;
+	int rv = 1;
+	gfmRV grv = GFMRV_OK;
+
+	/* Copy the position, adjusting position in the new scene. */
+	ASSERT_OK(grv = gfmSprite_getPosition(&x, &y, from->sprite), __ret);
+	x += offsetX;
+	y += offsetY;
+
+	ASSERT_OK(grv = gfmSprite_setPosition(to->sprite, x, y), __ret);
+
+	/* Copy the physics state. */
+	ASSERT_OK(grv = gfmSprite_getVelocity(&vx, &vy, from->sprite), __ret);
+	ASSERT_OK(grv = gfmSprite_getAcceleration(&ax, &ay, from->sprite), __ret);
+
+	ASSERT_OK(grv = gfmSprite_setVelocity(to->sprite, vx, vy), __ret);
+	ASSERT_OK(grv = gfmSprite_setAcceleration(to->sprite, ax, ay), __ret);
+
+	/* Copy everything else (e.g., active stones)!!! */
+	memcpy(&(toP->data), &(fromP->data), sizeof(fromP->data));
+
+	rv = 0;
+__ret:
+	return grv | rv;
 }

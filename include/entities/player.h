@@ -10,11 +10,7 @@
 #include <stdint.h>
 
 
-struct player {
-	/** The base entity. */
-	struct entity base;
-	/** Offset-based gem animation. */
-	gfmAnimation *gemAnimation;
+struct playerData {
 	/** How many rainbow stones the player has collected. */
 	int numStones;
 	/** For how long the player may fly without touching the floor,
@@ -44,6 +40,16 @@ struct player {
 };
 
 
+struct player {
+	/** The base entity. */
+	struct entity base;
+	/** Offset-based gem animation. */
+	gfmAnimation *gemAnimation;
+	/** Common data that should be moved when a new scene is loaded. */
+	struct playerData data;
+};
+
+
 /**
  * player_new allocates and initializes a new player in the specified position.
  *
@@ -62,6 +68,18 @@ int player_new(struct entity **entity, int x, int y);
  * @return 0: Success; Anything else: failure.
  */
 int player_gemGet(struct entity *entity);
+
+
+/**
+ * player_clone clones the internal state of from to to.
+ *
+ * @param [in] from: The player being cloned;
+ * @param [in] to: A previously initialized player which shall be overwritten;
+ * @param [in] offsetX: World space horizontal offset between the two players;
+ * @param [in] offsetY: World space vertical offset between the two players;
+ * @return 0: Success; Anything else: failure.
+ */
+int player_clone(struct entity *from, struct entity *to, int offsetX, int offsetY);
 
 
 #endif /* PLAYER_H */
