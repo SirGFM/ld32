@@ -799,6 +799,7 @@ int player_new(struct entity **entity, int x, int y) {
 
 	/* Adjust the player's flight time. */
 	player_setMaxFlight(&tmp);
+	tmp.data.selectedColor = RAINBOW_COLOR;
 
 	ASSERT_OK(
 		entity_init(
