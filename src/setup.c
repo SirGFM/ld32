@@ -6,6 +6,7 @@
 #include <core/store.h>
 #include <error.h>
 #include <particles.h>
+#include <ui/ui.h>
 
 int setup_init() {
 	struct config cfg;
@@ -17,12 +18,14 @@ int setup_init() {
 	ASSERT_OK(rv = assets_loadGfx(), __ret);
 	ASSERT_OK(rv = camera_init(), __ret);
 	ASSERT_OK(rv = particles_init(), __ret);
+	ASSERT_OK(rv = ui_init(), __ret);
 
 __ret:
 	return rv;
 }
 
 void setup_free() {
+	ui_free();
 	particles_free();
 	store_free();
 	core_free();

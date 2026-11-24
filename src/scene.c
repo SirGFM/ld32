@@ -9,6 +9,7 @@
 #include <particles.h>
 #include <particles/effects.h>
 #include <scene.h>
+#include <ui/ui.h>
 #include <util.h>
 
 #include <GFraMe/gframe.h>
@@ -207,6 +208,8 @@ int scene_update(struct scene *scene) {
 		ASSERT_OK(rv = cur->fn.postUpdate(cur, scene), __ret);
 	}
 
+	ASSERT_OK(rv = ui_update(scene), __ret);
+
 __ret:
 	return rv | grv;
 }
@@ -261,6 +264,10 @@ int scene_draw(struct scene *scene, int drawObjects) {
 		struct entity *cur = scene->entities[i];
 
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
+	}
+
+	if (drawObjects) {
+		ASSERT_OK(ui_draw(scene), __ret);
 	}
 
 #if defined(DEBUG)
