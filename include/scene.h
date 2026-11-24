@@ -126,10 +126,10 @@ int scene_updateTransition(struct scene *scene);
  * scene_draw renders the provided scene.
  *
  * @param [in] scene: The scene being rendered.
- * @param [in] tilemapOnly: Only draw the tilemaps and skip everything else.
+ * @param [in] drawObjects: If disabled, draw only the tilemaps and skip the rest.
  * @return 0: Success; Anything else: failure.
  */
-int scene_draw(struct scene *scene, int tilemapOnly);
+int scene_draw(struct scene *scene, int drawObjects);
 
 
 /**

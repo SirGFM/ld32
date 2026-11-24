@@ -242,7 +242,7 @@ __ret:
 }
 
 
-int scene_draw(struct scene *scene, int tilemapOnly) {
+int scene_draw(struct scene *scene, int drawObjects) {
 	int i;
 	int rv = 0;
 	gfmRV grv = GFMRV_OK;
@@ -253,9 +253,11 @@ int scene_draw(struct scene *scene, int tilemapOnly) {
 		ASSERT_OK(grv = gfmTilemap_draw(cur, gameCtx), __ret);
 	}
 
-	ASSERT_OK(effects_draw(scene), __ret);
+	if (drawObjects) {
+		ASSERT_OK(effects_draw(scene), __ret);
+	}
 
-	for (i = 0; i < scene->numEntities && tilemapOnly; i++) {
+	for (i = 0; i < scene->numEntities && drawObjects; i++) {
 		struct entity *cur = scene->entities[i];
 
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
