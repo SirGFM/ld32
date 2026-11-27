@@ -9,6 +9,7 @@
 #include <global.h>
 #include <particles/rainbow.h>
 #include <scene.h>
+#include <ui/hud.h>
 #include <util.h>
 #include <entities/gem.h>
 #include <entities/player.h>
@@ -17,11 +18,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if defined(DEBUG)
 #include <GFraMe/gfmDebug.h>
-
-#include <math.h>
 #endif /* defined(DEBUG) */
 
 
@@ -611,6 +611,10 @@ static int player_postUpdate(struct entity *entity, struct scene *scene) {
 	} else if (vx < 0.0) {
 		ASSERT(GFMRV_OK == gfmSprite_setDirection(player->base.sprite, 1), __ret);
 	}
+
+	hud_setFuel(player->data.maxFlight, player->data.maxFlight-player->data.curFlight);
+	hud_setActiveStones(global_getPermanent().stones & player->data.selectedColor);
+	hud_enable();
 
 	rv = 0;
 __ret:

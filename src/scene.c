@@ -200,6 +200,7 @@ int scene_update(struct scene *scene) {
 	}
 
 	ASSERT_OK(rv = particles_update(scene), __ret);
+	ASSERT_OK(rv = ui_update(scene), __ret);
 
 	/* Execute any custom post-update. */
 	for (i = 0; i < scene->numEntities; i++) {
@@ -207,8 +208,6 @@ int scene_update(struct scene *scene) {
 
 		ASSERT_OK(rv = cur->fn.postUpdate(cur, scene), __ret);
 	}
-
-	ASSERT_OK(rv = ui_update(scene), __ret);
 
 __ret:
 	return rv | grv;
@@ -266,9 +265,7 @@ int scene_draw(struct scene *scene, int drawObjects) {
 		ASSERT_OK(rv = cur->fn.draw(cur, scene), __ret);
 	}
 
-	if (drawObjects) {
-		ASSERT_OK(ui_draw(scene), __ret);
-	}
+	ASSERT_OK(ui_draw(scene), __ret);
 
 #if defined(DEBUG)
 	if (scene->drawCollisions) {
