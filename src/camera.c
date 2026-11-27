@@ -157,7 +157,7 @@ int camera_worldToScreen(int *x, int *y) {
 	int cx, cy;
 	int rv = 1;
 
-	ASSERT(GFMRV_OK == gfmCamera_getPosition(&cx, &cx, camera.self), __ret);
+	ASSERT(GFMRV_OK == gfmCamera_getPosition(&cx, &cy, camera.self), __ret);
 	*x -= cx;
 	*y -= cy;
 
