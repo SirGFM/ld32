@@ -43,10 +43,11 @@ void hud_setActiveStones(enum rainbowColor colors);
 /**
  * hud_setFuel sets the current amount of fuel available.
  *
- * @param[in]max: The maximum amount of fuel;
- * @param[in]current: How many fuel is currently left.
+ * @param [in]max: The maximum amount of fuel;
+ * @param [in]current: How many fuel is currently left.
+ * @param [in]recharging: Whether the fuel was fully spent and is slowly recharging.
  */
-void hud_setFuel(int max, int current);
+void hud_setFuel(int max, int current, int recharging);
 
 
 /**

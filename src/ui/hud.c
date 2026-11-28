@@ -31,6 +31,9 @@
 /** First tile of the bar. */
 #define HUD_BARS_FIRST_TILE 4019
 
+/** First tile of the slow reload bar. */
+#define HUD_BARS_RELOAD_FIRST_TILE 4083
+
 /** Distance between each bar. */
 #define HUD_BARS_OFFSET 3
 
@@ -48,6 +51,9 @@ static int maxFuel;
 
 /** Current fuel (empting bar). */
 static int curFuel;
+
+/** Whether the fuel was fully spent and is slowly recharging. */
+static int slowBar;
 
 /** The currently active stones. */
 static enum rainbowColor active;
@@ -113,9 +119,10 @@ void hud_setActiveStones(enum rainbowColor colors) {
 }
 
 
-void hud_setFuel(int max, int current) {
+void hud_setFuel(int max, int current, int recharging) {
 	maxFuel = max;
 	curFuel = current;
+	slowBar = recharging;
 }
 
 
@@ -129,10 +136,17 @@ static int hud_drawFuelBar(int totalBars) {
 	int rv = 1;
 	int x = HUD_BARS_X;
 	int y = HUD_BARS_Y;
-	int i, diff, tmp;
+	int i, diff, tmp, tile;
 
 	diff = maxFuel / totalBars;
 	tmp = curFuel;
+
+	if (slowBar) {
+		tile = HUD_BARS_RELOAD_FIRST_TILE;
+	}
+	else {
+		tile = HUD_BARS_FIRST_TILE;
+	}
 
 	for (i = 0; i < totalBars && diff <= tmp; i++) {
 		ASSERT(
@@ -141,7 +155,7 @@ static int hud_drawFuelBar(int totalBars) {
 				, gfx8x8
 				, x
 				, y
-				, HUD_BARS_FIRST_TILE + i / HUD_BAR_PER_COLOR
+				, tile + i / HUD_BAR_PER_COLOR
 				, 0 /*isFlipped*/
 			)
 			, __ret

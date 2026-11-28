@@ -259,6 +259,16 @@ __ret:
 
 
 /**
+ * player_getFullRefillCooldown returns the shorter refill.
+ *
+ * @return The shorter refill.
+ */
+static int player_getFullRefillCooldown(struct player *player) {
+	return player->data.maxFlight / PLAYER_FLY_REFILL_RECHARGE_MODIFIER;
+}
+
+
+/**
  * player_recoverFuel recovers fuel, assuming the player is on the floor.
  *
  * This checks whether the fuel was fully spent and either
@@ -268,7 +278,7 @@ __ret:
  * @param [in] elapsedMs: How long has elapsed since the previous frame.
  */
 static void player_recoverFuel(struct player *player, int elapsedMs) {
-	const int fullRefillCooldown = player->data.maxFlight / PLAYER_FLY_REFILL_RECHARGE_MODIFIER;
+	const int fullRefillCooldown = player_getFullRefillCooldown(player);
 
 	if (player->data.curFlight < player->data.maxFlight) {
 		/* The fuel wasn't fully spent, do the fast recharge. */
@@ -612,7 +622,12 @@ static int player_postUpdate(struct entity *entity, struct scene *scene) {
 		ASSERT(GFMRV_OK == gfmSprite_setDirection(player->base.sprite, 1), __ret);
 	}
 
-	hud_setFuel(player->data.maxFlight, player->data.maxFlight-player->data.curFlight);
+	if (player->data.flightRecharge > 0) {
+		hud_setFuel(player_getFullRefillCooldown(player), player->data.flightRecharge, 1);
+	}
+	else {
+		hud_setFuel(player->data.maxFlight, player->data.maxFlight-player->data.curFlight, 0);
+	}
 	hud_setActiveStones(global_getPermanent().stones & player->data.selectedColor);
 	hud_enable();
 
